@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "util", "util\util.vcxproj", "{37A97C3E-117E-488D-AE0D-7DA72F6D600C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "conio++", "conio++\conio++.vcxproj", "{12B7795D-FC7F-404A-A239-A64A3FF6585F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{37A97C3E-117E-488D-AE0D-7DA72F6D600C}.Release|x64.Build.0 = Release|x64
 		{37A97C3E-117E-488D-AE0D-7DA72F6D600C}.Release|x86.ActiveCfg = Release|Win32
 		{37A97C3E-117E-488D-AE0D-7DA72F6D600C}.Release|x86.Build.0 = Release|Win32
+		{12B7795D-FC7F-404A-A239-A64A3FF6585F}.Debug|x64.ActiveCfg = Debug|x64
+		{12B7795D-FC7F-404A-A239-A64A3FF6585F}.Debug|x64.Build.0 = Debug|x64
+		{12B7795D-FC7F-404A-A239-A64A3FF6585F}.Debug|x86.ActiveCfg = Debug|Win32
+		{12B7795D-FC7F-404A-A239-A64A3FF6585F}.Debug|x86.Build.0 = Debug|Win32
+		{12B7795D-FC7F-404A-A239-A64A3FF6585F}.Release|x64.ActiveCfg = Release|x64
+		{12B7795D-FC7F-404A-A239-A64A3FF6585F}.Release|x64.Build.0 = Release|x64
+		{12B7795D-FC7F-404A-A239-A64A3FF6585F}.Release|x86.ActiveCfg = Release|Win32
+		{12B7795D-FC7F-404A-A239-A64A3FF6585F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
