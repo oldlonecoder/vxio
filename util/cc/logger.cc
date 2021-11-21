@@ -6,3 +6,13 @@
 #include <fstream>
 
 
+rem::list logger::_rems;
+
+
+
+
+rem &logger::debug(const source::location &src)
+{
+    logger::_rems.emplace_back(rem::type::debug, src);
+    return logger::_rems.back();
+}

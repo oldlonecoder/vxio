@@ -12,7 +12,13 @@
 
 class VXIO_UTIL_DLL logger
 {
-
+    static rem::list _rems;
+public:
+    
+    
+    static rem& debug(const source::location& src = {});
+    
+    
 };
 
 
