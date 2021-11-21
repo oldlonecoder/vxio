@@ -159,7 +159,7 @@ struct VXIO_UTIL_DLL rectangle final
     vxy a;
     vxy b;
     size s;
-    bool null_instance = true;
+    bool null_instance;
     
     using collection = std::vector<rectangle>;
     using iterator   = std::vector<rectangle>::iterator;

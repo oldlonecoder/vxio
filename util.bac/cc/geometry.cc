@@ -18,10 +18,12 @@ vxy::vxy() : x ( -1 ),y ( -1 ),bset ( false ),nil ( true )
 {
 }
 
+
 vxy::vxy ( int px, int py ) : x ( px ), y ( py ), bset ( true ), nil ( false )
 {
 
 }
+
 
 vxy::~vxy()
 {

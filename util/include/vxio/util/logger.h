@@ -12,13 +12,20 @@
 
 class VXIO_UTIL_DLL logger
 {
-    static rem::list _rems;
+	static rem::list _rems;
+
 public:
-    
-    
-    static rem& debug(const source::location& src = {});
-    
-    
+
+
+	static rem& debug(const source::location& src = {});
+	static rem& info(const source::location& src = {});
+	static rem& fatal(const source::location& src = {});
+	static rem& exception(const source::location& src = {});
+	static rem& status(const source::location& src = {});
+	static rem& output(const source::location& src = {});
+	static rem& comment(const source::location& src = {});
+	static rem& syntax(const source::location& src = {});
+
 };
 
 

@@ -44,7 +44,6 @@ public:
         empty,
         unexpected,
         expected,
-        endl,
         _file_,
         _function_,
         _fn_,
