@@ -7,6 +7,7 @@
 #pragma once
 
 #include <vxio/util/rem.h>
+#include <functional>
 
 
 
@@ -15,6 +16,8 @@ class VXIO_UTIL_DLL logger
 	static rem::list _rems;
 
 public:
+	
+	static void clear(std::function<void(rem&)> fn_);
 
 
 	static rem& debug(const source::location& src = {});

@@ -30,6 +30,9 @@
     <ClCompile Include="cc\rem.cc">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="cc\rtdl.cc">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\vxio\util\dll_config.h">
@@ -51,6 +54,9 @@
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="include\vxio\util\source_location.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vxio\util\rtdl.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>

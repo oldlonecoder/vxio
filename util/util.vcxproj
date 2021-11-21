@@ -78,6 +78,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>vxio_$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -146,6 +147,7 @@
     <ClCompile Include="cc\logger.cc" />
     <ClCompile Include="cc\object.cc" />
     <ClCompile Include="cc\rem.cc" />
+    <ClCompile Include="cc\rtdl.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\vxio\util\dll_config.h" />
@@ -154,6 +156,7 @@
     <ClInclude Include="include\vxio\util\logger.h" />
     <ClInclude Include="include\vxio\util\object.h" />
     <ClInclude Include="include\vxio\util\rem.h" />
+    <ClInclude Include="include\vxio\util\rtdl.h" />
     <ClInclude Include="include\vxio\util\source_location.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
