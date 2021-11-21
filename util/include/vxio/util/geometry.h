@@ -29,13 +29,13 @@ struct VXIO_UTIL_DLL vxy
 
     ~vxy();
     
-    void operator-= ( const vxy& xy ) {
+    void operator -= ( const vxy& xy ) {
         if (!xy.bset) return;
         x -= xy.x;
         y -= xy.y;
     }
 
-    void operator+= ( const vxy& xy ) {
+    void operator += ( const vxy& xy ) {
         x += xy.x;
         y += xy.y;
     }

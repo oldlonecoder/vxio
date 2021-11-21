@@ -113,7 +113,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>CONIO_DLL_EXPORT;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
@@ -146,9 +146,11 @@
   <ItemGroup>
     <ClInclude Include="include\vxio\conio++\conio++.h" />
     <ClInclude Include="include\vxio\conio++\dll_config.h" />
+    <ClInclude Include="include\vxio\conio++\vdc.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cc\conio++.cc" />
+    <ClCompile Include="cc\vdc.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

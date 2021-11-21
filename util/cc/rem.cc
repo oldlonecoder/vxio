@@ -32,7 +32,8 @@ std::vector<std::string_view> rem::codes_text=
     {"empty"} ,
     {"unexpected"},
     {"expected"},
-    {"\n"}
+    {"\n"},
+    {"implement"}
 
 };
 

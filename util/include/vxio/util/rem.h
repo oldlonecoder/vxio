@@ -45,6 +45,7 @@ public:
         unexpected,
         expected,
         endl,
+        implement,
         _file_,
         _function_,
         _fn_,
