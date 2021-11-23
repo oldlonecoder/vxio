@@ -77,6 +77,12 @@ rem& logger::syntax(const source::location& src)
     // TODO: insérer une instruction return ici
 }
 
+rem& logger::error(const source::location& src)
+{
+    logger::_rems.emplace_back(rem::type::err, src);
+    return logger::_rems.back();
+}
+
 rem& logger::exception(const source::location& src)
 {
     logger::_rems.emplace_back(rem::type::exception, src);

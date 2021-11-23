@@ -6,6 +6,8 @@
 #   include <termios.h>
 #endif
 
+#include <vxio/util/logger.h>
+
 namespace vxio::conio
 {
 
@@ -45,8 +47,8 @@ rem::code ts::get_wh()
 
 rem::code ts::tput(const std::string& line)
 {
-    [[discard]]write(1, line.c_str(), line.length());
-    fflush(stdout); // Probablement trop ayatematique.
+    (void)write(1, line.c_str(), line.length());
+    (void)fflush(stdout); // Probablement trop systématique.
     return rem::code::ok;
 }
 

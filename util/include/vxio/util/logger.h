@@ -28,6 +28,8 @@ public:
 	static rem& output(const source::location& src = {});
 	static rem& comment(const source::location& src = {});
 	static rem& syntax(const source::location& src = {});
+	static rem& error(const source::location& src = {});
+
 
 };
 
