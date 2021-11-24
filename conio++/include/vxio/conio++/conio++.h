@@ -27,7 +27,7 @@ struct CONIO_DLL ts
 	static rem::code init();
 	static rem::code get_wh();
 	//...
-	rem::code tput(const std::string& line);
+	static rem::code tput(const std::string& line);
 };
 
 }

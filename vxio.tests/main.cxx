@@ -4,8 +4,17 @@
 
 
 #include <vxio/util/logger.h>
+#include <vxio/conio++/vdc.h>
+
 
 
 auto main() -> int {
-     return 0;
+    using vxio::conio::ts;
+    using vxio::color;
+    iostr str;
+    
+    ts::init();
+    str << color::Chartreuse6 << " Terminal geometry:" << color::Yellow << vxio::rectangle({ 0,0 }, ts::sz).to_string() << color::Reset << "\n";
+    ts::tput(str());
+    return 0;
 }

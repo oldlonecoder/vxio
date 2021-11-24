@@ -23,5 +23,8 @@
     <ClCompile Include="diagnostic\diagnostic.cxx">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
+    <ClCompile Include="main.cxx">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
