@@ -1,24 +1,22 @@
 cmake_minimum_required(VERSION 3.16..3.20 FATAL_ERROR)
 # Project name
 
-project(util VERSION 0.0.1 LANGUAGES CXX)
+project(conio++ VERSION 0.0.1 LANGUAGES CXX)
 
 
 include(GNUInstallDirs)
 
 SET( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
-set(TargetName ${FrameWorkName}_${PROJECT_NAME})
+set(TargetName vxio_${PROJECT_NAME})
 
 
 add_library(
         ${TargetName}
         SHARED
-		cc/iostr.cc  include/vxio/util/iostr.h
-		include/vxio/util/dll_config.h
-		cc/object.cc include/vxio/util/object.h
-		cc/geometry.cc include/vxio/util/geometry.h
-		cc/logger.cc include/vxio/util/logger.h cc/rem.cc include/vxio/util/rem.h include/vxio/util/source_location.h ../vxio.tests/main.cxx)
+		cc/conio++.cc include/vxio/conio++/conio++.h
+		cc/vdc.cc include/vxio/conio++/vdc.h
+)
 
 
 target_compile_definitions(${TargetName} PUBLIC "${TargetName}_DEBUG=$<CONFIG:Debug>")
@@ -38,7 +36,7 @@ target_include_directories(${TargetName} PUBLIC
         $<INSTALL_INTERFACE:include/${FrameWorkName}/${PROJECT_NAME}>
         )
 
-target_link_libraries(${TargetName} ${CMAKE_DL_LIBS} )
+target_link_libraries(${TargetName} ${CMAKE_DL_LIBS} vxio_util)
 
 
 install(DIRECTORY

@@ -4,6 +4,7 @@
 #else 
 #   include <sys/ioctl.h>
 #   include <termios.h>
+#   include <unistd.h>
 #endif
 
 #include <vxio/util/logger.h>
@@ -47,8 +48,14 @@ rem::code ts::get_wh()
 
 rem::code ts::tput(const std::string& line)
 {
-    (void)write(1, line.c_str(), line.length());
-    (void)fflush(stdout); // Probablement trop systématique.
+    auto r = ::write(1, line.c_str(), line.length());
+    if (r != line.length())
+    {
+        logger::error() << " system stdout write: '" << strerror(errno) << "'\n";
+        return rem::code::unexpected;
+    }
+
+    (void)fflush(stdout); // Probablement trop systï¿½matique.
     return rem::code::ok;
 }
 

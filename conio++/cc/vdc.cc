@@ -1,5 +1,8 @@
 #include <vxio/conio++/vdc.h>
 #include <vxio/util/logger.h>
+#ifndef _WIN32
+#   include <unistd.h>
+#endif
 
 
 
@@ -108,7 +111,7 @@ vch& vch::operator>>(std::ostream& out)
 {
     iostr str;
     str << color::ansi(fg(), bg()) << (char)ascii();
-    _write(1, str().c_str(), str.length());
+    (void)write(1, str().c_str(), str.length());
     //out << color::ansi(fg(), bg()) << (char)ascii();
     return *this;
 }
@@ -124,12 +127,6 @@ vdc::~vdc()
 
 rem::code vdc::write(const std::string& txt_)
 {
-    auto r = ::write(1, txt_.c_str(), txt_.length());
-    if (r != txt_.length())
-    {
-        auto& r = logger::error() << " system stdout write: '" << strerror(errno) << "'\n";
-        return rem::code::unexpected;
-    }
     return rem::code::ok;
 }
 
