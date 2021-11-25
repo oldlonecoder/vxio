@@ -6,6 +6,7 @@
 
 
 #include <vxio/conio++/conio++.h>
+#include <vxio/util/object.h>
 
 namespace vxio::conio
 {
@@ -76,24 +77,31 @@ struct CONIO_DLL vch
 class CONIO_DLL vdc
 {
     vch::cell_type* _bloc = nullptr;  ///< back buffer data
-    vxio::size       _bloc_size;       ///< dimensions of the real vdc back buffer. Used to address the line and column into the back buffer.=
+    vxio::size      _dim;       ///< dimensions of the real vdc back buffer. Used to address the line and column into the back buffer.=
     vxio::rectangle _geometry;         ///< Geometry of the confinement relative to the parent.
-    vxio::vxy        _bloc_position;   ///< Position into the back buffer. 
+    vxio::vxy       _bloc_position;   ///< Position into the back buffer.
 
-    bool             _owner = false;    ///< value is true if this instance owns the data bloc. Value is false otherwise.
+    bool            _own = true;    ///< value is true if this instance owns the data bloc. Value is false otherwise.
 
     // Local geometry and positions. 
-    vxio::vxy        _cxy;  ///< internal cursor oring at {0,0}. 
-
+    vxio::vxy       _cxy;  ///< internal cursor oring at {0,0}.
+    object*         _parent = nullptr;
+    vch             _attr;
 public:
-
+    
     vdc();
+    vdc(object* parent_, const size& sz_, bool own_ = true);
+    
     ~vdc();
 
     vxio::vxy& cursor() { return _cxy; }
     vxio::rectangle& geometry() { return _geometry; }
-
+    rem::code set_geometry(const vxy& size_);
     rem::code write(const std::string& txt_);
+    rem::code init();
+    void clear(vch attr_ = {0});
+    
+    
 };
 
 }

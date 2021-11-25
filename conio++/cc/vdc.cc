@@ -122,12 +122,54 @@ vdc::vdc()
 
 }
 
+
+vdc::vdc(object *parent_, const size &sz_, bool own_):
+_parent(parent_), _dim(sz_), _own(own_)
+{
+
+}
+
+
 vdc::~vdc()
 {}
 
 rem::code vdc::write(const std::string& txt_)
 {
+    if(!_bloc) return rem::code::null_ptr;
+    
     return rem::code::ok;
+}
+
+
+rem::code vdc::set_geometry(const vxy &size_)
+{
+    //if(_bloc)
+    delete [] _bloc;
+    _dim = size_;
+    
+    _bloc = new vch::cell_type [_dim.wh.y * _dim.wh.x + _dim.wh.x];
+    
+}
+
+
+rem::code vdc::init()
+{
+    
+    return rem::code::implement;
+}
+
+
+
+void vdc::clear(vch attr_)
+{
+    if(!_bloc)
+        return;
+    vch::cell_type *p = _bloc;
+    auto area = _dim.wh.x * _dim.wh.y;
+    vch::cell_type*  pend = _bloc + area;
+    
+    while(p < pend) *p++ = _attr.aaffbbcc;
+    
 }
 
 }
