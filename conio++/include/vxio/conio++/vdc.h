@@ -1,11 +1,11 @@
 #pragma once
 
 //#include <vxio/conio++/dll_config.h>
-//#include <vxio/util/rem.h>
-//#include <vxio/util/geometry.h>
+#include <vxio/util/rem.h>
+#include <vxio/util/geometry.h>
 
 
-#include <vxio/conio++/conio++.h>
+#include <vxio/conio++/dll_config.h>
 #include <vxio/util/object.h>
 
 namespace vxio::conio
@@ -28,10 +28,10 @@ struct CONIO_DLL vch
 
     using cell_type = uint32_t;
 
-    uint8_t ascii();
-    color::type bg();
-    color::type fg();
-    uint8_t attr();
+    uint8_t ascii() const;
+    color::type bg() const;
+    color::type fg() const ;
+    uint8_t attr() const;
 
     vch& set_bg(color::type a_bg);
     vch& set_fg(color::type a_fg);
@@ -48,9 +48,9 @@ struct CONIO_DLL vch
     vch& operator>>(std::ostream& out);
     //   void put_bg();
     //   void put_fg();
-    void put_color();
+    //void put_color();
     //   void put_attr();
-    static uint32_t fbgmask();
+    //static uint32_t fbgmask();
 
 };
 
@@ -79,7 +79,7 @@ class CONIO_DLL vdc
     vch::cell_type* _bloc = nullptr;  ///< back buffer data
     vxio::size      _dim;       ///< dimensions of the real vdc back buffer. Used to address the line and column into the back buffer.=
     vxio::rectangle _geometry;         ///< Geometry of the confinement relative to the parent.
-    vxio::vxy       _bloc_position;   ///< Position into the back buffer.
+    vxio::vxy       _position = {0,0};   ///< Position into the back buffer.
 
     bool            _own = true;    ///< value is true if this instance owns the data bloc. Value is false otherwise.
 
@@ -101,7 +101,7 @@ public:
     rem::code init();
     void clear(vch attr_ = {0});
     
-    
+    void commit(const rectangle& r);
 };
 
 }

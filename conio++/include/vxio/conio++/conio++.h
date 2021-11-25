@@ -4,17 +4,18 @@
 
 #include <vxio/util/geometry.h>
 #include <vxio/util/rem.h>
+#include <vxio/conio++/vdc.h>
 
 #ifdef  _WIN32
 #include <io.h>
 #include <share.h>
 #endif 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <errno.h>
+#include <cerrno>
 
 
 namespace vxio::conio
@@ -28,6 +29,8 @@ struct CONIO_DLL ts
 	static rem::code get_wh();
 	//...
 	static rem::code tput(const std::string& line);
+    static void put_attr(const vch& attr);
+    static void set_xy(const vxy& xy);
 };
 
 }

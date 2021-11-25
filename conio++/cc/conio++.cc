@@ -58,6 +58,19 @@ rem::code ts::tput(const std::string& line)
     (void)fflush(stdout); // Probablement trop syst�matique.
     return rem::code::ok;
 }
+void ts::put_attr(const vch& attr)
+{
+    std::string str = color::ansi(attr.fg(), attr.bg());
+    ::write(1, str.c_str(), str.length());
+}
 
+
+void ts::set_xy(const vxy& xy)
+{
+    iostr str;
+    str = "\033[%d;%df";
+    str << xy.y << xy.x;
+    write(1, str.c_str(), str.length());
+}
 
 }

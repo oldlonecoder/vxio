@@ -1,4 +1,6 @@
-#include <vxio/conio++/vdc.h>
+//#include <vxio/conio++/vdc.h>
+#include <vxio/conio++/conio++.h>
+
 #include <vxio/util/logger.h>
 #ifndef _WIN32
 #   include <unistd.h>
@@ -9,23 +11,23 @@
 namespace vxio::conio
 {
 
-uint8_t vch::ascii()
+uint8_t vch::ascii() const
 {
     return aaffbbcc & cc_mask;
 }
 
-color::type vch::bg()
+color::type vch::bg() const
 {
     return static_cast<color::type>((aaffbbcc & bb_mask) >> bg_shift);
 }
 
-color::type vch::fg()
+color::type vch::fg() const
 {
     return static_cast<color::type>((aaffbbcc & ff_mask) >> fg_shift);
 }
 
 
-uint8_t vch::attr()
+uint8_t vch::attr() const
 {
     return (aaffbbcc & aa_mask) >> at_shift;
 }
@@ -87,14 +89,11 @@ vch& vch::operator=(char a_cc)
 //vch& operator=(wchar_t a_cc);
 vch& vch::operator=(vch&& rhs) noexcept
 {
-    aaffbbcc = std::move(rhs.aaffbbcc);
-    return *this;
-}
-vch& vch::operator=(const vch& rhs)
-{
     aaffbbcc = rhs.aaffbbcc;
     return *this;
 }
+vch& vch::operator=(const vch& rhs)
+= default;
 
 
 
@@ -169,7 +168,27 @@ void vdc::clear(vch attr_)
     vch::cell_type*  pend = _bloc + area;
     
     while(p < pend) *p++ = _attr.aaffbbcc;
+}
+
+
+
+void vdc::commit(const rectangle &r)
+{
+    vch::cell_type *p=_bloc;
+    ts::set_xy(_position);
+    ts::put_attr(_attr);
+    vch::cell_type a = *p & ~vch::cmask;
     
+    for(auto y = 0; y < _dim.wh.y; y++)
+    {
+        p = _bloc + y * _dim.wh.y;
+        for(auto x = 0; x < _dim.wh.x; x++)
+        {
+            if((*p & vch::cmask) != a) ts::put_attr({*p});
+            write(1,
+        }
+        //for(auto x = 0; x < _dim.wh.x; x++) ts::tput(
+    }
 }
 
 }
