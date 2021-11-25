@@ -21,11 +21,12 @@ add_dependencies(${TargetName}
 list(
     APPEND INCLUDE_PATHS
     "${UTIL_INCLUDE_DIR}"
-    "${CONIO_INLUDE_DIR}"
+    "${CONIO_INCLUDE_DIR}"
 #    "${SPP_INCLUDE_DIR}"
 	"${TEST_INCLUDE_DIR}"
 )
 
+message("vxio.tests include paths:" ${INCLUDE_PATHS})
 target_include_directories(${TargetName} PUBLIC
         "$<BUILD_INTERFACE:${INCLUDE_PATHS}>"
         )

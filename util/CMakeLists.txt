@@ -18,7 +18,8 @@ add_library(
 		include/vxio/util/dll_config.h
 		cc/object.cc include/vxio/util/object.h
 		cc/geometry.cc include/vxio/util/geometry.h
-		cc/logger.cc include/vxio/util/logger.h cc/rem.cc include/vxio/util/rem.h include/vxio/util/source_location.h ../vxio.tests/main.cxx)
+		cc/logger.cc include/vxio/util/logger.h cc/rem.cc include/vxio/util/rem.h include/vxio/util/source_location.h
+)
 
 
 target_compile_definitions(${TargetName} PUBLIC "${TargetName}_DEBUG=$<CONFIG:Debug>")

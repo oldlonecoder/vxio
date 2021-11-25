@@ -148,7 +148,7 @@ rem::code vdc::set_geometry(const vxy &size_)
     _dim = size_;
     
     _bloc = new vch::cell_type [_dim.wh.y * _dim.wh.x + _dim.wh.x];
-    
+    return rem::code::ok;
 }
 
 

@@ -24,11 +24,6 @@ if(BUILD_UTIL)
     add_subdirectory(util)
 endif()
 
-if(BUILD_TEST)
-    SET(TEST_INCLUDE_DIR ${FRAMEWORK_ROOT}/vxio.tests/diagnostic)
-    add_subdirectory(vxio.tests)
-endif()
-
 
 if(BUILD_VAULT)
     SET(VAULT_INCLUDE_DIR ${FRAMEWORK_ROOT}/vault/include)
@@ -59,3 +54,9 @@ if(BUILD_APPBOOK)
    SET(APPBOOK_INCLUDE_DIR ${FRAMEWORK_ROOT}/appbook/include)
    add_subdirectory(appbook)
 endif()
+
+if(BUILD_TEST)
+    SET(TEST_INCLUDE_DIR ${FRAMEWORK_ROOT}/vxio.tests/diagnostic)
+    add_subdirectory(vxio.tests)
+endif()
+
