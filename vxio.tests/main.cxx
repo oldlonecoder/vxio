@@ -14,7 +14,7 @@ auto main() -> int {
     iostr str;
     
     ts::init();
-    str << color::Chartreuse6 << " Terminal geometry:" << color::Yellow << vxio::rectangle({ 0,0 }, ts::sz).to_string() << color::Reset << "\n";
-    ts::tput(str());
+    str << color::Aquamarine3 << " Terminal geometry:" << color::Yellow << vxio::rectangle({ 0,0 }, ts::sz).to_string() << color::Reset << "\n";
+    ts::put(str());
     return 0;
 }

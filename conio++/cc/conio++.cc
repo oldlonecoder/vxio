@@ -46,7 +46,14 @@ rem::code ts::get_wh()
 }
 
 
-rem::code ts::tput(const std::string& line)
+rem::code ts::put(char c)
+{
+    write(1,&c,1);
+    return rem::code::ok;
+}
+
+
+rem::code ts::put(const std::string& line)
 {
     auto r = ::write(1, line.c_str(), line.length());
     if (r != line.length())

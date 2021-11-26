@@ -177,17 +177,21 @@ void vdc::commit(const rectangle &r)
     vch::cell_type *p=_bloc;
     ts::set_xy(_position);
     ts::put_attr(_attr);
-    vch::cell_type a = *p & ~vch::cmask;
+    vch::cell_type a = *p & vch::cmask;
+    
     
     for(auto y = 0; y < _dim.wh.y; y++)
     {
         p = _bloc + y * _dim.wh.y;
         for(auto x = 0; x < _dim.wh.x; x++)
         {
-            if((*p & vch::cmask) != a) ts::put_attr({*p});
-            write(1,
+            if((*p & vch::cmask) != a)
+            {
+                a = *p & vch::cmask;
+                ts::put_attr({*p});
+            }
+            ts::put((char)(*p&vch::cc_mask));
         }
-        //for(auto x = 0; x < _dim.wh.x; x++) ts::tput(
     }
 }
 
