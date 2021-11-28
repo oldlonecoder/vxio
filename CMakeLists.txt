@@ -8,7 +8,7 @@ message ("**************** " ${FrameWorkName} " Master CMake *******************
 option(BUILD_UTIL "Enable building the vxio utilities library" ON)
 option(BUILD_DIAGNOSTIC "Enable building the diagnostics Library" OFF)
 #option(BUILD_LOGGER "Enable building the tea++.club logger utility library" OFF) # disable; moved into the application book library/module
-option(BUILD_VAULT "Enable building the vault/[sqlite3,...] Database support  library" OFF)
+option(BUILD_VAULT "Enable building the vault/[sqlite3,...] Database support  library" ON)
 option(BUILD_XIO "Enable building the vxio  interpreter library" OFF)
 option(BUILD_APPBOOK "Enable building the tea++.club application/journal book library" OFF)
 option(BUILD_CONIO "Enable building the Console User Interface library" ON)
@@ -26,8 +26,8 @@ endif()
 
 
 if(BUILD_VAULT)
-    SET(VAULT_INCLUDE_DIR ${FRAMEWORK_ROOT}/vault/include)
-    add_subdirectory(vault)
+    SET(VAULT_INCLUDE_DIR ${FRAMEWORK_ROOT}/vault++/include)
+    add_subdirectory(vault++)
 endif()
 #
 if(BUILD_XIO)
