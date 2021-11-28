@@ -16,7 +16,7 @@ add_library(
         SHARED
 		cc/conio++.cc include/vxio/conio++/conio++.h
 		cc/vdc.cc include/vxio/conio++/vdc.h
-)
+		cc/widget.cc include/vxio/conio++/widget.h)
 
 
 target_compile_definitions(${TargetName} PUBLIC "${TargetName}_DEBUG=$<CONFIG:Debug>")

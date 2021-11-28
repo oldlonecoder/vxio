@@ -8,6 +8,7 @@
 #include <vxio/conio++/dll_config.h>
 #include <vxio/util/object.h>
 
+
 namespace vxio::conio
 {
 
@@ -71,17 +72,20 @@ struct CONIO_DLL vch
 */
 class CONIO_DLL vdc
 {
-    vch::type * _bloc         = nullptr;  ///< back buffer data
+    //vdc*            _parent = nullptr;
+    vch::type *     _bloc = nullptr;  ///< back buffer data
     vxio::size      _dim;       ///< dimensions of the real vdc back buffer. Used to address the line and column into the back buffer.=
     vxio::rectangle _geometry;         ///< Geometry of the confinement relative to the parent.
     vxio::vxy       _position = {0,0};   ///< Position into the back buffer.
 
-    bool            _own = true;    ///< value is true if this instance owns the data bloc. Value is false otherwise.
+    bool            _own = true;    ///< value is true if this instance owns the data bloc, otherwise value is false for the most confined children widgets.
 
     // Local geometry and positions. 
     vxio::vxy       _cxy;  ///< internal cursor oring at {0,0}.
     object*         _parent = nullptr;
     vch             _attr;
+    
+    friend class widget;
 public:
     
     vdc();
@@ -98,5 +102,6 @@ public:
     
     void commit(const rectangle& r);
 };
+
 
 }
