@@ -65,6 +65,8 @@ rem::code ts::put(const std::string& line)
     (void)fflush(stdout); // Probablement trop syst�matique.
     return rem::code::ok;
 }
+
+
 void ts::put_attr(const vch& attr)
 {
     std::string str = color::ansi(attr.fg(), attr.bg());
@@ -79,5 +81,7 @@ void ts::set_xy(const vxy& xy)
     str << xy.y << xy.x;
     write(1, str.c_str(), str.length());
 }
+
+
 
 }

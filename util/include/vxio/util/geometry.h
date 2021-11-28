@@ -148,6 +148,7 @@ struct VXIO_UTIL_DLL size
     size& operator=(vxy xy);
     size& set_min(vxy xy);
     size& set_max(vxy xy);
+    std::string to_string() const;
 };
 
 

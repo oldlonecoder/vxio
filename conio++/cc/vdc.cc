@@ -146,7 +146,7 @@ rem::code vdc::set_geometry(const vxy &size_)
     delete [] _bloc;
     _dim = size_;
     
-    _bloc = new vch::cell_type [_dim.wh.y * _dim.wh.x + _dim.wh.x];
+    _bloc = new vch::type [_dim.wh.y * _dim.wh.x + _dim.wh.x];
     return rem::code::ok;
 }
 
@@ -163,9 +163,9 @@ void vdc::clear(vch attr_)
 {
     if(!_bloc)
         return;
-    vch::cell_type *p = _bloc;
-    auto area = _dim.wh.x * _dim.wh.y;
-    vch::cell_type*  pend = _bloc + area;
+    vch::type *p   = _bloc;
+    auto      area = _dim.wh.x * _dim.wh.y;
+    vch::type *  pend = _bloc + area;
     
     while(p < pend) *p++ = _attr.aaffbbcc;
 }
@@ -174,10 +174,10 @@ void vdc::clear(vch attr_)
 
 void vdc::commit(const rectangle &r)
 {
-    vch::cell_type *p=_bloc;
+    vch::type *p =_bloc;
     ts::set_xy(_position);
     ts::put_attr(_attr);
-    vch::cell_type a = *p & vch::cmask;
+    vch::type a = *p & vch::cmask;
     
     
     for(auto y = 0; y < _dim.wh.y; y++)

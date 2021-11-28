@@ -90,9 +90,12 @@ size &size::set_max(vxy xy)
     max = xy;
     return *this;
 }
-
-
-
+std::string size::to_string() const
+{
+    iostr str="%dx%d";
+    str << wh.x << wh.y;
+    return  str();
+}
 
 
 rectangle rectangle::nil;

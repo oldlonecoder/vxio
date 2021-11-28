@@ -26,7 +26,7 @@ struct CONIO_DLL vch
     static const uint32_t cmask = vch::bb_mask | vch::ff_mask;
 
 
-    using cell_type = uint32_t;
+    using type = uint32_t;
 
     uint8_t ascii() const;
     color::type bg() const;
@@ -46,11 +46,6 @@ struct CONIO_DLL vch
     vch& operator=(const vch& rhs);
     vch& operator>>(std::string& _in);
     vch& operator>>(std::ostream& out);
-    //   void put_bg();
-    //   void put_fg();
-    //void put_color();
-    //   void put_attr();
-    //static uint32_t fbgmask();
 
 };
 
@@ -76,7 +71,7 @@ struct CONIO_DLL vch
 */
 class CONIO_DLL vdc
 {
-    vch::cell_type* _bloc = nullptr;  ///< back buffer data
+    vch::type * _bloc         = nullptr;  ///< back buffer data
     vxio::size      _dim;       ///< dimensions of the real vdc back buffer. Used to address the line and column into the back buffer.=
     vxio::rectangle _geometry;         ///< Geometry of the confinement relative to the parent.
     vxio::vxy       _position = {0,0};   ///< Position into the back buffer.
