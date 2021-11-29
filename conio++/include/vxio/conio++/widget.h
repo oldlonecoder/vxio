@@ -18,8 +18,9 @@ namespace vxio::conio
 class CONIO_DLL widget : public object
 {
     vdc* _dc = nullptr;
-    rectangle  _geometry; ///< widget's geometry
-    vxy        _position; ///< widget's position relative to the parent widget.
+    vxio::size _sz;        ///< This widget's dimensions.
+    vxy        _position;  ///< widget's position relative to the parent widget.
+    
     friend class ts;
     friend class vdc;
 protected:
