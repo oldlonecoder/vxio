@@ -21,4 +21,14 @@ widget::~widget()
     
 }
 
+
+void widget::set_geometry(vxy xy_, size sz_)
+{
+    if(!_dc)
+    {
+        _dc = new vdc(
+    }
+}
+
+
 }
