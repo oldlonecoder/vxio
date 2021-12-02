@@ -75,8 +75,8 @@ class CONIO_DLL vdc
     //vdc*            _parent = nullptr;
     vch::type *     _bloc = nullptr;  ///< back buffer data
     vxio::size      _dim;       ///< dimensions of the real vdc back buffer. Used to address the line and column into the back buffer.=
-    vxio::rectangle _geometry;         ///< Geometry of the confinement relative to the parent.
-    vxio::vxy       _position = {0,0};   ///< Position into the back buffer.
+    vxio::rectangle _clip;         ///< Geometry of the confinement relative to the parent.
+    vxio::vxy       _position = {0,0};   ///< top-left position of this vdc relative to the parent widget or toplevel.
 
     bool            _own = true;    ///< value is true if this instance owns the data bloc, otherwise value is false for the most confined children widgets.
 
@@ -94,7 +94,7 @@ public:
     ~vdc();
 
     vxio::vxy& cursor() { return _cxy; }
-    vxio::rectangle& geometry() { return _geometry; }
+    vxio::rectangle geometry() { return {_position, _dim}; }
     rem::code set_geometry(const vxy& size_);
     rem::code write(const std::string& txt_);
     rem::code init();

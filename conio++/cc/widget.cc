@@ -26,7 +26,8 @@ void widget::set_geometry(vxy xy_, size sz_)
 {
     if(!_dc)
     {
-        _dc = new vdc(
+        _dc = new vdc(this, sz_);
+        
     }
 }
 
