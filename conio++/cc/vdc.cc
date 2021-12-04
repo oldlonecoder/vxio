@@ -92,6 +92,7 @@ vch& vch::operator=(vch&& rhs) noexcept
     aaffbbcc = rhs.aaffbbcc;
     return *this;
 }
+
 vch& vch::operator=(const vch& rhs)
 = default;
 

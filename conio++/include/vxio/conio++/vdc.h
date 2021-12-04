@@ -1,22 +1,28 @@
 #pragma once
 
-//#include <vxio/conio++/dll_config.h>
-#include <vxio/util/rem.h>
-#include <vxio/util/geometry.h>
-
 
 #include <vxio/conio++/dll_config.h>
+#include <vxio/util/rem.h>
+#include <vxio/util/geometry.h>
 #include <vxio/util/object.h>
 
 
 namespace vxio::conio
 {
 
+
+/**
+ * @brief 'Virtual CHar"
+ * 
+ * @author &copy; 2021, Serge Lussier(oldlonecoder), lussier.serge@gmail.com
+ * 
+ */
 struct CONIO_DLL vch
 {
-    uint32_t aaffbbcc = 0;
+    using type = uint32_t;
+    vch::type aaffbbcc = 0;
     //wchar_t* unicode = nullptr;
-
+    
     static const uint32_t cc_mask = (uint32_t)0xFF;
     static const uint32_t bb_mask = (uint32_t)0xFF << 8;
     static const uint32_t ff_mask = (uint32_t)0xFF << 16;
@@ -27,7 +33,6 @@ struct CONIO_DLL vch
     static const uint32_t cmask = vch::bb_mask | vch::ff_mask;
 
 
-    using type = uint32_t;
 
     uint8_t ascii() const;
     color::type bg() const;
@@ -51,7 +56,7 @@ struct CONIO_DLL vch
 };
 
 /*!
-   @brief Video Display Context.
+   @brief Virtual Display Context.
 
    @note ...
    expect<> ts::cursor_t::operator++()
