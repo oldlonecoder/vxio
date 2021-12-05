@@ -86,11 +86,32 @@ class CONIO_DLL vdc
     bool            _own = true;    ///< value is true if this instance owns the data bloc, otherwise value is false for the most confined children widgets.
 
     // Local geometry and positions. 
-    vxio::vxy       _cxy;  ///< internal cursor oring at {0,0}.
+    //vxio::vxy       _cxy;  ///< internal cursor oring at {0,0}.
     object*         _parent = nullptr;
     vch             _attr;
     
     friend class widget;
+    struct cursor_t
+    {
+        vxy xy;
+        vdc* _dc = nullptr;
+
+        cursor_t() = default;
+        cursor_t(vdc* dc_): xy(0,0), _dc(dc_) {}
+        cursor_t(cursor_t&&) noexcept=default;
+        cursor_t(const cursor_t&)=default;
+        ~cursor_t()=default;
+
+        cursor_t& operator=(const cursor_t&) = default;
+        cursor_t& operator=(cursor_t&&)noexcept = default;
+
+        cursor_t& operator++();
+        cursor_t& operator++(int);
+        cursor_t& operator--();
+        cursor_t& operator--(int);
+
+    }_cxy;
+    
 public:
     
     vdc();

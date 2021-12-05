@@ -137,6 +137,10 @@ rem::code vdc::write(const std::string& txt_)
 {
     if(!_bloc) return rem::code::null_ptr;
     
+    for(auto c : txt_)
+    {
+
+    }
     return rem::code::ok;
 }
 
@@ -194,6 +198,23 @@ void vdc::commit(const rectangle &r)
             ts::put((char)(*p&vch::cc_mask));
         }
     }
+}
+
+vdc::cursor_t& vdc::cursor_t::operator++()
+{
+    return *this;
+}
+vdc::cursor_t& vdc::cursor_t::operator++(int)
+{
+    return *this;
+}
+vdc::cursor_t& vdc::cursor_t::operator--()
+{
+    return *this;
+}
+vdc::cursor_t& vdc::cursor_t::operator--(int)
+{
+    return *this;
 }
 
 }
