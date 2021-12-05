@@ -24,6 +24,7 @@ add_library(
         cc/lexer/token_data.cc
         cc/lexer/lexer.cc
         cc/interpret/alu.cc
+        cc/interpret/xio.cc
 )
 
 
