@@ -23,6 +23,7 @@ add_library(
         cc/interpret/types.cc
         cc/lexer/token_data.cc
         cc/lexer/lexer.cc
+        cc/interpret/alu.cc
 )
 
 

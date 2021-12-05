@@ -29,6 +29,7 @@ public:
 	static rem& comment(const source::location& src = {});
 	static rem& syntax(const source::location& src = {});
 	static rem& error(const source::location& src = {});
+	static rem& warning(const source::location& src = {});
 
 
 };
