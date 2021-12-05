@@ -192,7 +192,7 @@ std::string dll_file::locate()
 
 
 /*!
- * @brief Opens the library at the found location into the filesystem.
+*    @brief Opens the library at the found location into the filesystem.
 *
 *    @return pointer to the Plugin base class object successfuly initialized and ready to use.
 *    @author Serge Lussier(bretzelus), lussier.serge@gmail.com

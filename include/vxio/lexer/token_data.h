@@ -11,8 +11,8 @@ class VXIO_API_DLL token_data
 {
 public:
     mnemonic       c = mnemonic::noop_;
-    vxio::type::T        t = vxio::type::null_t;    ///< Primitive vxio::type bit.
-    vxio::type::T        s = vxio::type::null_t;    ///< Semantic vxio::type bits field
+    vxio::type::T  t = vxio::type::null_t;    ///< Primitive vxio::type bit.
+    vxio::type::T  s = vxio::type::null_t;    ///< Semantic vxio::type bits field
     vxio::type::distance::T d = vxio::type::distance::noop_;
     void* vdata = nullptr;
 
@@ -34,7 +34,7 @@ public:
 
     struct VXIO_API_DLL Flag
     {
-        uint8_t V : 1; ///< Pre-parsed as a value ArgToken;
+        uint8_t V : 1; ///< Pre-parsed as a value Token;
         uint8_t S : 1; ///< Post parsed as assignable
         uint8_t M : 1; ///< Virtual multiplication operator. (...4ac...)
     }   _flags = { 0, 0, 0 };
