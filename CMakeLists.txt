@@ -21,7 +21,7 @@ add_library(
         cc/util/logger.cc
         #cc/util/rtdl.cc
         cc/interpret/types.cc
-        cc/interpret/token_data.cc
+        cc/lexer/token_data.cc
         cc/lexer/lexer.cc
 )
 
