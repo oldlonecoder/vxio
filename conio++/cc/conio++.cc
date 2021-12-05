@@ -46,7 +46,7 @@ rem::code ts::get_wh()
 }
 
 
-rem::code ts::put(char c)
+rem::code ts::putc(char c)
 {
     write(1,&c,1);
     return rem::code::ok;

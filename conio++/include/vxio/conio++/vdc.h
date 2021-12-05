@@ -122,7 +122,7 @@ public:
     
     ~vdc();
 
-    vxio::vxy& cursor() { return _cxy; }
+    vdc::cursor_t& cursor() { return _cxy; }
     vxio::rectangle geometry() { return {_position, _dim}; }
     rem::code set_geometry(const vxy& size_);
     rem::code write(const std::string& txt_);

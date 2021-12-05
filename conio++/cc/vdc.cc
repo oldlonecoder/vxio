@@ -176,18 +176,25 @@ void vdc::clear(vch attr_)
 }
 
 
-
+/**
+ * @brief flushes this vdc back buffer bloc data onto the terminal screen.
+ * 
+ * @param r  - ignored. as of now.
+ * 
+ * @note Therefore, it is not yet writing onto any parent vdc (parent widget which owns the back buffer bloc)... 
+ */
 void vdc::commit(const rectangle &r)
 {
     vch::type *p =_bloc;
     ts::set_xy(_position);
     ts::put_attr(_attr);
     vch::type a = *p & vch::cmask;
-    
-    
+        
     for(auto y = 0; y < _dim.wh.y; y++)
     {
-        p = _bloc + y * _dim.wh.y;
+        p = _bloc + y * _dim.wh.x;
+        ts::set_xy({_position.x, _position.y+y});
+
         for(auto x = 0; x < _dim.wh.x; x++)
         {
             if((*p & vch::cmask) != a)
@@ -195,7 +202,8 @@ void vdc::commit(const rectangle &r)
                 a = *p & vch::cmask;
                 ts::put_attr({*p});
             }
-            ts::put((char)(*p&vch::cc_mask));
+            ts::putc((char)(*p&vch::cc_mask));
+            ++p;
         }
     }
 }
