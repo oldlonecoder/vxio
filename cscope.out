@@ -1,0 +1,177 @@
+cscope 15 $HOME/applications/src/c++/vxio               0000000981
+	@include/vxio/dll_config.h
+
+1 #´agm¨
+Úû
+
+
+4 #ifdeà
+_WIN32
+
+
+5 #´agm¨
+w¬nšg
+(
+di§bË
+ : 4996)
+
+6 #´agm¨
+w¬nšg
+(
+di§bË
+ : 4005)
+
+7 #´agm¨
+w¬nšg
+(
+di§bË
+ : 4267)
+
+9 
+	#_CRT_SECURE_NO_WARNINGS
+
+
+	)
+
+10 
+	#_SCL_SECURE_NO_WARNINGS
+
+
+	)
+
+12 #ifdeà
+VXIO_API_DLL_EXPORT
+
+
+13 
+	#VXIO_API_DLL
+ 
+	`__deþ¥ec
+(
+dÎexpÜt
+)
+
+	)
+
+14 #ià
+__GNUC__
+ >= 4
+
+15 
+	#VXIO_API_DLL
+ 
+	`__©Œibu‹__
+ ((
+	`visibž™y
+ ("deçuÉ")))
+
+	)
+
+16 
+	#PRIVATE_LIB
+ 
+	`__©Œibu‹__
+ ((
+	`visibž™y
+ ("hidd’")))
+
+	)
+
+22 
+	#VXIO_API_DLL
+ 
+	`__deþ¥ec
+(
+dÎimpÜt
+)
+
+	)
+
+25 
+	#VXIO_API_DLL
+
+
+27 
+
+	)
+
+34 #iâdeà
+DECLOBJ_ID
+
+
+35 
+	#DECLOBJ_ID
+ \
+
+36 
+public
+:\
+
+37 
+vœtu®
+ cÚ¡ * 
+	`þass_Çme
+(ècÚ¡ 
+nÛxû±
+; \
+
+38 
+´iv©e
+:\
+
+39 
+
+	)
+
+41 
+	#CLASSNAME_IMPL
+(
+CLASS
+) \
+
+42 cÚ¡ * 
+CLASS
+::
+	`þass_Çme
+(ècÚ¡ 
+nÛxû±
+{  #CLASS; }
+
+	)
+
+47 #iâdeà
+_WIN32
+
+
+48 
+	#_¡rdup
+ 
+¡rdup
+
+
+	)
+
+50 
+	~<th»ad
+>
+
+51 
+	~<c¡dšt
+>
+
+54 
+	#__PRETTY_FUNCTION__
+ 
+__FUNCSIG__
+
+
+	)
+
+	@
+1
+.
+1
+/usr/include
+1
+26
+include/vxio/dll_config.h

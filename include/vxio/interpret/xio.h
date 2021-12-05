@@ -243,8 +243,8 @@ public:
     void tree_attr(iostr& a_out);
 
     std::string attribute();
-    static std::string trace_connect_binary_operands(xio* x);
-    static std::string trace_connect_binary_operands2(xio* x);
+//    static std::string trace_connect_binary_operands(xio* x);
+//    static std::string trace_connect_binary_operands2(xio* x);
 
 #pragma endregion TRIGRAPH
 

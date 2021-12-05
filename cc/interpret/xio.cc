@@ -3,7 +3,8 @@
 //
 
 #include <vxio/interpret/xio.h>
-
+#include <vxio/util/logger.h>
+#include <vxio/util/geometry.h>
 #include <cmath>
 
 
@@ -165,7 +166,7 @@ namespace vxio {
     xio::xio(xio* a_parent, token_t* a_token, alu* a_alu) :_parent(a_parent)
     {
         t0 = a_token;
-        diagnostic::global().push_debug(src_location) << "xio::xio => token details:[" << (t0 ? t0->details() : "nullptr") << "] \n";
+        logger::debug(src_location) << "xio::xio => token details:[" << (t0 ? t0->details() : "nullptr") << "] \n";
 
         if (a_alu != nullptr)
         {
@@ -189,17 +190,16 @@ namespace vxio {
             if(t0->s & vxio::type::number_t)
             {
                 double d;
-                (tstring(a_token->text())) >> d;
+                (iostr(a_token->text())) >> d;
                 *acc = d;
-                diagnostic::global().push_debug() << diagnostic::location 
-                    << " acc: " << color::Yellow << (*acc)();
+                logger::debug() << " acc: " << color::Yellow << (*acc)();
             }
         }
         return;
         case vxio::type::hex_t:
         {
             uint64_t d;
-            tstring(a_token->text()).hexadecimal(d);
+            iostr(a_token->text()).hexadecimal(d);
             *acc = d;
             return;
         }
@@ -215,15 +215,14 @@ namespace vxio {
 
         auto i = xio::xio_operators_table.find(a_token->c);
         xio_fn = i != xio::xio_operators_table.end() ? i->second : nullptr;
-        diagnostic::global().push_debug(src_location) << diagnostic::location
-            << " acc: '" << color::Yellow << (*acc)() << color::White << "'";
+        logger::debug(src_location) << " acc: '" << color::Yellow << (*acc)() << color::White << "'";
     }
 
     
 
-    expect<> xio::instanciate_from(xio*)
+    rem::code xio::instanciate_from(xio*)
     {
-        return diagnostic::implement;
+        return rem::code::implement;
     }
 
     // -------------- ARITHMETIC BINARY TREE INPUT LOGIC IMPLEMENTATION ------------------------------------
@@ -240,15 +239,15 @@ namespace vxio {
                          / \                                                       /           / \     +       / \                               / \
                         2   3                                                     2           2   3 <- )      2   3                             2   3
     */
-    expect<xio*> xio::tree_input(token_t* a_token, xio::maker invoke_maker)
+    xio* xio::tree_input(token_t* a_token, xio::maker invoke_maker)
     {
         inptr_fn_t pfn = nullptr;
         for (auto key : xio::tree_input_assoc_table)
         {
             if ((key.first.first & t0->s) && (a_token->s & key.first.second))
             {
-                diagnostic::global().push_debug(src_funcname)
-                    << color::Blue << diagnostic::funcname
+                logger::debug(src_funcname)
+                    << color::Blue << "xio::tree_input: \n"
                     << color::Yellow
                     << t0->text() << ' '
                     << color::Yellow << vxio::type::name(key.first.first) << " <- "
@@ -259,11 +258,14 @@ namespace vxio {
                 break;
             }
         }
-        diagnostic::global().push_debug(src_location) << diagnostic::location << ":\n" << t0->mark();
+        logger::debug() << ":\n" << t0->mark();
         if (pfn)
         {
             if (!invoke_maker)
-                return diagnostic::global().push_error(src_location) << diagnostic::location << " arithmetic expression binary tree build: cannot invoke null xio maker!";
+            {
+                logger::error() << " arithmetic expression binary tree build: cannot invoke null xio maker!";
+                return nullptr;
+            }
             
             xio* x = invoke_maker(a_token);
             if (!x) return nullptr;
@@ -271,8 +273,8 @@ namespace vxio {
         }
 
         return  nullptr;
-        /*diagnostic::global().push_error()
-            << diagnostic::location << ": syntax error, unexpected token:'"
+        /*logger::error()
+            << rem::code::location << ": syntax error, unexpected token:'"
             << a_token->text()
             << "'\n" << a_token->mark()
             << "\n - "
@@ -281,11 +283,11 @@ namespace vxio {
     }
 
 
-    expect<xio *> xio::begin_expr(token_t *a_token, xio::maker invoke_maker)
+    xio* xio::begin_expr(token_t *a_token, xio::maker invoke_maker)
     {
         if(invoke_maker)
         {
-            diagnostic::global().push_debug(src_funcname) << diagnostic::funcname << " => token infos:" << (a_token ? a_token->details() : "nullptr");
+            logger::debug() << " => token infos:" << (a_token ? a_token->details() : "nullptr");
             xio *x = invoke_maker(a_token);
             if(x->t0->c == mnemonic::k_open_par)
                 push_lpar(x);
@@ -296,7 +298,7 @@ namespace vxio {
 
     void xio::push_lpar(xio* lpar)
     {
-        diagnostic::global().push_debug(src_location);
+        logger::debug(src_location);
         xio::pars.push(lpar);
     }
 
@@ -346,12 +348,11 @@ namespace vxio {
          
          
 */
-    expect<xio*> xio::tree_input_binary(xio* x) {
+    xio* xio::tree_input_binary(xio* x) {
 
-        diagnostic::global().push_debug(src_funcname) << diagnostic::location
+        logger::debug() 
             << color::Yellow << t0->text()
             << color::White << ":"
-            << color::Lime << diagnostic::funcname
             << color::White << ":"
             << color::Yellow << x->t0->text();
 
@@ -362,8 +363,9 @@ namespace vxio {
         {
             if (!rhs) 
             {
-                return  diagnostic::global().push_error(src_funcname) <<
+                logger::error() <<
                     " syntax error in arithmetic expression input : unexpected binary operator token " << x->t0->text() << ":\n" <<  x->t0->mark();
+                return nullptr;
             }
             
             if(x->t0->d < t0->d)
@@ -386,23 +388,27 @@ namespace vxio {
     }
 
 
-    expect<xio*> xio::tree_input_leaf(xio* x) {
+    xio* xio::tree_input_leaf(xio* x) {
 
-        diagnostic::global().push_debug(src_funcname)
+        logger::debug()
             << color::Yellow << t0->text()
             << color::White << ":"
-            << color::Blue4 << diagnostic::funcname
             << color::White << ":"
             << color::Yellow << x->t0->text();
 
         if (!t0->is_operator())
-            return  diagnostic::global().push_error(src_location) <<
+        {
+            logger::error(src_location) <<
               "unexpected a right value operand.\n" <<  x->t0->mark();
-
+            return nullptr;
+        }
         if (t0->is_binary()) {
             if (!lhs)
-                return diagnostic::global().push_error(src_location) <<
-                                " binary operator has no left hand side operand." << t0->text() << t0->mark();
+            {
+                logger::error(src_location) <<
+                    " binary operator has no left hand side operand." << t0->text() << t0->mark();
+                return nullptr;
+            }
         }
 
         ///@Todo Reach interpreter :: mark (token_t*, or xio*  );
@@ -423,12 +429,11 @@ namespace vxio {
              /
             5
     */
-    expect<xio*> xio::tree_set_left(xio* x)
+    xio* xio::tree_set_left(xio* x)
     {
-        diagnostic::global().push_debug(src_funcname)
+        logger::debug(src_funcname)
             << color::Yellow << t0->text()
             << color::White << ":"
-            << color::Lime << diagnostic::funcname
             << color::White << ":"
             << color::Yellow << x->t0->text();
 
@@ -448,7 +453,7 @@ namespace vxio {
         x->op = this;
 
         lhs = x;
-        diagnostic::global().push_debug()
+        logger::debug()
             << color::White << lhs->t0->details() << color::CornflowerBlue << " <--- " << color::White << t0->details();
         return x;
     }
@@ -462,10 +467,9 @@ namespace vxio {
                        /
                       a
     */
-    expect<xio*> xio::tree_set_right(xio* x) {
+    xio* xio::tree_set_right(xio* x) {
 
-        diagnostic::global().push_debug(src_funcname)
-            << color::Lime << diagnostic::funcname
+        logger::debug(src_funcname)
             << color::Yellow << t0->text()
             << color::White << " <- "
             << color::Yellow << x->t0->text();
@@ -482,7 +486,7 @@ namespace vxio {
                   /
                 rhs
             */
-            diagnostic::global().push_debug() << t0->text() << " -> " << rhs->t0->text()
+            logger::debug() << t0->text() << " -> " << rhs->t0->text()
                 << color::Lime << "tree_set_right "
                 << color::White << " <- "
                 << color::Yellow << x->t0->text();
@@ -493,17 +497,17 @@ namespace vxio {
         x->op = this;
         if (t0->is_binary())
         {
-            diagnostic::global().push_debug(src_funcname) << diagnostic::location << xio::trace_connect_binary_operands(this);
+            //logger::debug(src_funcname) << xio::trace_connect_binary_operands(this);
         }
         return x;
     }
 
 
-    expect<xio*> xio::tree_set_right_to_op(xio* x)
+    xio* xio::tree_set_right_to_op(xio* x)
     {
-        diagnostic::global().push_debug(src_funcname) << color::Yellow << t0->text()
+        logger::debug(src_funcname) << color::Yellow << t0->text()
             << color::White << ":"
-            << color::Lime << diagnostic::funcname
+            << color::Lime << rem::code::_function_
             << color::White << ":"
             << color::Yellow << x->t0->text();
 
@@ -528,35 +532,39 @@ namespace vxio {
     }
 
 
-    expect<xio*> xio::tree_close()
+    xio* xio::tree_close()
     {
-        diagnostic::global().push_debug(src_funcname) << diagnostic::location
+        logger::debug(src_funcname) << rem::code::_fn_
         << "closing tree from xio node: " << t0->details() << ":\n" << t0->mark();
 
         if (t0->c == mnemonic::k_open_par)
-            return diagnostic::global().push_error() << " unexpected end of file.";
-  
+        {            
+            logger::error() << " unexpected end of file.";
+            return nullptr;
+        }  
+
         if (!xio::pars.empty()) 
         {
             xio* x = xio::pars.top();
             xio::pars.pop();
-            return diagnostic::return_error() << " umatched closing parenthese from:\n" << x->t0->mark();
+            logger::error() << " umatched closing parenthese from:\n" << x->t0->mark();
+            return nullptr;
         }
         
 
         if (t0->c == mnemonic::k_close_par) {
-            diagnostic::global().push_debug() << "Closing the tree on close parenthese:";
+            logger::debug() << "Closing the tree on close parenthese:";
             if (lhs) 
             {
                 xio* x = lhs;
-                diagnostic::global().push_debug() << "left hand side operand: " << lhs->t0->details() << ":\n" << lhs->t0->mark();
+                logger::debug() << "left hand side operand: " << lhs->t0->details() << ":\n" << lhs->t0->mark();
 
                 lhs->op = op;
 
                 if (op) 
                 {
                     op->rhs = lhs;
-                    xio::trace_connect_binary_operands(op);
+                    //xio::trace_connect_binary_operands(op);
                 }
 
                 // discard();
@@ -567,9 +575,9 @@ namespace vxio {
     }
 
 
-    expect<xio*> xio::tree_root(bool skip_syntax)
+    xio* xio::tree_root(bool skip_syntax)
     {
-        diagnostic::global().push_debug(src_funcname) << diagnostic::funcname
+        logger::debug(src_funcname) << rem::code::_fn_
             << "query tree ins from xio node:\n " << t0->mark();
         xio* x = this;
         xio* p = x;
@@ -581,24 +589,35 @@ namespace vxio {
                 case vxio::type::assign_t:
                 case vxio::type::binary_t:
                     if (!x->lhs)
-                        return diagnostic::global().push_error() << "Syntax error: binary operator is missing its left operand.\n" << x->t0->mark();
+                    {
+                       logger::error() << "Syntax error: binary operator is missing its left operand.\n" << x->t0->mark();
+                        return nullptr;
+                    }
                     if (!x->rhs)
-                        return diagnostic::global().push_error() << "Syntax error: binary operator is missing its right operand.\n" << x->t0->mark();
-                    break;
+                    {
+                        logger::error() << "Syntax error: binary operator is missing its right operand.\n" << x->t0->mark();
+                        return nullptr;
+                    }
                 case vxio::type::prefix_t:
                     if (!x->rhs)
-                        return diagnostic::global().push_error() << "Syntax error: prefix unary operator is missing its (right) operand.\n" << x->t0->mark();
+                    {
+                        logger::error() << "Syntax error: prefix unary operator is missing its (right) operand.\n" << x->t0->mark();
+                        return nullptr;
+                    }
                     break;
                 case vxio::type::postfix_t:
                     if (!x->lhs)
-                        return diagnostic::global().push_error() << "Syntax error: postfix unary operator is missing its (left) operand.\n" << x->t0->mark();
+                    {
+                        logger::error() << "Syntax error: postfix unary operator is missing its (left) operand.\n" << x->t0->mark();
+                        return nullptr;
+                    }
                     break;
                 }
             }
             p = p->op;
         } while (p);
 
-        diagnostic::global().push_debug(src_location) << diagnostic::funcname << "query tree ins returning node: " << x->t0->details();
+        logger::debug(src_location) << rem::code::_fn_ << "query tree ins returning node: " << x->t0->details();
         return  x;
     }
 
@@ -623,27 +642,31 @@ namespace vxio {
         _children.erase(i);
     }
 
-    expect<xio*> xio::tree_lpar_input_binary(xio* x)
+    xio* xio::tree_lpar_input_binary(xio* x)
     {
         if (!lhs) 
-            return diagnostic::global().push_error(src_funcname) << diagnostic::location << " syntax error : \n" << t0->mark();
-        
+        { 
+            logger::error(src_funcname) << rem::code::_function_ << " syntax error : \n" << t0->mark();
+            return nullptr;
+        }
         return tree_set_left(this);
     }
 
 
-    expect<xio*> xio::tree_input_rpar(xio* rpxio)
+    xio* xio::tree_input_rpar(xio* rpxio)
     {
-        diagnostic::global().push_debug(src_funcname)
-            << color::Lime << diagnostic::funcname
+        logger::debug(src_funcname)
+            << color::Lime << rem::code::_function_
             << color::Yellow << t0->text()
             << color::White << " <- "
             << color::Yellow << rpxio->t0->text();
 
         xio* x = xio::pop_lpar();
         if (!x)
-            return diagnostic::global().push_error() <<  "Unmatched left paranthese." <<  rpxio->t0->mark();
-
+        {
+            logger::error() <<  "Unmatched left paranthese." <<  rpxio->t0->mark();
+            return nullptr;
+        }
         rpxio->op = x->op;
         rpxio->lhs = x->lhs;
         if(rpxio->lhs)
@@ -654,7 +677,7 @@ namespace vxio {
         if(rpxio->op)
            rpxio->op->rhs = rpxio; // oops!!
            
-        diagnostic::global().push_debug() 
+        logger::debug() 
             << "new input vertex:[" 
             << color::Yellow 
             << rpxio->t0->text() 
@@ -666,13 +689,13 @@ namespace vxio {
     }
 
 
-    expect<xio*> xio::tree_input_lpar(xio* x)
+    xio* xio::tree_input_lpar(xio* x)
     {
 
-        diagnostic::global().push_debug(src_funcname)
+        logger::debug(src_funcname)
             << color::Yellow << t0->text()
             << color::White << ":"
-            << color::Lime << diagnostic::funcname
+            << color::Lime << rem::code::_function_
             << color::White << ":"
             << color::Yellow << x->t0->text();
 
@@ -680,12 +703,12 @@ namespace vxio {
         return tree_set_right(x);
     }
 
-    expect<xio*> xio::tree_close_par(xio* x)
+    xio* xio::tree_close_par(xio* x)
     {
-        diagnostic::global().push_debug(src_funcname)
+        logger::debug(src_funcname)
             << color::Yellow << t0->text()
             << color::White << ":"
-            << color::Lime << diagnostic::funcname
+            << color::Lime << rem::code::_function_
             << color::White << ":"
             << color::Yellow << x->t0->text();    // Binary input left par -> tree_set_right is called directly.
 
@@ -699,15 +722,17 @@ namespace vxio {
         // discard();
 
         if (v->op) {
-            diagnostic::global().push_debug()
+            logger::debug()
                 << color::Yellow << v->op->attribute() << color::CornflowerBlue 
                 << " <-- " 
                 << color::Yellow <<  x->attribute();
 
             auto p_fn = associate(v->op, x);
-            if (!p_fn) 
-                return diagnostic::global().push_error() << "syntax error on:\n" << x->t0->mark();
-            
+            if (!p_fn)
+            { 
+                logger::error() << "syntax error on:\n" << x->t0->mark();
+                return nullptr;
+            }
             return (v->op->*p_fn)(x);
         }
 
@@ -717,21 +742,21 @@ namespace vxio {
     }
 
 
-    expect<xio*> xio::tree_rpar_input_leaf(xio* x)
+    xio* xio::tree_rpar_input_leaf(xio* x)
     {
-        diagnostic::global().push_debug(src_funcname) << color::Yellow << t0->text()
+        logger::debug(src_funcname) << color::Yellow << t0->text()
             << color::White << ":"
-            << color::Lime << diagnostic::funcname
+            << color::Lime << rem::code::_function_
             << color::White << ":"
             << color::Yellow << x->t0->text();    // Binary input left par -> tree_set_right is called directly.
 
         if (lhs) {
-            diagnostic::global().push_debug() << "lhs:" << color::Yellow << lhs->t0->text()
+            logger::debug() << "lhs:" << color::Yellow << lhs->t0->text()
                 << color::Reset;
 
             if (lhs->t0->is_prefix()) {
                 if (op) {
-                    diagnostic::global().push_debug() << color::Yellow << lhs->t0->text() << color::White << "'s operator:`" << color::Yellow << lhs->op->t0->text() << color::Reset << "':";
+                    logger::debug() << color::Yellow << lhs->t0->text() << color::White << "'s operator:`" << color::Yellow << lhs->op->t0->text() << color::Reset << "':";
                     //op->tree_set_right(lhs);
                     lhs->op = op;
                     op->rhs = lhs;
@@ -744,11 +769,12 @@ namespace vxio {
             }
         }
         
-        return diagnostic::reject_status() << "illegal rvalue token :\n" << x->t0->mark();
+        logger::error() << "illegal rvalue token :\n" << x->t0->mark();
+        return nullptr;
     }
 
 
-    expect<xio*> xio::tree_rpar_rpar(xio* r)
+    xio* xio::tree_rpar_rpar(xio* r)
     {
 
 /*
@@ -770,15 +796,18 @@ namespace vxio {
                 d   e         
 */
 
-        diagnostic::global().push_debug(src_location) << color::Yellow << t0->text()
+        logger::debug(src_location) << color::Yellow << t0->text()
             << color::White << ":"
-            << color::Lime << diagnostic::funcname
+            << color::Lime << rem::code::_function_
             << color::White << ":"
             << color::Yellow << r->t0->text();    // Binary input left par -> tree_set_right is called directly.
 
    // Collapse lhs
         if (!lhs)
-            return diagnostic::global().push_error() << " syntax error on (function call or empty '( )' not imlemented in expression, yet!) " << attribute() << ":\n" << t0->mark();
+        {
+            logger::error() << " syntax error on (function call or empty '( )' not imlemented in expression, yet!) " << attribute() << ":\n" << t0->mark();
+            return nullptr;
+        }
 
         xio* v = lhs;
 
@@ -790,7 +819,7 @@ namespace vxio {
         // discard();
 
         if (v->op) {
-            diagnostic::global().push_debug()
+            logger::debug()
                 << color::Yellow << v->op->attribute() << color::CornflowerBlue
                 << " <-- "
                 << color::Yellow << r->attribute();
@@ -817,7 +846,7 @@ namespace vxio {
             return (this->*xio_fn)();// All operators assign acc.
         else {
             if (t0->is_operator()) {
-                diagnostic::global().push_warning() << "xio [" << color::Yellow << t0->text() << color::Reset << "] has no rtfn (yet?).:\n" << t0->mark();
+                logger::warning() << "xio [" << color::Yellow << t0->text() << color::Reset << "] has no rtfn (yet?).:\n" << t0->mark();
             }
         }
         t0->s |= acc->T;
@@ -962,10 +991,10 @@ namespace vxio {
 
     alu xio::add()
     {
-        diagnostic::global().push_debug(src_location) << color::Lime << diagnostic::funcname
+        logger::debug(src_location) << color::Lime << rem::code::_function_
             << color::Yellow << lhs->unit()() << " " << color::CornflowerBlue << attribute() << " " << color::Yellow << rhs->unit()() << ":";
         *acc = *lhs->acc + *rhs->acc;
-        diagnostic::global().push() << color::CornflowerBlue << " = " << color::Lime << (*acc)();
+        logger::output() << color::CornflowerBlue << " = " << color::Lime << (*acc)();
         return *acc;
     }
     alu xio::sub()
@@ -973,22 +1002,22 @@ namespace vxio {
         // hack... en attendant :
         if(t0->s & vxio::type::sign_t)
             return negative();
-        diagnostic::global().push_debug(src_location) << color::Lime << diagnostic::funcname
+        logger::debug(src_location) << color::Lime << rem::code::_function_
             << color::Yellow << lhs->unit()() << " " << color::CornflowerBlue << attribute() << " " << color::Yellow << rhs->unit()() << ":";
         *acc = *lhs->acc - *rhs->acc;
-        diagnostic::global().push() << color::CornflowerBlue << " = " << color::Lime << (*acc)();
+        logger::output() << color::CornflowerBlue << " = " << color::Lime << (*acc)();
 
         return *acc;
     }
     alu xio::mul()
     {
-        diagnostic::global().push_debug()
+        logger::debug()
             << color::Yellow << lhs->attribute()
             << color::CornflowerBlue << attribute()
             << color::Yellow << rhs->attribute()
             << color::White << "=";
         *acc = *lhs->acc * *rhs->acc;
-        diagnostic::global().push() << (*acc)();
+        logger::output() << (*acc)();
         return *acc;
     }
     alu xio::modulo()
@@ -1008,14 +1037,14 @@ namespace vxio {
     }
     alu xio::assign()
     {
-        diagnostic::global().push_debug(src_location) << color::Lime << diagnostic::funcname
+        logger::debug(src_location) << color::Lime << rem::code::_function_
             << color::Aquamarine3 << lhs->attribute() << color::Reset << " "
             << " " << color::CornflowerBlue << attribute() << " "
             << color::Yellow
             << rhs->unit()() << ":";
 
         *acc = *lhs->acc = *rhs->acc;
-        diagnostic::global().push() << color::CornflowerBlue << " => " << color::Lime << (*acc)();
+        logger::output() << color::CornflowerBlue << " => " << color::Lime << (*acc)();
         return *acc;
     }
     alu xio::binand()
@@ -1066,7 +1095,7 @@ namespace vxio {
 
     alu xio::division()
     {
-        diagnostic::global().push_debug(src_location) << color::Lime << diagnostic::funcname
+        logger::debug(src_location) << color::Lime << rem::code::_function_
             << color::Yellow << lhs->unit()() 
             << " " << color::CornflowerBlue << attribute() << " " 
             << color::Yellow 
@@ -1074,7 +1103,7 @@ namespace vxio {
 
         *acc = *lhs->acc / *rhs->acc;
         return *acc; 
-        diagnostic::global().push() << color::CornflowerBlue << " = " << color::Lime << (*acc)();
+        logger::output() << color::CornflowerBlue << " = " << color::Lime << (*acc)();
     }
     alu xio::factorial()
     {
@@ -1093,7 +1122,7 @@ namespace vxio {
 
     alu xio::negative()
     {
-        diagnostic::global().push_debug(src_location) << color::Lime << diagnostic::funcname
+        logger::debug(src_location) << color::Lime << rem::code::_function_
             << color::CornflowerBlue << attribute()
             << color::Yellow << rhs->attribute()
             << color::White << "=";
@@ -1102,7 +1131,7 @@ namespace vxio {
             *rhs->acc *= -1;
 
         *acc = *rhs->acc;
-        diagnostic::global().push() << color::CornflowerBlue << " = " << color::Lime << (*acc)();
+        logger::output() << color::CornflowerBlue << " = " << color::Lime << (*acc)();
         return *acc;
     }
 
@@ -1190,7 +1219,7 @@ namespace vxio {
 
     alu xio::ki16()
     {
-        diagnostic::global().push_debug() << rhs->t0->text();
+        logger::debug() << rhs->t0->text();
         *acc = (int16_t)(rhs->acc->number<uint64_t>() & 0xFFFF);
         return *acc;
     }
@@ -1225,13 +1254,13 @@ namespace vxio {
         return vxio::type::name(t0->t);
     }
 
-    expect<xio*> xio::tree_rpar_input_postfix(xio*) {
+    xio* xio::tree_rpar_input_postfix(xio*) {
         return {};
     }
 
 
 
-    void xio::trace_tree_start(tstring& a_out, const tstring& Title)
+    void xio::trace_tree_start(iostr& a_out, const iostr& Title)
     {
         a_out << "digraph vxio_club_expr_tree {\n";
         a_out << "ratio=compress; ranksep=.55; size = \"6.5,6.5\";\n";
@@ -1239,7 +1268,7 @@ namespace vxio {
         a_out << "    label=\"Expression AST:[" << Title << "]\"; fontsize = 10;\n";
     }
 
-    void xio::trace_node(xio* A, tstring& a_out)
+    void xio::trace_node(xio* A, iostr& a_out)
     {
         //static int nullcount = 0;
         if (!A) return;
@@ -1260,29 +1289,29 @@ namespace vxio {
         //         trace_null_node(A, nullcount++, a_stream);
     }
 
-    void xio::trace_null_node(xio*, int, tstring&)
+    void xio::trace_null_node(xio*, int, iostr&)
     {
 
     }
 
-    void xio::trace_tree(xio* a_root, tstring& a_out)
+    void xio::trace_tree(xio* a_root, iostr& a_out)
     {
         a_root->tree_attr(a_out);
         xio::trace_node(a_root, a_out);
     }
 
-    void xio::trace_tree_close(tstring& a_out)
+    void xio::trace_tree_close(iostr& a_out)
     {
         a_out << "}\n";
     }
 
-    void xio::tree_attr(tstring& a_out)
+    void xio::tree_attr(iostr& a_out)
     {
-        tstring attr;
+        iostr attr;
         attr << t0->text();
         if (t0->t & vxio::type::assign_t)
             attr << ": [" << (*acc)() << "]";
-        tstring Shape;
+        iostr Shape;
         if (t0->t & vxio::type::text_t)
             Shape << "none";
         else
@@ -1312,35 +1341,35 @@ namespace vxio {
 ///        va vari
 /// </summary>
 /// <returns></returns>
-    std::string xio::trace_connect_binary_operands(xio* x)
-    {
-        // assume this binary operator already has its lhs rhs operands !!
-        //tstring str;
-        int lw = x->lhs->attribute().length();
-        int rw = x->rhs->attribute().length();
-        int ow = x->attribute().length();
-        int w = lw + rw + 3; // total width
-        w -= lw % 2 == 0;
+    // std::string xio::trace_connect_binary_operands(xio* x)
+    // {
+    //     // assume this binary operator already has its lhs rhs operands !!
+    //     //iostr str;
+    //     int lw = x->lhs->attribute().length();
+    //     int rw = x->rhs->attribute().length();
+    //     int ow = x->attribute().length();
+    //     int w = lw + rw + 3; // total width
+    //     w -= lw % 2 == 0;
 
 
-        int m_lhs = lw - (lw > 1 ? 1 : 0);
+    //     int m_lhs = lw - (lw > 1 ? 1 : 0);
 
-        geom::pxy oper_xy = geom::pxy( m_lhs+1,0 );
-        oper_xy._x -= ow % 2 == 0 ? 1 : 0;
+    //     vxy oper_xy = vxy( m_lhs+1,0 );
+    //     oper_xy.x -= ow % 2 == 0 ? 1 : 0;
 
-        tstring::geometry area;
-        area.set_geometry(w, 3); // pour l'instant m'est hardcoded.
-        area.gotoxy(oper_xy._x,0);
-        area << x->attribute();
-        area << geom::pxy{m_lhs,1} << "/ \\";
+    //     iostr::geometry area;
+    //     area.set_geometry(w, 3); // pour l'instant m'est hardcoded.
+    //     area.gotoxy(oper_xy.x,0);
+    //     area << x->attribute();
+    //     area << vxy{m_lhs,1} << "/ \\";
         
-        area.gotoxy(0, 2);
-        area << x->lhs->attribute();
+    //     area.gotoxy(0, 2);
+    //     area << x->lhs->attribute();
         
-        area.gotoxy(m_lhs+2+(rw<=1?1:0), 2);
-        area << x->rhs->attribute();
-        return area;
-    }
+    //     area.gotoxy(m_lhs+2+(rw<=1?1:0), 2);
+    //     area << x->rhs->attribute();
+    //     return area;
+    // }
 
     /// <summary>
     /// 
@@ -1359,22 +1388,22 @@ namespace vxio {
     /// </summary>
     /// <param name="x"> pointer to the xio</param>
     /// <returns>2D string buffer</returns>
-    std::string xio::trace_connect_binary_operands2(xio* x)
-    {
-        int lhs_w=1, rhs_w=1, lhs_mid=1, rhs_mid=1;
+    // std::string xio::trace_connect_binary_operands2(xio* x)
+    // {
+    //     int lhs_w=1, rhs_w=1, lhs_mid=1, rhs_mid=1;
 
-        if(x->lhs) 
-            lhs_w = x->lhs->t0->text().length(); // 8
-        if(x->rhs)
-            rhs_w = x->rhs->t0->text().length(); // 8
+    //     if(x->lhs) 
+    //         lhs_w = x->lhs->t0->text().length(); // 8
+    //     if(x->rhs)
+    //         rhs_w = x->rhs->t0->text().length(); // 8
         
-        if(x->lhs)
-            lhs_mid = lhs_w / 2 + (((lhs_w % 2) == 0) ? 1 : 0); // left index position
-        if(x->rhs)
-            rhs_mid = rhs_w / 2 - (((rhs_w % 2) == 0) ? 1 : 0); // right index position
+    //     if(x->lhs)
+    //         lhs_mid = lhs_w / 2 + (((lhs_w % 2) == 0) ? 1 : 0); // left index position
+    //     if(x->rhs)
+    //         rhs_mid = rhs_w / 2 - (((rhs_w % 2) == 0) ? 1 : 0); // right index position
 
-        return "not implement";
-    }
+    //     return "not implement";
+    // }
 
 
     xio* xio::query_child(xio* cThis)
