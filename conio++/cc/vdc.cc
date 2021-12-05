@@ -200,18 +200,42 @@ void vdc::commit(const rectangle &r)
     }
 }
 
+
+
 vdc::cursor_t& vdc::cursor_t::operator++()
 {
+    if(xy.x >= _dc->_dim.wh.x)
+    {
+        if(xy.y < _dc->_dim.wh.y)
+        {
+            ++xy.y;
+            xy.x = 0;
+        }
+        return *this;
+    }
+    ++xy.x;
     return *this;
 }
+
 vdc::cursor_t& vdc::cursor_t::operator++(int)
 {
+    if(xy.x >= _dc->_dim.wh.x)
+    {
+        if(xy.y < _dc->_dim.wh.y)
+        {
+            ++xy.y;
+            xy.x = 0;
+        }
+        return *this;
+    }
+    ++xy.x;
     return *this;
 }
 vdc::cursor_t& vdc::cursor_t::operator--()
 {
     return *this;
 }
+
 vdc::cursor_t& vdc::cursor_t::operator--(int)
 {
     return *this;

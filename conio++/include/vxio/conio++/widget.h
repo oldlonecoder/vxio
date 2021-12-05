@@ -19,7 +19,7 @@ class CONIO_DLL widget : public object
 {
     vdc*        _dc = nullptr;
     vxio::size  _sz;        ///< This widget's dimensions.
-    vxy         _position;  ///< widget's position relative to the parent widget.
+    vxy         _position;  ///< widget's position relative to the parent widget
     
     friend class ts;
     friend class vdc;

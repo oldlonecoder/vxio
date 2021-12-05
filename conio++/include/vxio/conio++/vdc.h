@@ -110,6 +110,9 @@ class CONIO_DLL vdc
         cursor_t& operator--();
         cursor_t& operator--(int);
 
+        void pos(const vxy& xy_) { xy = xy_;}
+        void pos(int x, int y) { xy.x = x; xy.y = y; }
+
     }_cxy;
     
 public:
