@@ -4,7 +4,7 @@
 
 #pragma once
 #include <vxio/util/rem.h>
-#include <vxio/interpret/token_data.h>
+#include <vxio/lexer/token_data.h>
 
 
 namespace vxio
