@@ -5,10 +5,12 @@
 
 #include <vxio/util/logger.h>
 #include <vxio/conio++/conio++.h>
+// ...
 
-
-
-auto main() -> int {
+namespace xio::conio
+{
+rem::code test()
+{
     using vxio::conio::ts;
     using vxio::color;
     iostr str;
@@ -19,4 +21,9 @@ auto main() -> int {
     ts::put(str());
     
     return 0;
+}
+}
+
+auto main() -> int {
+
 }
