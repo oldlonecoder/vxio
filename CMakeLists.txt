@@ -48,6 +48,12 @@ target_include_directories(${TargetName} PUBLIC
 target_link_libraries(${TargetName} ${CMAKE_DL_LIBS} )
 
 
+add_executable(vxio.app
+		main.cc
+)
+target_link_libraries(vxio.app vxio)
+add_dependencies(vxio.app vxio)
+
 install(DIRECTORY
         include/${FrameWorkName}/${PROJECT_NAME}/
         DESTINATION "${CMAKE_INSTALL_PREFIX}/include/${FrameWorkName}/${PROJECT_NAME}"

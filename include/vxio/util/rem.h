@@ -67,7 +67,7 @@ public:
     rem& operator = (rem&&) noexcept = default;
     
     rem& operator << (rem::code c_);
-    
+    rem& operator << (const iostr& txt_);
     template<typename T> rem& operator<<(const T& arg_)
     {
         
@@ -77,6 +77,7 @@ public:
         return *this;
     }
     std::string cc();
+    static void init();
 private:
     rem::code _code = rem::code::hello;
     rem::type _type = rem::type::output;

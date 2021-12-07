@@ -42,8 +42,7 @@ struct VXIO_API_DLL alu
         piudt& operator=(int64_t v_) { i = v_; return *this;}
         piudt& operator=(void* v_) { p = v_; return *this;}
         piudt& operator=(std::string* v_) { t = v_; return *this;}
-        
-    }v;
+    }v = {nullptr};
     
     enum CNV {
         DEG,

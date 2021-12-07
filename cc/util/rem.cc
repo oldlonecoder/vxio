@@ -149,3 +149,12 @@ std::string rem::cc()
     }
     return str();
 }
+rem &rem::operator<<(const iostr &txt_)
+{
+    _components.push_back(txt_());
+    return *this;
+}
+void rem::init()
+{// ...
+    rem::init_text_attr();
+}

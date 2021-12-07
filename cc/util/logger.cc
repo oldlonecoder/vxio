@@ -19,7 +19,7 @@ void logger::clear(std::function<void(rem&)> fn_)
     // logger::_rems_guard.lock();
     if (logger::_rems.empty())
     {
-        logger::_rems.clear();
+        //logger::_rems.clear();
         // logger::_rems_guard.unlock();
         return;
     }
