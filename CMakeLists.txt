@@ -14,7 +14,7 @@ SET(FRAMEWORK_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 add_library(
         vxio
         SHARED
-        cc/util/object.cc   
+        cc/util/object.cc
         cc/util/geometry.cc
         cc/util/iostr.cc
         cc/util/rem.cc
@@ -25,6 +25,7 @@ add_library(
         cc/lexer/lexer.cc
         cc/interpret/alu.cc
         cc/interpret/xio.cc
+		cc/interpret/bloc.cc
 )
 
 
