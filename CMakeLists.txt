@@ -25,7 +25,7 @@ add_library(
         cc/lexer/lexer.cc
         cc/interpret/alu.cc
         cc/interpret/xio.cc
-	cc/interpret/bloc.cc
+	    cc/interpret/bloc.cc
         cc/vconio/vconio.cc
         cc/vconio/vdc.cc
 )
