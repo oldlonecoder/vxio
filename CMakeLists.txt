@@ -27,6 +27,7 @@ add_library(
         cc/interpret/xio.cc
 	cc/interpret/bloc.cc
         cc/vconio/vconio.cc
+        cc/vconio/vdc.cc
 )
 
 
