@@ -5,13 +5,16 @@
 
 
 
-namespace vxio::conio
+namespace conio
 {
+
+
+
 
 struct VXIO_API_DLL vchar
 {
     using type = uint64_t;
-    char::type cell = 0l;
+    vchar::type cell = 0l;
     
 };
 

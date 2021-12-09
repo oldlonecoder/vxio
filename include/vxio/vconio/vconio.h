@@ -8,7 +8,7 @@
 
 
 
-namespace vxio::conio
+namespace conio
 {
 
 struct VXIO_API_DLL ts
