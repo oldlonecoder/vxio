@@ -13,7 +13,7 @@
 
 class VXIO_API_DLL logger
 {
-	static rem::list _rems;
+	static rem::collection _rems;
 
 public:
 	

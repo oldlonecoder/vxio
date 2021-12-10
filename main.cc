@@ -4,8 +4,32 @@
 
 
 #include <vxio/util/logger.h>
+#include <vxio/lexer/lexer.h>
 
+namespace vxio
+{
+rem::code test_lexer()
+{
+    lexer lex;
+    token_data::collection tokens;
+    lex.config() =
+    {
+        "static u64 a = 0.03 * 4ac(8 + 5/6) -1;",
+        &tokens
+    };
+    auto r = lex();
+    if(r != rem::code::accepted)
+    {
+        logger::error() << " lexer rejected token somewhere...";
+    }
+    lex.dump_tokens([](const token_data& token) {
+       std::cout <<  token.details() << ":\n" << token.mark() << '\n';
+    });
+    
+    return rem::code::ok;
+}
 
+}
 int main()
 {
     rem::init();
@@ -27,6 +51,9 @@ int main()
     uint32_t* t = (uint32_t*)p;
     hx << *t;
     logger::info() << vxio::color::White << "uint64_t: " << vxio::color::Yellow << hx() << '\n';
+    
+    
+    (void)vxio::test_lexer();
     
     logger::clear([](rem& r){
        std::cout << r.cc();

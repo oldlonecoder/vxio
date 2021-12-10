@@ -53,7 +53,7 @@ public:
     };
     
     
-    using list = std::vector<rem>;
+    using collection = std::vector<rem>;
     
     rem()=default;
     rem(const rem& r);

@@ -6,14 +6,14 @@
 #include <fstream>
 
 
-rem::list logger::_rems;
+rem::collection logger::_rems;
 
 
 
 
 void logger::clear(std::function<void(rem&)> fn_)
 {
-    // threads : only one would use the rems list.
+    // threads : only one would use the rems collection.
     // Once cleared, its cleared. dot.
     // 
     // logger::_rems_guard.lock();
@@ -24,6 +24,7 @@ void logger::clear(std::function<void(rem&)> fn_)
     }
 
     for (auto& e : logger::_rems)  if (fn_) fn_(e);
+    logger::_rems.clear();
     // logger::_rems_guard.unlock();
 }
 

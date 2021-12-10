@@ -383,7 +383,7 @@ const char *iostr::scan_to(const char *start, char c) const
     * @brief break/split/tokenize,etc... the content of this iostr into pieces.
     * @param wcollection  OUTPUT reference to the 'Words array' containter, filled by this method.
     * @param a_delimiters Separators in the form of a string of ascii-8 characters.
-    * @param keep_as_word if true (or non-zero), the Separators will be put into the list as they appear
+    * @param keep_as_word if true (or non-zero), the Separators will be put into the collection as they appear
     * @return number of "Words/tokens" contained into the wcollection.
     * @notice : After several years of experience and experimentations, offset have determined that
     * white-spaces/ctrl or spacing characters are silent and implicit delimiters, in addition to the ones supplied by \c a_delimiters.

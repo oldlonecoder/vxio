@@ -18,11 +18,17 @@
 namespace vxio {
 
 /*!
-    @brief xio : eXecutable Instruction object_t.
+    @brief xio : eXecutable Instruction Object.
     Where the beach is its grain of sand, the Interpreter is its grain of xio. (FUCK! LOL!!!!)
 
     @author &copy;2018, Serge Lussier, (lussier.serge at gmail.com)
-        
+    if static i8 a=0.4*5.6 * 4ac(8+3 - 5/4)
+        fncall();
+    else
+    {
+        fn2call();
+        return rtrem::ok;
+    }
 */
 class VXIO_API_DLL xio {
 public:

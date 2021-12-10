@@ -54,7 +54,9 @@ rem::rem(rem &&r) noexcept
 rem::~rem()
 {
     _text.clear();
+    _components.clear();
 }
+
 rem::rem(rem::type type_, const source::location &src)
 {
     _type = type_;
@@ -108,47 +110,48 @@ void rem::init_text_attr()
 std::string rem::cc()
 {
     iostr str;
-    str << rem::types_ansi256_attr[static_cast<int8_t>(_type)];
-    str << rem::types_text[static_cast<int8_t>(_type)];
-    str << vxio::color::ansi(vxio::color::White);
-    str << ": ";
+    str += rem::types_ansi256_attr[static_cast<int8_t>(_type)];
+    str += rem::types_text[static_cast<int8_t>(_type)];
+    str += vxio::color::ansi(vxio::color::White);
+    str += ": ";
     
     if(!_src.filename.empty())
     {
-        str << "\n";
-        str << rem::codes_ansi256_attr[static_cast<int16_t>(rem::code::_file_)];
+        str += "\n";
+        str += rem::codes_ansi256_attr[static_cast<int16_t>(rem::code::_file_)];
         iostr::word::list_t words;
 #ifndef _WIN32
         if(str.words(words,"/") > 0)
 #else
         if (str.words(words, "\\") > 0)
 #endif
-            str << words.back()();
+            str += words.back()();
         else
-            str << str();
-        str << ' ';
+            str += str();
+        str += ' ';
     }
     
     if(!_src.func_name.empty())
     {
-        str << rem::codes_ansi256_attr[static_cast<int16_t>(rem::code::_function_)];
-        str << ": ";
+        str += rem::codes_ansi256_attr[static_cast<int16_t>(rem::code::_function_)];
+        str += ": ";
     }
     
     if(_src.line_no > 0)
     {
-        str << rem::codes_ansi256_attr[static_cast<int16_t>(rem::code::_line_)];
-        str << _src.line_no;
-        str << ": ";
+        str += rem::codes_ansi256_attr[static_cast<int16_t>(rem::code::_line_)];
+        str += _src.line_no;
+        str += ": ";
     }
     
     for(auto const& s : rem::_components)
     {
-        str << s;
-        str << ' ';
+        str += s;
+        //str << ' ';
     }
     return str();
 }
+
 rem &rem::operator<<(const iostr &txt_)
 {
     _components.push_back(txt_());

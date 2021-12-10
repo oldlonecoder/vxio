@@ -4,6 +4,7 @@
 
 #include <vxio/lexer/lexer.h>
 #include <array>
+#include <vxio/util/logger.h>
 
 // Allright! VS2022 preview3 is broken!
 namespace vxio
@@ -143,17 +144,15 @@ long lexer::internal_cursor::Index() const
 std::string lexer::internal_cursor::line_num() const
 {
     std::string Str;
+    Str.clear();
     
     const char *lb, *eb;
     lb = eb = C;
-    while((lb > B) && (*lb != '\r') && (*lb != '\n'))
-        --lb;
     
-    while((eb <= E) && (*eb != '\r') && (*eb != '\n'))
-        ++eb;
+    while((eb <= E) && (*eb != '\r') && (*eb != '\n')) ++eb;
+    while((lb > B) && (*lb != '\r') && (*lb != '\n')) --lb;
     
-    for(; lb < eb; lb++)
-        Str += *lb;
+    for(; lb < eb; lb++) Str += *lb;
     return Str;
 }
 
@@ -167,7 +166,8 @@ std::string lexer::internal_cursor::line_num() const
 std::string lexer::internal_cursor::mark() const
 {
     iostr Str = line_num();
-    Str << '\n';
+    logger::debug() << "std::string lexer::internal_cursor::mark() const:\n'" << Str() << "'\n";
+    Str += '\n';
     for(int x = 1; x < Col; x++)
         Str << ' ';
     Str << '^';
@@ -317,7 +317,7 @@ lexer::Scanner lexer::GetScanner(token_data& token)
 
 rem::code lexer::input_binary_operator(token_data & token)
 {
-    //rem::codeDebug() << __PRETTY_FUNCTION__ << ":\n";
+    logger::debug() << __PRETTY_FUNCTION__ << ":\n";
     if (token.c == mnemonic::k_sub || token.c == mnemonic::k_add)
     {
         if (ScanSignPrefix(token) == rem::code::accepted)
@@ -341,7 +341,7 @@ rem::code lexer::input_binary_operator(token_data & token)
  */
 rem::code lexer::_InputDefault(token_data &atoken)
 {
-    //rem::codeDebug(__PRETTY_FUNCTION__) << ":\n";
+    logger::debug() << __PRETTY_FUNCTION__ << ":\n";
     if(ScanNumber(atoken) != rem::code::accepted)
     {
         //rem::codeDebug() << " Not a number_t Trying ScanIdentifier:";
@@ -352,7 +352,7 @@ rem::code lexer::_InputDefault(token_data &atoken)
         }
     }
     
-    return rem::code::rejected;
+    return rem::code::accepted; // return rem::code::rejected  --- duh?
 }
     
 rem::code lexer::_InputUnaryOperator(token_data &atoken)
@@ -380,12 +380,14 @@ rem::code lexer::_InputPunctuation(token_data &atoken)
 
 rem::code lexer::_InputKeyword(token_data &atoken)
 {
+    logger::debug() << __PRETTY_FUNCTION__ << ":\n";
     return Push(atoken);
 }
 
 
 rem::code lexer::_InputHex(token_data &atoken)
 {
+    logger::debug() << __PRETTY_FUNCTION__ << ":\n";
     //rem::codeDebug(__PRETTY_FUNCTION__) << ":\n";
     const char *C_ = src_cursor.C;
     C_ += atoken.text().length();
@@ -417,7 +419,7 @@ rem::code lexer::_InputHex(token_data &atoken)
 rem::code lexer::ScanNumber(token_data &atoken)
 {
 
-    
+    logger::debug() << __PRETTY_FUNCTION__ << ":\n";
     num_scanner Num = num_scanner(src_cursor.C, src_cursor.E);
     while(Num++);
     if(!Num.operator bool())
@@ -587,7 +589,10 @@ rem::code lexer::ScanFactorNotation(token_data &atoken)
 rem::code lexer::ScanSignPrefix(token_data &atoken)
 {
     if(!mConfig.Tokens->empty() && (mConfig.Tokens->back().s & vxio::type::close_pair_t))
+    {
+        logger::comment() << "lexer::ScanSignPrefix:\n" << atoken.mark() << "\n" << " rejected...\n";
         return rem::code::rejected;
+    }
 
     if (mConfig.Tokens->empty() || mConfig.Tokens->back().is_binary() || mConfig.Tokens->back().is_punctuation())
     {
@@ -702,18 +707,24 @@ rem::code lexer::Exec()
     while (!src_cursor.end_of_file())
     {
         if (C == src_cursor.C)
+        {
+            logger::error() << "lexer: internal loop on\n" << src_cursor.mark() << "\n";
             return rem::code::rejected;
+        }
 
         C = src_cursor.C;
 
         atoken = token_data::scan(src_cursor.C);
-        //rem::codeDebug(__PRETTY_FUNCTION__) << " Details: " << atoken.details();
+        logger::debug() << __PRETTY_FUNCTION__ << ": " << atoken.details();
         Scanner S = GetScanner(atoken);
         if (S)
         {
             
             if ((this->*S)(atoken) != rem::code::accepted)
-                return rem::code::rejected;//rem::codeFatal("lexer:") << "Aborted: Unexpected token:\n" << mCursor.mark();
+            {
+                logger::fatal() << "lexer: aborted: unexpected scan rejection at position:\n" << src_cursor.mark() << '\n';
+                return rem::code::rejected;//
+            }
         }
         else
         {
