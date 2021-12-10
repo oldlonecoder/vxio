@@ -245,7 +245,7 @@ static token_data::collection tokens_table = {{mnemonic::k_null,               v
                                               {mnemonic::k_string,             vxio::type::prefix_t,     0x000540002,  vxio::type::distance::identifier, lexem::k_string,  1},
                                               {mnemonic::k_then,               vxio::type::keyword_t,    0x000040000,  vxio::type::distance::identifier, lexem::k_then,    0},
                                               {mnemonic::k_else,               vxio::type::keyword_t,    0x000040000,  vxio::type::distance::identifier, lexem::k_else,    0},
-                                              {mnemonic::k_const,              vxio::type::keyword_t,    0x000040000,  vxio::type::distance::identifier, lexem::k_const,   0},
+                                              {mnemonic::k_const,              vxio::type::keyword_t,    0x2000040000, vxio::type::distance::identifier, lexem::k_const,   0},
                                               {mnemonic::k_include,            vxio::type::keyword_t,    0x000040000,  vxio::type::distance::identifier, lexem::k_include, 0},
                                               {mnemonic::k_module,             vxio::type::keyword_t,    0x000040000,  vxio::type::distance::identifier, lexem::k_module, 0},
                                               {mnemonic::k_at,                 vxio::type::prefix_t,     0x000580000,  vxio::type::distance::unary,      lexem::k_at,      1},

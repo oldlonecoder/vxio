@@ -474,6 +474,7 @@ rem::code lexer::ScanNumber(token_data &atoken)
         }
     }
     atoken.c = mnemonic::noop_;
+    atoken.s |= type::const_t;
     return Push(atoken);
     //return rem::codeaccepted;
 }
@@ -492,7 +493,7 @@ rem::code lexer::ScanIdentifier(token_data &atoken)
     {
         if (!mConfig.Tokens->empty())
         {
-            if (mConfig.Tokens->back().t == vxio::type::number_t)
+            if (mConfig.Tokens->back().s & vxio::type::number_t)
             {
                 src_cursor._F = true;
                 goto IDOK;
@@ -512,7 +513,13 @@ IDOK:
     atoken._flags.V     = 1; //Subject to be modified
     //rem::codeDebug() << "lexer::ScanIdentifier: Cursor on \n" << mCursor.mark();
     if (src_cursor._F)
+    {
         InsertMultiply(atoken);
+        token_data& m = mConfig.Tokens->back();
+        Push(atoken);
+        m.mLoc = atoken.mLoc; /// check!!!!!
+        return rem::code::accepted;
+    }
     return Push(atoken);
 }
 

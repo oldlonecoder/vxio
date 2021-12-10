@@ -57,7 +57,9 @@ std::map<T, std::string> T_STR = {{null_t,         "null"},
                                   {f128_t,         "f128_t"},
                                   {open_pair_t,    "open_pair_t"},
                                   {close_pair_t,   "close_pair_t"},
-                                  {static_t,       "static_t"}};
+                                  {static_t,       "static_t"},
+                                  {const_t,       "const_t"},
+                                  };
 
 std::map<std::string, T> STR_T = {{"null_t",       null_t},
                                   {"number_t",     number_t},
@@ -102,7 +104,8 @@ std::map<std::string, T> STR_T = {{"null_t",       null_t},
                                   {"bool_t",       bool_t},
                                   {"hex_t",        hex_t},
                                   {"open_pair_t",  open_pair_t},
-                                  {"close_pair_t", close_pair_t}};
+                                  {"close_pair_t", close_pair_t},
+                                  {"const_t",       const_t},};
 
 std::string name(T T_)
 {
