@@ -23,9 +23,7 @@
 #pragma once
 #include <vxio/interpret/bloc.h>
 #include <stack>
-
-
-
+#include "vxio/interpret/vxu.h"
 
 namespace vxio
 {
@@ -33,24 +31,24 @@ namespace vxio
 
 class context
 {
-    friend class vxio_compiler;
+public:
+    
     token_data::iterator start;
     token_data::iterator finish;
     token_data::iterator last;
-    
+    bloc*  blk = nullptr;
+    xio* instruction = nullptr;
     xio::collection* xios = nullptr; ///< locally compiled xio's.
+    
     std::vector<token_data::iterator> i_tokens; ///< (Sous r&eacute;serve) In expression parser for example, we would iterate
                                     ///< forward by filling in the local token iterators collection while the token
                                     ///< is a usable value in an arithmetic expression
-    xio* instruction = nullptr;
-    bloc*  blk = nullptr;
     using stack = std::stack<context>;
     static context::stack ctx_stack;
     
-public:
+
     context()   = default;
     ~context();
-    
     context(const context& ctx)noexcept;
     context(bloc* bloc_, token_data::iterator first_, token_data::iterator last_);
     context(context&& ctx) noexcept;
@@ -64,9 +62,6 @@ public:
     token_data::iterator operator++(int);
     token_data::iterator operator++();
     bool end() { return finish == last; }
-    
-    
-    
 };
 
 }

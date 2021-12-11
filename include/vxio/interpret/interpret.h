@@ -1,9 +1,9 @@
 //
-// Created by oldlonecoder on 21-12-10.
+// Created by oldlonecoder on 21-12-11.
 //
 
-//#ifndef VXIO_EXPRESSION_H
-//#define VXIO_EXPRESSION_H
+//#ifndef VXIO_INTERPRET_H
+//#define VXIO_INTERPRET_H
 
 /**********************************************************************************************************************************
     Copyright 2021 Serge Lussier (oldlonecoder), lussier.serge@gmail.com
@@ -20,21 +20,27 @@
     OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *************************************************************************************************************************************/
 
+
 #pragma once
-#include <vxio/interpret/compiler/parserbase.h>
+#include <vxio/interpret/vxu.h>
+
 
 namespace vxio
 {
-class expression : public parser_base
+class VXIO_API_DLL interpret : public bloc
 {
-public:
-    expression():parser_base(){}
-    ~expression() override;
+    vxu* _main = nullptr;
     
-    rem::code parse(context ctx_) override;
-    xio* create_xio(token_data* token_);
+public:
+    interpret() = default;
+    ~interpret() override;
+    
+    alu operator[](std::string src_);
+    
+    rem::code init();
+    
 };
 
 }
 
-//#endif //VXIO_EXPRESSION_H
+//#endif //VXIO_INTERPRET_H

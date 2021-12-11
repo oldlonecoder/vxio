@@ -29,7 +29,7 @@ add_library(
         cc/vconio/vconio.cc
         cc/vconio/vdc.cc
 		cc/interpret/vxu.cc
-        cc/interpret/compiler/context.cc include/vxio/interpret/compiler/context.h cc/interpret/compiler/expression.cc include/vxio/interpret/compiler/expression.h cc/interpret/compiler/parserbase.cc include/vxio/interpret/compiler/parserbase.h)
+        cc/interpret/compiler/context.cc include/vxio/interpret/compiler/context.h cc/interpret/compiler/expression.cc include/vxio/interpret/compiler/expression.h cc/interpret/compiler/parserbase.cc include/vxio/interpret/compiler/parserbase.h cc/interpret/interpret.cc include/vxio/interpret/interpret.h)
 
 
 target_compile_definitions(${TargetName} PUBLIC "${TargetName}_DEBUG=$<CONFIG:Debug>")
@@ -63,7 +63,7 @@ install(DIRECTORY
         DESTINATION "${CMAKE_INSTALL_PREFIX}/include/${FrameWorkName}/${PROJECT_NAME}"
 )
 
-install(TARGETS ${TargetName}
+install(TARGETS ${TargetName} vxio.app
 		EXPORT ${TargetName}Targets
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
