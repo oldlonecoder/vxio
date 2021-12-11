@@ -19,13 +19,24 @@ class vxu : public bloc
     token_data::collection _tokens;
     lexer              _lexer;
 public:
+    struct VXIO_API_DLL config
+    {
+        std::string  filename; ///< .../filename.vxu
+        const char*  source;
+        token_data*  tokens;
+        //...
+    };
     vxu() = default;
     ~vxu() override;
     
-    vxu(std::string fname_);
+    vxu(xio* parent_);
     
     alu jsr() override;
     rem::code load_code();
+    vxu::config& config_data() { return _config; }
+protected:
+    vxu::config _config;
+    
     
 };
 }

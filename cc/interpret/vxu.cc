@@ -12,20 +12,19 @@ namespace vxio
 vxu::~vxu()
 {
     _tokens.clear();
-    
 }
 
-vxu::vxu(std::string fname_):bloc(nullptr,nullptr,nullptr),
-_fname(std::move(fname_)){}
+vxu::vxu(xio* parent_):bloc(parent_,nullptr,nullptr)
+{}
 
 alu vxu::jsr()
 {
     return bloc::jsr();
 }
+
+
 rem::code vxu::load_code()
 {
-    
-    
     return rem::code::implement;
 }
 }
