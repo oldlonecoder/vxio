@@ -337,8 +337,8 @@ token_data token_data::operator[](mnemonic CC)
 
 std::string token_data::details(bool Mark_) const
 {
-    iostr Str = "'%s'[%s]: line:%d, col:%d, %s/{%s}";
-    Str << text() << mnemonic_name(c) << mLoc.linenum << mLoc.colnum << type_name() << semantic_types();
+    iostr Str = "'%s'[%s]: offset: %d line:%d, col:%d, %s/{%s}";
+    Str << text() << mnemonic_name(c) << mLoc.offset << mLoc.linenum << mLoc.colnum << type_name() << semantic_types();
     if(Mark_)
         Str << '\n' << mark();
     return Str();

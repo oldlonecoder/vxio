@@ -44,13 +44,20 @@ std::vector<std::string>      rem::codes_ansi256_attr;
 rem::rem(const rem &r)
 {
     _text = r._text;
+    _type = r._type;
+    _code = r._code;
+    _components = r._components;
     
 }
+
 rem::rem(rem &&r) noexcept
 {
     _text = std::move(r._text);
-    
+    _components = std::move(r._components);
+    _type = r._type;
+    _code = r._code;
 }
+
 rem::~rem()
 {
     _text.clear();
@@ -66,7 +73,12 @@ rem::rem(rem::type type_, const source::location &src)
 rem &rem::operator<<(rem::code c_)
 {
     if(c_ < rem::code::_file_ )
-        _components.emplace_back(rem::codes_text[static_cast<int8_t>(_type)].data());
+    {
+        iostr str = "%s%s";
+        rem::codes_ansi256_attr[static_cast<int16_t>(c_)];
+        str << rem::codes_text[static_cast<int8_t>(c_)].data();
+        str<<  _components.emplace_back(str());
+    }
     // bypass code value from _file_.
     return *this;
 }

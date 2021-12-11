@@ -28,6 +28,7 @@ add_library(
 	    cc/interpret/bloc.cc
         cc/vconio/vconio.cc
         cc/vconio/vdc.cc
+		cc/interpret/vxu.cc
 )
 
 

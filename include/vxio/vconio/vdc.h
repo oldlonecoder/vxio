@@ -17,6 +17,15 @@ struct VXIO_API_DLL vchar
     using collection = std::vector<vchar>;
     vchar::type cell = 0l;
     //...
+
+    uint8_t character();
+    uint8_t character_attr();
+    uint8_t attr();
+    uint8_t attr_bits();
+    std::string wchar();
+    
+    //----------------------------------------
+
 };
 
 

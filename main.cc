@@ -56,7 +56,7 @@ int main()
     (void)vxio::test_lexer();
     
     logger::clear([](rem& r){
-       std::cout << r.cc();
+       std::cout << r.cc() << '\n';
     });
     return 0;
 }

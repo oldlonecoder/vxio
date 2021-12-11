@@ -12,8 +12,10 @@ protected:
     xio::collection variables; ///< reference and local variables.
     xio::collection instructions;
     xio::collection functions;
-    xio::collection objects;
-    // 1 + ::ABC::var_t
+    xio::collection objects; ///< Sous r&eacute;serve ...
+    // 1 + ::ABC::var_t // --- note : global namespace ==> root sibling vxu
+    friend class vxu;
+    friend class interpret;
 public:
 
     bloc() :xio() {}

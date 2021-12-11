@@ -12,16 +12,17 @@ namespace vxio
 
 
 
-lexer::ScanTable  lexer::_ScanTable = {
-
-    {vxio::type::null_t,    &lexer::_InputDefault},
-    {vxio::type::binary_t,  &lexer::input_binary_operator },
-    {vxio::type::hex_t,     &lexer::_InputHex},
-    {vxio::type::punc_t,    &lexer::_InputPunctuation},
-    {vxio::type::prefix_t,  &lexer::ScanPrefix},
-    {vxio::type::keyword_t, &lexer::_InputKeyword}
-    
-};
+lexer::ScanTable  lexer::_ScanTable;
+//= {
+//
+//    {vxio::type::null_t,    &lexer::_InputDefault},
+//    {vxio::type::binary_t,  &lexer::input_binary_operator },
+//    {vxio::type::hex_t,     &lexer::_InputHex},
+//    {vxio::type::punc_t,    &lexer::_InputPunctuation},
+//    {vxio::type::prefix_t,  &lexer::ScanPrefix},
+//    {vxio::type::keyword_t, &lexer::_InputKeyword}
+//
+//};
 
 //lexer::config_data &lexer::config()
 //{
@@ -323,7 +324,7 @@ rem::code lexer::input_binary_operator(token_data & token)
         if (ScanSignPrefix(token) == rem::code::accepted)
             return rem::code::accepted;
     }
-    
+    Push(token);
     if (src_cursor._F)
     {
         if (token.c == mnemonic::k_open_par)
@@ -332,7 +333,7 @@ rem::code lexer::input_binary_operator(token_data & token)
             src_cursor._F = false;
         }
     }
-    return Push(token);
+    return rem::code::accepted;
 }
 
 /*!
@@ -493,7 +494,7 @@ rem::code lexer::ScanIdentifier(token_data &atoken)
     {
         if (!mConfig.Tokens->empty())
         {
-            if (mConfig.Tokens->back().s & vxio::type::number_t)
+            if (mConfig.Tokens->back().s & (vxio::type::number_t))
             {
                 src_cursor._F = true;
                 goto IDOK;
@@ -511,16 +512,11 @@ IDOK:
     atoken.mLoc.linenum = src_cursor.L;
     atoken.mLoc.colnum  = src_cursor.Col;
     atoken._flags.V     = 1; //Subject to be modified
-    //rem::codeDebug() << "lexer::ScanIdentifier: Cursor on \n" << mCursor.mark();
+    Push(atoken);
     if (src_cursor._F)
-    {
         InsertMultiply(atoken);
-        token_data& m = mConfig.Tokens->back();
-        Push(atoken);
-        m.mLoc = atoken.mLoc; /// check!!!!!
-        return rem::code::accepted;
-    }
-    return Push(atoken);
+    
+    return rem::code::accepted;
 }
 
 
@@ -533,9 +529,9 @@ void lexer::InsertMultiply(token_data& atoken)
     Mul.s = vxio::type::binary_t | vxio::type::operator_t;
     Mul._flags.M = Mul._flags.V = 1;
     Mul.c = mnemonic::k_mul;
-    mConfig.Tokens->push_back(Mul);
-    src_cursor.C = Mul.mLoc.begin;
-    //rem::codeDebug(__PRETTY_FUNCTION__) << " Details:" << k_mul.details() << "\n" << k_mul.mark();
+    auto i = --mConfig.Tokens->end();
+    mConfig.Tokens->insert(i, Mul);
+    logger::debug() << __PRETTY_FUNCTION__ << ":\n Details:" << Mul.details() << "\n" << Mul.mark();
 }
 
 /*!
@@ -704,6 +700,18 @@ rem::code lexer::Exec()
     if (!mConfig)
         return rem::code::rejected; // Use logger::push_error to queu error message and code...
     //...
+    if(lexer::_ScanTable.empty())
+    {
+        lexer::_ScanTable = {
+            {vxio::type::null_t,    &lexer::_InputDefault},
+            {vxio::type::binary_t,  &lexer::input_binary_operator},
+            {vxio::type::hex_t,     &lexer::_InputHex},
+            {vxio::type::punc_t,    &lexer::_InputPunctuation},
+            {vxio::type::prefix_t,  &lexer::ScanPrefix},
+            {vxio::type::keyword_t, &lexer::_InputKeyword}
+        };
+    }
+
     token_data atoken;
 
     src_cursor = lexer::internal_cursor(mConfig.Source);
@@ -748,6 +756,18 @@ rem::code lexer::step_begin()
 
     if (!mConfig)
         return rem::code::rejected;//rem::codeFatal() << "lexer::Exec(): Config Data is missing crucial informations...";
+    
+    if(lexer::_ScanTable.empty())
+    {
+        lexer::_ScanTable = {
+            {vxio::type::null_t,    &lexer::_InputDefault},
+            {vxio::type::binary_t,  &lexer::input_binary_operator},
+            {vxio::type::hex_t,     &lexer::_InputHex},
+            {vxio::type::punc_t,    &lexer::_InputPunctuation},
+            {vxio::type::prefix_t,  &lexer::ScanPrefix},
+            {vxio::type::keyword_t, &lexer::_InputKeyword}
+        };
+    }
     src_cursor = lexer::internal_cursor(mConfig.Source);
     src_cursor.skip_ws();
     return rem::code::accepted;
