@@ -163,21 +163,14 @@ private:
 #pragma region INPUT
     xio* tree_input_binary(xio* x);
     //xio* tree_input_binary(token_data* token, xio::maker xio_maker);
-    
     xio* tree_input_leaf(xio* x);
     //xio* tree_input_leaf(token_data* token, xio::maker xio_maker);
-    
     xio* tree_set_left(xio* x);
     //xio* tree_set_left(token_data* token, xio::maker xio_maker);
-    
     xio* tree_set_right(xio* x);
-    
     xio* tree_set_right_to_op(xio* x);
-
     xio::inptr_fn_t associate(xio* a_lhs, xio* a_rhs);
-
     xio* tree_lpar_input_binary(xio* x);
-
     xio* tree_input_rpar(xio*);
     xio* tree_input_lpar(xio*);
     xio* tree_close_par(xio*);
@@ -263,7 +256,7 @@ public:
     void tree_attr(iostr& a_out);
 
     std::string attribute();
-//    static std::string trace_connect_binary_operands(xio* x);
+    static std::string trace_connect_binary_operands(xio* x);
 //    static std::string trace_connect_binary_operands2(xio* x);
 
 #pragma endregion TRIGRAPH

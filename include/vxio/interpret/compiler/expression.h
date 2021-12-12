@@ -21,7 +21,7 @@
 *************************************************************************************************************************************/
 
 #pragma once
-#include <vxio/interpret/compiler/parserbase.h>
+#include "parserbase.h"
 
 namespace vxio
 {

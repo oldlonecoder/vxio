@@ -14,7 +14,7 @@ namespace vxio {
     xio* xio::_global_root_bloc = nullptr;
 
 
-    xio* xio::get_global_root() { return xio::_global_root_bloc; }
+    //xio* xio::get_global_root() { return xio::{vxio::type::binary_t,     vxio::type::open_pair_t},  &xio::set_right_global_root_bloc; }
 
 
 #define deg2rad(_xio) (((_xio)->acc->v.d*3.1415) / 180)
@@ -497,7 +497,7 @@ namespace vxio {
         x->op = this;
         if (t0->is_binary())
         {
-            //logger::debug(src_funcname) << xio::trace_connect_binary_operands(this);
+            logger::debug(src_funcname) << xio::trace_connect_binary_operands(this);
         }
         return x;
     }
@@ -564,7 +564,7 @@ namespace vxio {
                 if (op) 
                 {
                     op->rhs = lhs;
-                    //xio::trace_connect_binary_operands(op);
+                    xio::trace_connect_binary_operands(op);
                 }
 
                 // discard();
@@ -1341,35 +1341,35 @@ namespace vxio {
 ///        va vari
 /// </summary>
 /// <returns></returns>
-    // std::string xio::trace_connect_binary_operands(xio* x)
-    // {
-    //     // assume this binary operator already has its lhs rhs operands !!
-    //     //iostr str;
-    //     int lw = x->lhs->attribute().length();
-    //     int rw = x->rhs->attribute().length();
-    //     int ow = x->attribute().length();
-    //     int w = lw + rw + 3; // total width
-    //     w -= lw % 2 == 0;
+ std::string xio::trace_connect_binary_operands(xio* x)
+ {
+     // assume this binary operator already has its lhs rhs operands !!
+     //iostr str;
+     int lw = x->lhs->attribute().length();
+     int rw = x->rhs->attribute().length();
+     int ow = x->attribute().length();
+     int w = lw + rw + 3; // total width
+     w -= lw % 2 == 0;
 
 
-    //     int m_lhs = lw - (lw > 1 ? 1 : 0);
+     int m_lhs = lw - (lw > 1 ? 1 : 0);
 
-    //     vxy oper_xy = vxy( m_lhs+1,0 );
-    //     oper_xy.x -= ow % 2 == 0 ? 1 : 0;
+     vxy oper_xy = vxy( m_lhs+1,0 );
+     oper_xy.x -= ow % 2 == 0 ? 1 : 0;
 
-    //     iostr::geometry area;
-    //     area.set_geometry(w, 3); // pour l'instant m'est hardcoded.
-    //     area.gotoxy(oper_xy.x,0);
-    //     area << x->attribute();
-    //     area << vxy{m_lhs,1} << "/ \\";
-        
-    //     area.gotoxy(0, 2);
-    //     area << x->lhs->attribute();
-        
-    //     area.gotoxy(m_lhs+2+(rw<=1?1:0), 2);
-    //     area << x->rhs->attribute();
-    //     return area;
-    // }
+     winbuffer area;
+     area.set_geometry(w, 3); // pour l'instant m'est hardcoded.
+     area.gotoxy(oper_xy.x,0);
+     area << x->attribute();
+     area << vxy{m_lhs,1} << "/ \\";
+    
+     area.gotoxy(0, 2);
+     area << x->lhs->attribute();
+    
+     area.gotoxy(m_lhs+2+(rw<=1?1:0), 2);
+     area << x->rhs->attribute();
+     return area;
+ }
 
     /// <summary>
     /// 

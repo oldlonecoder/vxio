@@ -2,8 +2,8 @@
 // Created by oldlonecoder on 21-11-20.
 //
 
-//#ifndef VXIO_FRAMEWORK_GEOMETRY_H
-//#define VXIO_FRAMEWORK_GEOMETRY_H
+//#ifndef VXIO_FRAMEWORK_winbuffer_H
+//#define VXIO_FRAMEWORK_winbuffer_H
 #pragma once
 #include <vxio/util/iostr.h>
 
@@ -362,8 +362,35 @@ struct VXIO_API_DLL rectangle final
 
 };
 
+struct VXIO_API_DLL winbuffer
+{
+    iostr* bmap = nullptr;
+    vxy cxy;
+    rectangle r;
+    size sz;
 
+    winbuffer& gotoxy(int x, int y);
+    winbuffer& operator << (const vxy& xy) { return gotoxy(xy.x, xy.y); }
+    void set_geometry(int w, int h);
 
+    winbuffer& operator ++();
+    winbuffer& operator ++(int);
+    winbuffer& operator --();
+    winbuffer& operator --(int);
+    winbuffer& tput(const std::string& txt);
+    
+    void clear();
+    void release();
+    template<typename T> winbuffer& operator << (T v)
+    {
+        iostr str;
+        str << v;
+        return tput(str());
+    }
+
+    std::string details();
+    operator std::string();
+};
 }
 
-//#endif //VXIO_FRAMEWORK_GEOMETRY_H
+//#endif //VXIO_FRAMEWORK_winbuffer_H

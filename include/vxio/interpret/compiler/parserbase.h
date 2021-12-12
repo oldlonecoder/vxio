@@ -20,7 +20,7 @@
 *************************************************************************************************************************************/
 #pragma once
 
-#include <vxio/interpret/compiler/context.h>
+#include "context.h"
 
 namespace vxio{
 

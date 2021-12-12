@@ -5,9 +5,24 @@
 
 #include <vxio/util/logger.h>
 #include <vxio/lexer/lexer.h>
+#include <vxio/interpret/interpret.h>
 
 namespace vxio
 {
+
+rem::code test_interpret()
+{
+    interpret i;
+    logger::debug() << " init the interpret:";
+    
+    i.init();
+    logger::debug() << " invoke the interpret:";
+    logger::debug() << "alu a = i[\"0.03 * 4ac(8 + 5/6) -1;\"];";
+    alu a = i["0.03 * 4ac(8 + 5/6) -1;"];
+    logger::debug() << " interpret is done (in case there is no debug infos... \nLeaving [" << a() << "].";
+    return rem::code::ok;
+}
+
 rem::code test_lexer()
 {
     lexer lex;
@@ -54,6 +69,7 @@ int main()
     
     
     (void)vxio::test_lexer();
+    (void)vxio::test_interpret();
     
     logger::clear([](rem& r){
        std::cout << r.cc() << '\n';

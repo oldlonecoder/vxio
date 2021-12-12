@@ -18,14 +18,21 @@ expression::~expression()
 rem::code expression::parse(context ctx_)
 {
     _ctx = std::move(ctx_);
+    std::cout << "debug (check _ctx): " << _ctx.describe() << "\n";
+    
     //Rassembler les tokens de l'expression arithm&eacute;tique:
-    while((_ctx.finish <= _ctx.last) && _ctx.finish->_flags.V) _ctx.i_tokens.push_back(_ctx.finish++);
+    
+    std::cout << __PRETTY_FUNCTION__ << ": //Rassembler les tokens de l'expression arithm&eacute;tique:\n";
+    auto i = _ctx.start;
+    while((i <= _ctx.last) && i->_flags.V) _ctx.i_tokens.push_back(i++);
+    
     if(_ctx.i_tokens.empty())
     {
         logger::error() << ": expression parser: no tokens";
         return rem::code::empty;
     }
     
+    std::cout << __PRETTY_FUNCTION__ << "// maintenant on peut parcourir les tokens et construire l'arbre binaire de l'expression:";
     // maintenant on peut parcourir les tokens et construire l'arbre binaire de l'expression:
     xio* input = nullptr;
     for(auto i_token : _ctx.i_tokens)
@@ -41,6 +48,8 @@ rem::code expression::parse(context ctx_)
                 return create_xio(ptok);
             });
     }
+    _ctx.finish = _ctx.last;
+    
     return rem::code::accepted;
 }
 

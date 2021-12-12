@@ -305,6 +305,11 @@ struct VXIO_API_DLL color
  * @author &copy; 2021, Serge Lussier (lussier.serge@gmail.com); oldlonecoder on github.com and youtube
  */
  
+
+namespace vxio{
+    struct winbuffer;
+}
+
 class VXIO_API_DLL iostr
 {
     static std::string __nullstr__;
@@ -313,6 +318,7 @@ class VXIO_API_DLL iostr
     static std::string _default_token_separators;
     uint8_t _decimal_precision = 4;
     //char* __buff = nullptr;
+    friend class vxio::winbuffer;
 private:
     // %[flags][width][.precision][Length]specifier
     struct format_t

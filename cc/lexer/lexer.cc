@@ -167,7 +167,7 @@ std::string lexer::internal_cursor::line_num() const
 std::string lexer::internal_cursor::mark() const
 {
     iostr Str = line_num();
-    logger::debug() << "std::string lexer::internal_cursor::mark() const:\n'" << Str() << "'\n";
+    //logger::debug() << "std::string lexer::internal_cursor::mark() const:\n'" << Str() << "'\n";
     Str += '\n';
     for(int x = 1; x < Col; x++)
         Str << ' ';
@@ -318,7 +318,7 @@ lexer::Scanner lexer::GetScanner(token_data& token)
 
 rem::code lexer::input_binary_operator(token_data & token)
 {
-    logger::debug() << __PRETTY_FUNCTION__ << ":\n";
+    //logger::debug() << __PRETTY_FUNCTION__ << ":\n";
     if (token.c == mnemonic::k_sub || token.c == mnemonic::k_add)
     {
         if (ScanSignPrefix(token) == rem::code::accepted)
@@ -342,7 +342,7 @@ rem::code lexer::input_binary_operator(token_data & token)
  */
 rem::code lexer::_InputDefault(token_data &atoken)
 {
-    logger::debug() << __PRETTY_FUNCTION__ << ":\n";
+    //logger::debug() << __PRETTY_FUNCTION__ << ":\n";
     if(ScanNumber(atoken) != rem::code::accepted)
     {
         //rem::codeDebug() << " Not a number_t Trying ScanIdentifier:";
@@ -381,14 +381,14 @@ rem::code lexer::_InputPunctuation(token_data &atoken)
 
 rem::code lexer::_InputKeyword(token_data &atoken)
 {
-    logger::debug() << __PRETTY_FUNCTION__ << ":\n";
+    //logger::debug() << __PRETTY_FUNCTION__ << ":\n";
     return Push(atoken);
 }
 
 
 rem::code lexer::_InputHex(token_data &atoken)
 {
-    logger::debug() << __PRETTY_FUNCTION__ << ":\n";
+    //logger::debug() << __PRETTY_FUNCTION__ << ":\n";
     //rem::codeDebug(__PRETTY_FUNCTION__) << ":\n";
     const char *C_ = src_cursor.C;
     C_ += atoken.text().length();
@@ -420,7 +420,7 @@ rem::code lexer::_InputHex(token_data &atoken)
 rem::code lexer::ScanNumber(token_data &atoken)
 {
 
-    logger::debug() << __PRETTY_FUNCTION__ << ":\n";
+    //logger::debug() << __PRETTY_FUNCTION__ << ":\n";
     num_scanner Num = num_scanner(src_cursor.C, src_cursor.E);
     while(Num++);
     if(!Num.operator bool())
@@ -531,7 +531,7 @@ void lexer::InsertMultiply(token_data& atoken)
     Mul.c = mnemonic::k_mul;
     auto i = --mConfig.Tokens->end();
     mConfig.Tokens->insert(i, Mul);
-    logger::debug() << __PRETTY_FUNCTION__ << ":\n Details:" << Mul.details() << "\n" << Mul.mark();
+    //logger::debug() << __PRETTY_FUNCTION__ << ":\n Details:" << Mul.details() << "\n" << Mul.mark();
 }
 
 /*!
@@ -593,7 +593,7 @@ rem::code lexer::ScanSignPrefix(token_data &atoken)
 {
     if(!mConfig.Tokens->empty() && (mConfig.Tokens->back().s & vxio::type::close_pair_t))
     {
-        logger::comment() << "lexer::ScanSignPrefix:\n" << atoken.mark() << "\n" << " rejected...\n";
+        //logger::comment() << "lexer::ScanSignPrefix:\n" << atoken.mark() << "\n" << " rejected...\n";
         return rem::code::rejected;
     }
 
@@ -730,7 +730,7 @@ rem::code lexer::Exec()
         C = src_cursor.C;
 
         atoken = token_data::scan(src_cursor.C);
-        logger::debug() << __PRETTY_FUNCTION__ << ": " << atoken.details();
+        //logger::debug() << __PRETTY_FUNCTION__ << ": " << atoken.details();
         Scanner S = GetScanner(atoken);
         if (S)
         {

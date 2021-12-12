@@ -48,6 +48,7 @@ public:
     rem::code load_code();
     vxu::config& config_data() { return _config; }
     rem::code compile();
+    std::string id() { return _id; }
 protected:
     vxu::config _config;
     

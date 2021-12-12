@@ -68,11 +68,11 @@ context &context::operator=(const context &ctx) noexcept
 
 context::~context()
 {
-    if(xios)
-    {
-        xios->clear();
-        delete xios;
-    }
+//    if(xios)
+//    {
+        xios.clear();
+//        delete xios;
+//    }
     i_tokens.clear();
     while(!context::ctx_stack.empty()) context::ctx_stack.pop();
 }
@@ -107,6 +107,29 @@ token_data::iterator context::operator++()
     ++finish;
     return finish;
 }
-
+std::string context::describe()
+{
+    iostr str;
+    // bloc id if vxu+ :
+    if(!blk)
+        exit(1);
+    str = "bloc:%p '%s'";
+    str << blk;
+    
+    if(vxu* xu = blk->to<vxu>())
+    {
+        str << (xu->id().empty() ? " context bloc: expected non-empty vxu::id!" : xu->id());
+        if(xu->id().empty())
+        {
+            std::cout << str() << "\n  aborted with exit(1); !!";
+            exit(1);
+        }
+    }
+    else
+        str << "scoped bloc";
+    
+    //...
+    return str();
+}
 
 }

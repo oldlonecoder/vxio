@@ -21,7 +21,7 @@
 *************************************************************************************************************************************/
 
 #pragma once
-#include <vxio/interpret/bloc.h>
+#include "vxio/interpret/bloc.h"
 #include <stack>
 #include "vxio/interpret/vxu.h"
 
@@ -38,7 +38,7 @@ public:
     token_data::iterator last;
     bloc*  blk = nullptr;
     xio* instruction = nullptr;
-    xio::collection* xios = nullptr; ///< locally compiled xio's.
+    xio::collection xios; ///< locally compiled xio's.
     
     std::vector<token_data::iterator> i_tokens; ///< (Sous r&eacute;serve) In expression parser for example, we would iterate
                                     ///< forward by filling in the local token iterators collection while the token
@@ -62,6 +62,10 @@ public:
     token_data::iterator operator++(int);
     token_data::iterator operator++();
     bool end() { return finish == last; }
+    
+    
+    std::string describe();
+    
 };
 
 }
