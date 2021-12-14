@@ -78,6 +78,8 @@ public:
     }
     std::string cc();
     static void init();
+    rem::code rem_code() { return _code; }
+    rem::type rem_type() { return _type; }
 private:
     rem::code _code = rem::code::hello;
     rem::type _type = rem::type::output;
