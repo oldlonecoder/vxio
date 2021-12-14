@@ -27,6 +27,14 @@ namespace vxio
 {
 class expression : public parser_base
 {
+    
+    struct node
+    {
+        node* op = nullptr;
+        node* ls = nullptr;
+        node* rs = nullptr;
+        
+    };
 public:
     expression():parser_base(){}
     ~expression() override;

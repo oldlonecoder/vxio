@@ -116,27 +116,27 @@ private:
     using Input = std::pair<vxio::type::T, lexer::ScannerFn>;
     using ScanTable = std::vector<lexer::Input>;
     using Scanner = lexer::ScannerFn;
-    static lexer::ScanTable  _ScanTable;
+    static lexer::ScanTable scan_table;
 
-    static Scanner GetScanner(token_data& token);
+    static Scanner get_scanner(token_data& token);
     
     rem::code input_binary_operator(token_data&);
-    rem::code _InputDefault(token_data&);
-    rem::code _InputUnaryOperator(token_data&);
-    rem::code _InputPunctuation(token_data&);
-    rem::code _InputKeyword(token_data&);
-    rem::code _InputHex(token_data&);
-    rem::code _InputText(token_data&);
-    rem::code ScanNumber(token_data&);
-    rem::code ScanIdentifier(token_data&);
-    rem::code ScanFactorNotation(token_data&);
-    rem::code ScanSignPrefix(token_data&);
-    rem::code ScanPrefix(token_data&);
-    rem::code ScanPostfix(token_data&);
+    rem::code input_default(token_data&);
+    rem::code input_unary_operator(token_data&);
+    rem::code input_punctuation(token_data&);
+    rem::code input_keyword(token_data&);
+    rem::code input_hex(token_data&);
+    rem::code input_text(token_data&);
+    rem::code scan_number(token_data&);
+    rem::code scan_identifier(token_data&);
+    //rem::code ScanFactorNotation(token_data&);
+    rem::code scan_sign_prefix(token_data&);
+    rem::code scan_prefix(token_data&);
+    rem::code scan_postfix(token_data&);
     
     #pragma endregion Scanners
 
-    void InsertMultiply(token_data&);
+    void insert_multiply(token_data&);
 };
 
 

@@ -344,7 +344,15 @@ namespace vxio {
             << color::White << ":"
             << color::White << ":"
             << color::Yellow << x->t0->text();
-
+        if(t0->is_leaf())
+        {
+            if(x->t0->c == mnemonic::k_open_par)
+            {
+                logger::error() <<
+                                " syntax error in arithmetic expression input : unexpected binary operator token " << x->t0->text() << ":\n" << x->t0->mark();
+                return nullptr;
+            }
+        }
         if (t0->c == mnemonic::k_open_par)
             return tree_set_left(x);
 
