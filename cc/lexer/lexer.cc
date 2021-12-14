@@ -11,21 +11,6 @@ namespace vxio
 {
 
 lexer::ScanTable  lexer::scan_table;
-//= {
-//
-//    {vxio::type::null_t,    &lexer::input_default},
-//    {vxio::type::binary_t,  &lexer::input_binary_operator },
-//    {vxio::type::hex_t,     &lexer::input_hex},
-//    {vxio::type::punc_t,    &lexer::input_punctuation},
-//    {vxio::type::prefix_t,  &lexer::scan_prefix},
-//    {vxio::type::keyword_t, &lexer::input_keyword}
-//
-//};
-
-//lexer::config_data &lexer::config()
-//{
-//    return mConfig;
-//}
 
 #pragma region InternalCursor
 
