@@ -37,7 +37,7 @@ namespace vxio {
     using token_t = token_data;
 
     // Arithmetic Binary Tree: associative building logic table:
-    xio::input_table_t      xio::tree_input_assoc_table = {
+    xio::lr_input_table      xio::lr_table = {
 
         {{vxio::type::binary_t,     vxio::type::open_pair_t},  &xio::tree_set_right},
         {{vxio::type::open_pair_t,  vxio::type::leaf_t},       &xio::tree_set_left},
@@ -49,16 +49,13 @@ namespace vxio {
         {{vxio::type::close_pair_t, vxio::type::postfix_t},    &xio::tree_close_par},
         //{{vxio::type::close_pair_t, vxio::type::close_pair_t}, &xio::tree_close_par},
         {{vxio::type::close_pair_t, vxio::type::close_pair_t}, &xio::tree_rpar_rpar},
-
         {{vxio::type::prefix_t,     vxio::type::close_pair_t}, &xio::tree_input_rpar},
         {{vxio::type::leaf_t,       vxio::type::close_pair_t}, &xio::tree_input_rpar},
         {{vxio::type::leaf_t,       vxio::type::postfix_t},    &xio::tree_set_right_to_op},
         {{vxio::type::leaf_t,       vxio::type::assign_t},     &xio::tree_input_binary},
-
-
+        {{vxio::type::leaf_t,       vxio::type::binary_t},     &xio::tree_input_binary},
         {{vxio::type::postfix_t,    vxio::type::close_pair_t}, &xio::tree_input_rpar},
         {{vxio::type::open_pair_t,  vxio::type::binary_t},     &xio::tree_set_left},
-        {{vxio::type::leaf_t,       vxio::type::binary_t},     &xio::tree_input_binary},
         {{vxio::type::binary_t,     vxio::type::binary_t},     &xio::tree_input_binary},
         {{vxio::type::binary_t,     vxio::type::leaf_t},       &xio::tree_set_right},
         {{vxio::type::prefix_t,     vxio::type::binary_t},     &xio::tree_input_binary},
@@ -241,45 +238,37 @@ namespace vxio {
     */
     xio* xio::tree_input(token_t* a_token, xio::maker invoke_maker)
     {
-        inptr_fn_t pfn = nullptr;
-        for (auto key : xio::tree_input_assoc_table)
+        for (auto [lr_pair, fnptr] : xio::lr_table)
         {
-            if ((key.first.first & t0->s) && (a_token->s & key.first.second))
+            auto [l, r] = lr_pair;
+            auto lr_fnptr = fnptr;
+            
+            if ((l & t0->s) && (a_token->s & r))
             {
                 logger::debug(src_funcname)
                     << color::Blue << "xio::tree_input: \n"
                     << color::Yellow
                     << t0->text() << ' '
-                    << color::Yellow << vxio::type::name(key.first.first) << " <- "
+                    << color::Yellow << vxio::type::name(l) << " <- "
                     << color::Yellow << a_token->text() << ' '
-                    << color::Yellow << vxio::type::name(key.first.second);
-
-                pfn = key.second;
-                break;
+                    << color::Yellow << vxio::type::name(r);
+                
+                if(lr_fnptr)
+                {
+                    if (!invoke_maker)
+                    {
+                        logger::error() << " arithmetic expression binary tree build: cannot invoke null xio maker!";
+                        return nullptr;
+                    }
+                    xio* x = invoke_maker(a_token);
+                    if (!x) return nullptr;
+                    logger::debug() << ":\n" << t0->mark();
+                    return (this->*lr_fnptr)(x);
+                }
             }
         }
-        logger::debug() << ":\n" << t0->mark();
-        if (pfn)
-        {
-            if (!invoke_maker)
-            {
-                logger::error() << " arithmetic expression binary tree build: cannot invoke null xio maker!";
-                return nullptr;
-            }
-            
-            xio* x = invoke_maker(a_token);
-            if (!x) return nullptr;
-            return (this->*pfn)(x);
-        }
-
-        return  nullptr;
-        /*logger::error()
-            << rem::code::location << ": syntax error, unexpected token:'"
-            << a_token->text()
-            << "'\n" << a_token->mark()
-            << "\n - "
-            << t0->details() << " <== " << a_token->details();
-        */
+        logger::error() << " unexpected token:\n" << a_token->mark();
+        return nullptr;
     }
 
 
@@ -378,7 +367,7 @@ namespace vxio {
 
         if (op) {
             op_input_binary:
-            inptr_fn_t ptr = associate(op, x);
+            lr_input_fnptr ptr = associate(op, x);
             if (ptr)
                 return (op->*ptr)(x);
 
@@ -520,9 +509,9 @@ namespace vxio {
     }
 
 
-    xio::inptr_fn_t xio::associate(xio* a_lhs, xio* a_rhs)
+    xio::lr_input_fnptr xio::associate(xio* a_lhs, xio* a_rhs)
     {
-        for (auto key : xio::tree_input_assoc_table) {
+        for (auto key : xio::lr_table) {
             //if ((key.first.first == a_lhs->token_info->t) && (a_rhs->token_info->t & key.first.second)) {
             if ((key.first.first & a_lhs->t0->s) && (a_rhs->t0->s & key.first.second)) {
                 return key.second;

@@ -21,6 +21,7 @@
 #include <utility>
 #include <stack>
 #include <map>
+#include <vxio/util/expect.h>
 
 
 
@@ -113,12 +114,12 @@ private:
 
 #pragma region Assoc
     // First : declare associative pair:
-    using associative_type = std::pair<vxio::type::T, vxio::type::T>;
-    using inptr_fn_t = xio*(xio::*)(xio*);        ///< callable xio tree input function ptr
-    using associated_method = std::pair < xio::associative_type, xio::inptr_fn_t>;
+    using lr_input_pair = std::pair<vxio::type::T, vxio::type::T>;
+    using lr_input_fnptr = xio*(xio::*)(xio*);        ///< callable xio tree input function ptr
+    using lr_input_pair_fnptr = std::pair < xio::lr_input_pair, xio::lr_input_fnptr>;
 
-    using input_table_t = std::vector<xio::associated_method>;
-    static xio::input_table_t tree_input_assoc_table;
+    using lr_input_table = std::vector<xio::lr_input_pair_fnptr>;
+    static xio::lr_input_table lr_table;
 
 #pragma endregion Assoc
 
@@ -169,7 +170,7 @@ private:
     //xio* tree_set_left(token_data* token, xio::maker xio_maker);
     xio* tree_set_right(xio* x);
     xio* tree_set_right_to_op(xio* x);
-    xio::inptr_fn_t associate(xio* a_lhs, xio* a_rhs);
+    xio::lr_input_fnptr associate(xio* a_lhs, xio* a_rhs);
     xio* tree_lpar_input_binary(xio* x);
     xio* tree_input_rpar(xio*);
     xio* tree_input_lpar(xio*);

@@ -113,6 +113,8 @@ void rem::init_text_attr()
         vxio::color::ansi(vxio::color::Grey)            ,//empty,
         vxio::color::ansi(vxio::color::LightSteelBlue3),//unexpected,
         vxio::color::ansi(vxio::color::LightSteelBlue3),//expected,
+        vxio::color::ansi(vxio::color::White),          //endl,
+        vxio::color::ansi(vxio::color::White),          //implement,
         vxio::color::ansi(vxio::color::White),          //_file_,
         vxio::color::ansi(vxio::color::LightSteelBlue),//_function_,
         vxio::color::ansi(vxio::color::LightSteelBlue3),//_fn_,
