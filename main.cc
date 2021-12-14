@@ -29,7 +29,7 @@ rem::code test_lexer()
     token_data::collection tokens;
     lex.config() =
     {
-        "static u64 a = 0.03 * 4(8 + 5/6) -1;",
+        "static u64* a = 0.03 * 4(8 + 5/6) -1; g=<-(a->b)",
         &tokens
     };
     auto r = lex();

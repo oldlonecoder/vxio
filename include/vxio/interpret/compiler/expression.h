@@ -23,7 +23,7 @@
 #pragma once
 #include <vxio/interpret/compiler/parserbase.h>
 #include <vxio/util/expect.h>
-#include <vxio/
+//#include <vxio/
 
 namespace vxio
 {
@@ -35,7 +35,10 @@ public:
         node* op = nullptr; ///< Operator (parent).
         node* ls = nullptr; ///< Left hand Side operand.
         node* rs = nullptr; ///< Right ahnd Side operand.
-        token_data* token = null;
+        token_data* token = nullptr;
+        
+        ~node();
+        
         
         using result = expect<expression::node*>;
         using lr_pair = std::pair<type::T, type::T>;
@@ -57,6 +60,9 @@ public:
         
         expression::node::result op_input_binary_op(expression::node* n);
         expression::node::result input_binary_open_pair(expression::node* n);
+        expression::node::result input_binary_leaf(expression::node* n);
+        expression::node::result input_postfix_binary(expression::node* n);
+        expression::node::result input_prefix_prefix(expression::node* n);
         expression::node::result set_left(node *n);
         expression::node::result set_right(node *n);
     };

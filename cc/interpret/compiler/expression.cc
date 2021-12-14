@@ -21,10 +21,14 @@ expression::node::lr_pair_table  expression::node::lr_input_table =
      {{type::id_t, type::open_pair_t}, &expression::node::input_id_open_pair}, // (,[,{,|abs|
      {{type::leaf_t, type::open_pair_t}, &expression::node::input_leaf_open_pair}, // (,[,{,|abs|
      {{type::prefix_t, type::open_pair_t}, &expression::node::input_prefix_open_pair}, // (,[,{,|abs|
+     
      {{type::binary_t, type::open_pair_t}, &expression::node::set_right}, // (,[,{,|abs|
      {{type::leaf_t, type::binary_t}, &expression::node::input_leaf_binary_op},
      {{type::binary_t, type::binary_t}, &expression::node::op_input_binary_op},
-        
+     {{type::binary_t, type::leaf_t}, &expression::node::input_binary_leaf},
+     {{type::postfix_t, type::binary_t}, &expression::node::input_postfix_binary},
+     {{type::prefix_t, type::prefix_t}, &expression::node::input_prefix_prefix},
+     
 };
 
 expression::node::result expression::node::begin_ast(token_data &token)
@@ -52,7 +56,7 @@ expression::node::result expression::node::input(token_data &token)
             }
         }
     }
-    return logger::warning(src_funcname) << rem::code::_fn_ << ": implement";
+    return logger::syntax() << " unexpected input token:\n" << token.mark();
 }
 
 expression::~expression()
@@ -137,8 +141,9 @@ expression::node::result expression::node::op_input_binary_op(expression::node *
     {
         if(op)
             return op->op_input_binary_op(n);
-        return set_right(n);
+        return n->set_left(this);
     }
+    return set_right(n);
 }
 
 
@@ -179,12 +184,12 @@ expression::node::result expression::node::input_leaf_binary_op(expression::node
 expression::node::result expression::node::input_id_open_pair(expression::node *n)
 {
     
-    return logger::syntax(src_funcname) << rem::code::_fn_ << ": unexpected open par on input: unimplemented yet: \n" << n->token->mark();
+    return logger::syntax(src_funcname) << rem::code::_fn_ << ": unexpected token on expression ast node input: unimplemented yet: \n" << n->token->mark();
 }
 
 expression::node::result expression::node::input_leaf_open_pair(expression::node *n)
 {
-    return logger::syntax(src_funcname) << rem::code::_fn_ << ": unexpected open par on input: unimplemented yet: \n" << n->token->mark();
+    return logger::syntax(src_funcname) << rem::code::_fn_ << ": unexpected token on expression ast node input: unimplemented yet: \n" << n->token->mark();
 }
 
 
@@ -201,10 +206,10 @@ expression::node::result expression::node::input_leaf_open_pair(expression::node
  */
 expression::node::result expression::node::input_prefix_open_pair(expression::node *n)
 {
-    return logger::warning(src_funcname) << rem::code::_fn_ << ": implement";
+    return set_right(n);
 }
 
-
+// !*dd
 expression::node::result expression::node::input_fncall_open_pair(expression::node *n)
 {
     return logger::warning(src_funcname) << rem::code::_fn_ << ": implement";
@@ -212,7 +217,18 @@ expression::node::result expression::node::input_fncall_open_pair(expression::no
 
 
 
-
+/*!
+ * @brief  set_left
+ * @param n
+ * @return
+ *
+ *      !r +
+ *      !         +
+ *       \       /
+ *        r     !
+ *               \
+ *                r
+ */
 expression::node::result expression::node::set_left(expression::node *n)
 {
     n->op = this;
@@ -260,6 +276,52 @@ expression::node::result expression::node::set_right(expression::node *n)
  *            1   2
  */
 expression::node::result expression::node::input_binary_open_pair(expression::node *n)
+{
+    return set_right(n);
+}
+expression::node::~node()
+{
+    if(ls)
+        delete ls;
+    if(rs)
+        delete rs;
+    
+}
+expression::node::result expression::node::input_binary_leaf(expression::node *n)
+{
+    if(rs)
+        return logger::syntax() << " expected binary or postfix operator:\n" << n->token->mark();
+    return set_right(n);
+}
+
+
+
+/*!
+ * @brief input_postix_binary
+ * @param n
+ * @return
+ *
+ *     r! + 4;
+ *
+ *         +
+ *        / \
+ *       !   4
+ *      /
+ *     r
+ */
+expression::node::result expression::node::input_postfix_binary(expression::node *n)
+{
+    return n->set_left(this);
+}
+
+/*!
+ * @brief input_postfix_postfix
+ * @param n
+ * @return
+ *
+ *  !<-r;
+ */
+expression::node::result expression::node::input_prefix_prefix(expression::node *n)
 {
     return set_right(n);
 }

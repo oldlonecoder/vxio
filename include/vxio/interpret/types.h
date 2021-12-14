@@ -56,6 +56,7 @@ constexpr T        f128_t         = 0x040000000000;
 constexpr T        octal_format_t = 0x080000000000;
 constexpr T        bin_format_t   = 0x100000000000;
 
+
 std::string VXIO_API_DLL name(T T_);
 T    VXIO_API_DLL from_str(iostr);
 }
@@ -80,6 +81,7 @@ enum class mnemonic : uint16_t
     k_assign_c1,
     k_assign_left_shift,
     k_assign_right_shift,
+    k_deref,
     k_less_eq,
     k_greater_eq,
     k_equal,
@@ -174,13 +176,13 @@ namespace type::distance
 using T = uint8_t;
 constexpr T scope      = 0;
 constexpr T assign_rhs = 1;
-constexpr T unary      = 2;
+constexpr T deref      = 2;
 constexpr T prefix     = 3;
-constexpr T deref      = 4;
+constexpr T unary      = 3;
 constexpr T paranthese = 5;
 constexpr T exponent   = 6;
-constexpr T product    = 7;
-constexpr T bits       = 8;
+constexpr T bits       = 7;
+constexpr T product    = 8;
 constexpr T addition   = 9;
 constexpr T shift      = 10;
 constexpr T equality   = 11;
@@ -218,6 +220,7 @@ constexpr T k_assign_xor    = "><=";
 constexpr T k_assign_c1     = "`=";
 constexpr T k_assign_lshift = "<<=";
 constexpr T k_assign_rshift = ">>=";
+constexpr T k_deref         = "<-";
 constexpr T k_less_equal    = "<=";
 constexpr T k_greater_equal = ">=";
 constexpr T k_equal         = "==";

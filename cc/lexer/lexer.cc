@@ -536,7 +536,7 @@ rem::code lexer::scan_identifier(token_data &atoken)
     atoken.c            = mnemonic::noop_;
     atoken.mLoc.linenum = src_cursor.L;
     atoken.mLoc.colnum  = src_cursor.Col;
-    atoken._flags.V     = 1; //Subject to be modified
+    atoken._flags.V     = 0; //Subject to be modified
     Push(atoken);
     if(src_cursor._F)
         insert_multiply(atoken);
