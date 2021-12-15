@@ -361,11 +361,12 @@ rem::code lexer::input_unary_operator(token_data& atoken)
 rem::code lexer::input_punctuation(token_data &atoken)
 {
     //rem::codeDebug(__PRETTY_FUNCTION__) << '\n' << mCursor.mark();
-    
+    // Note: Appliquer la pile de open_par pour verifier les openpars mis à 1 lorsque nous alons traiter les close pars...
     if(atoken.c == mnemonic::k_open_par)
     {
         if(src_cursor._F)
         {
+            atoken._flags.V = 1;
             Push(atoken);
             insert_multiply(atoken);
             src_cursor._F = false;
@@ -521,7 +522,7 @@ rem::code lexer::scan_identifier(token_data &atoken)
     atoken.c            = mnemonic::noop_;
     atoken.mLoc.linenum = src_cursor.L;
     atoken.mLoc.colnum  = src_cursor.Col;
-    atoken._flags.V     = 0; //Subject to be modified
+    atoken._flags.V     = src_cursor._F ? 1 : 0; //Subject to be modified
     Push(atoken);
     if(src_cursor._F)
         insert_multiply(atoken);

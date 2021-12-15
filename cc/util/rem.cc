@@ -46,16 +46,19 @@ rem::rem(const rem &r)
     _text = r._text;
     _type = r._type;
     _code = r._code;
+    _src = r._src;
     _components = r._components;
     
 }
 
 rem::rem(rem &&r) noexcept
 {
+    _src = std::move(r._src);
     _text = std::move(r._text);
     _components = std::move(r._components);
     _type = r._type;
     _code = r._code;
+    
 }
 
 rem::~rem()
@@ -72,14 +75,7 @@ rem::rem(rem::type type_, const source::location &src)
 
 rem &rem::operator<<(rem::code c_)
 {
-    if(c_ < rem::code::_file_ )
-    {
-        iostr str = "%s%s";
-        rem::codes_ansi256_attr[static_cast<int16_t>(c_)];
-        str << rem::codes_text[static_cast<int8_t>(c_)].data();
-        str<<  _components.emplace_back(str());
-    }
-    // bypass code value from _file_.
+    
     return *this;
 }
 
@@ -116,8 +112,8 @@ void rem::init_text_attr()
         vxio::color::ansi(vxio::color::White),          //endl,
         vxio::color::ansi(vxio::color::White),          //implement,
         vxio::color::ansi(vxio::color::White),          //_file_,
-        vxio::color::ansi(vxio::color::LightSteelBlue),//_function_,
-        vxio::color::ansi(vxio::color::LightSteelBlue3),//_fn_,
+        vxio::color::ansi(vxio::color::DarkBlue),//_function_,
+        vxio::color::ansi(vxio::color::DarkBlue),//_fn_,
         vxio::color::ansi(vxio::color::White),          //_line_
     };
 }
@@ -133,21 +129,23 @@ std::string rem::cc()
     {
         str += "\n";
         str += rem::codes_ansi256_attr[static_cast<int16_t>(rem::code::_file_)];
+        iostr fname = _src.filename;
         iostr::word::list_t words;
 #ifndef _WIN32
-        if(str.words(words,"/") > 0)
+        if(fname.words(words,"/") > 0)
 #else
-        if (str.words(words, "\\") > 0)
+        if (fname.words(words, "\\") > 0)
 #endif
             str += words.back()();
         else
-            str += str();
+            str += fname();
         str += ' ';
     }
     
     if(!_src.func_name.empty())
     {
         str += rem::codes_ansi256_attr[static_cast<int16_t>(rem::code::_function_)];
+        str+= _src.func_name;
         str += ": ";
     }
     

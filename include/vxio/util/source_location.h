@@ -23,5 +23,5 @@ struct VXIO_API_DLL location
 
 #define src_location {__PRETTY_FUNCTION__, __FILE__, __LINE__}
 #define src_long_funcname {__PRETTY_FUNCTION__,"",__LINE__}
-#define src_funcname {__FUNCTION__,"",__LINE__}
+#define src_funcname {__FUNCTION__,__FILE__,__LINE__}
 #define src_filename {__FUNCTION__,__FILE__,__LINE__}

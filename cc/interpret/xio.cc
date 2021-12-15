@@ -428,11 +428,6 @@ namespace vxio {
     */
     xio* xio::tree_set_left(xio* x)
     {
-        logger::debug(src_funcname)
-            << color::Yellow << t0->text()
-            << color::White << ":"
-            << color::White << ":"
-            << color::Yellow << x->t0->text();
 
         /*
                   (;[;{   // Appliqué sur aucun autre type de token car l'appel de tree_set_left ne se fait qu'� partir de tree_input qui r�soud l'associativit�.

@@ -31,7 +31,7 @@ void logger::clear(std::function<void(rem&)> fn_)
 
 rem &logger::debug(const source::location &src)
 {
-    logger::_rems.emplace_back(rem::type::debug, src);
+    logger::_rems.push_back({rem::type::debug, src});
     return logger::_rems.back();
 }
 

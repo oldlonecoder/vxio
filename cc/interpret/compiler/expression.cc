@@ -31,32 +31,44 @@ expression::node::lr_pair_table  expression::node::lr_input_table =
      
 };
 
-expression::node::result expression::node::begin_ast(token_data &token)
+expression::node::result expression::node::begin_ast(token_data &token_)
 {
-    return logger::warning(src_funcname) << rem::code::_fn_ << ": implement";
+    node* n = new expression::node;
+    n->token = &token_;
+    return n;
 }
 
 expression::node::result expression::node::close_ast(token_data &token)
 {
+        logger::debug(src_funcname)
+        << color::White << "::"
+        << color::Yellow << token.text();
+        
     return logger::warning(src_funcname) << rem::code::_fn_ << ": implement";
 }
 
-expression::node::result expression::node::input(token_data &token)
+expression::node::result expression::node::input(token_data &token_)
 {
+        logger::debug(src_funcname)
+        << color::Yellow << token->text()
+        << color::White << ":<-:"
+        << color::Yellow << token_.text();
+        
+        
     for(auto [lr,fnptr] : expression::node::lr_input_table)
     {
         auto [l,r] = lr;
-        if((token.s & r) && (this->token->s & l))
+        if((token_.s & r) && (this->token->s & l))
         {
             if(fnptr)
             {
                 node * new_node = new node;
-                new_node->token = &token;
+                new_node->token = &token_;
                 return (this->*fnptr)(new_node);
             }
         }
     }
-    return logger::syntax() << " unexpected input token:\n" << token.mark();
+    return logger::syntax() << " unexpected input token:\n" << token_.mark();
 }
 
 expression::~expression()
@@ -66,6 +78,7 @@ expression::~expression()
 
 rem::code expression::parse(context ctx_)
 {
+    
     _ctx = std::move(ctx_);
     std::cout << "debug (check _ctx): " << _ctx.describe() << "\n";
     
@@ -82,10 +95,15 @@ rem::code expression::parse(context ctx_)
         return rem::code::empty;
     }
     
-    std::cout << __PRETTY_FUNCTION__ << "// maintenant on peut parcourir les tokens et construire l'arbre binaire de l'expression:";
-    // maintenant on peut parcourir les tokens et construire l'arbre binaire de l'expression:
+    
+    logger::info() << "maintenant on peut parcourir les tokens et construire l'arbre binaire de l'expression:\n";
+    for(auto& tok : _ctx.i_tokens)
+        logger::output() << tok->details();
+    logger::output() << " ----------------------------------------------------------------\n";
+    
     node      *input = nullptr;
     node::result r;
+    
     for(auto input_token: _ctx.i_tokens)
     {
         if(!input)
@@ -110,6 +128,7 @@ rem::code expression::parse(context ctx_)
 
 xio *expression::create_xio(token_data *token_)
 {
+    
     switch(token_->t)
     {
         //...
@@ -126,7 +145,6 @@ xio *expression::create_xio(token_data *token_)
  /*
  *       a + b * c
  *
- *
  *           +   <- *     +
  *          / \          / \
  *         a   b        a   * <- c
@@ -137,6 +155,10 @@ xio *expression::create_xio(token_data *token_)
 
 expression::node::result expression::node::op_input_binary_op(expression::node *n)
 {
+        logger::debug(src_funcname)
+        << color::Yellow << token->text()
+        << color::White << ":<-:"
+        << color::Yellow << n->token->text();
     if(token->d < n->token->d)
     {
         if(op)
@@ -164,6 +186,10 @@ expression::node::result expression::node::op_input_binary_op(expression::node *
  */
 expression::node::result expression::node::input_leaf_binary_op(expression::node *n)
 {
+        logger::debug(src_funcname)
+        << color::Yellow << token->text()
+        << color::White << ":<-:"
+        << color::Yellow << n->token->text();
     if(op)
         return op->op_input_binary_op(n);
     
@@ -183,12 +209,20 @@ expression::node::result expression::node::input_leaf_binary_op(expression::node
  */
 expression::node::result expression::node::input_id_open_pair(expression::node *n)
 {
+        logger::debug(src_funcname)
+        << color::Yellow << token->text()
+        << color::White << ":<-:"
+        << color::Yellow << n->token->text();
     
     return logger::syntax(src_funcname) << rem::code::_fn_ << ": unexpected token on expression ast node input: unimplemented yet: \n" << n->token->mark();
 }
 
 expression::node::result expression::node::input_leaf_open_pair(expression::node *n)
 {
+        logger::debug(src_funcname)
+        << color::Yellow << token->text()
+        << color::White << ":<-:"
+        << color::Yellow << n->token->text();
     return logger::syntax(src_funcname) << rem::code::_fn_ << ": unexpected token on expression ast node input: unimplemented yet: \n" << n->token->mark();
 }
 
@@ -206,12 +240,20 @@ expression::node::result expression::node::input_leaf_open_pair(expression::node
  */
 expression::node::result expression::node::input_prefix_open_pair(expression::node *n)
 {
+        logger::debug(src_funcname)
+        << color::Yellow << token->text()
+        << color::White << ":<-:"
+        << color::Yellow << n->token->text();
     return set_right(n);
 }
 
 // !*dd
 expression::node::result expression::node::input_fncall_open_pair(expression::node *n)
 {
+        logger::debug(src_funcname)
+        << color::Yellow << token->text()
+        << color::White << ":<-:"
+        << color::Yellow << n->token->text();
     return logger::warning(src_funcname) << rem::code::_fn_ << ": implement";
 }
 
@@ -231,6 +273,11 @@ expression::node::result expression::node::input_fncall_open_pair(expression::no
  */
 expression::node::result expression::node::set_left(expression::node *n)
 {
+        logger::debug(src_funcname)
+        << color::Yellow << token->text()
+        << color::White << ":<-:"
+        << color::Yellow << n->token->text();
+
     n->op = this;
     ls = n;
     return this;
@@ -246,6 +293,10 @@ expression::node::result expression::node::set_left(expression::node *n)
 
 expression::node::result expression::node::set_right(expression::node *n)
 {
+        logger::debug(src_funcname)
+        << color::Yellow << token->text()
+        << color::White << ":<-:"
+        << color::Yellow << n->token->text();
     if(rs)
     {
         rs->op = n;
@@ -277,6 +328,10 @@ expression::node::result expression::node::set_right(expression::node *n)
  */
 expression::node::result expression::node::input_binary_open_pair(expression::node *n)
 {
+        logger::debug(src_funcname)
+        << color::Yellow << token->text()
+        << color::White << ":<-:"
+        << color::Yellow << n->token->text();
     return set_right(n);
 }
 expression::node::~node()
@@ -289,6 +344,10 @@ expression::node::~node()
 }
 expression::node::result expression::node::input_binary_leaf(expression::node *n)
 {
+        logger::debug(src_funcname)
+        << color::Yellow << token->text()
+        << color::White << ":<-:"
+        << color::Yellow << n->token->text();
     if(rs)
         return logger::syntax() << " expected binary or postfix operator:\n" << n->token->mark();
     return set_right(n);
@@ -311,6 +370,10 @@ expression::node::result expression::node::input_binary_leaf(expression::node *n
  */
 expression::node::result expression::node::input_postfix_binary(expression::node *n)
 {
+        logger::debug(src_funcname)
+        << color::Yellow << token->text()
+        << color::White << ":<-:"
+        << color::Yellow << n->token->text();
     return n->set_left(this);
 }
 
@@ -323,6 +386,10 @@ expression::node::result expression::node::input_postfix_binary(expression::node
  */
 expression::node::result expression::node::input_prefix_prefix(expression::node *n)
 {
+        logger::debug(src_funcname)
+        << color::Yellow << token->text()
+        << color::White << ":<-:"
+        << color::Yellow << n->token->text();
     return set_right(n);
 }
 
