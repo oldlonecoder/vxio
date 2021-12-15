@@ -236,7 +236,7 @@ namespace vxio {
                          / \                                                       /           / \     +       / \                               / \
                         2   3                                                     2           2   3 <- )      2   3                             2   3
     */
-    xio* xio::tree_input(token_t* a_token, xio::maker invoke_maker)
+    xio* xio::tree_input(token_t* a_token, const xio::maker& invoke_maker)
     {
         for (auto [lr_pair, fnptr] : xio::lr_table)
         {

@@ -18,7 +18,7 @@ rem::code test_interpret()
     i.init();
     logger::debug() << " invoke the interpret:";
     logger::debug() << "alu a = i[\"0.03 * 4ac(8 + 5/6) -1;\"];";
-    alu a = i["0.03 * 4ac(8 + 5/6) -1;"];
+    alu a = i["0.03 * 4(8 + 5/6) - 1;"];
     logger::debug() << " interpret is done (in case there is no debug infos... \nLeaving [" << a() << "].";
     return rem::code::ok;
 }

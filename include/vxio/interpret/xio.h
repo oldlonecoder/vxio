@@ -92,7 +92,7 @@ public:
 
     alu unit() { return (acc ? *acc : alu(0.0f)); }
 
-    xio* tree_input(token_data* a_token, xio::maker a_allocator = nullptr);
+    xio* tree_input(token_data* a_token, const xio::maker& a_allocator = nullptr);
     static xio* begin_expr(token_data* a_token, xio::maker invoke_maker);
     virtual alu jsr(); // "Jump Subroutine" :)
 

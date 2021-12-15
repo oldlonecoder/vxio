@@ -30,6 +30,7 @@ class parser_base
 {
 protected:
     context _ctx;
+    
 public:
     parser_base()=default;
     virtual ~parser_base() = default;
