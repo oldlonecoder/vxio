@@ -1,9 +1,9 @@
 //
-// Created by oldlonecoder on 21-12-11.
+// Created by oldlonecoder on 21-12-15.
 //
 
-//#ifndef VXIO_INTERPRET_H
-//#define VXIO_INTERPRET_H
+//#ifndef VXIO_VARIABLE_H
+//#define VXIO_VARIABLE_H
 
 /**********************************************************************************************************************************
     Copyright 2021 Serge Lussier (oldlonecoder), lussier.serge@gmail.com
@@ -22,26 +22,25 @@
 
 
 #pragma once
-#include <vxio/interpret/vxu.h>
+
+#include <vxio/interpret/xio.h>
+
 
 
 namespace vxio
 {
-class VXIO_API_DLL interpret : public bloc
+class variable : public xio
 {
-    vxu* _main = nullptr;
-    
 public:
-    interpret() = default;
-    ~interpret() override;
+    variable() = default;
+    variable(xio *a_parent_, token_data *a_token_, alu *a_alu_);
+    ~variable() override;
     
-    alu operator[](std::string src_);
+    alu jsr() override;
     
-    rem::code init();
-    static interpret* instance();
-    static const rule* get_rule(const std::string& name_);
+    
 };
 
 }
 
-//#endif //VXIO_INTERPRET_H
+//#endif //VXIO_VARIABLE_H

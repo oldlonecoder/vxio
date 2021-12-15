@@ -24,6 +24,7 @@
 #include "vxio/interpret/bloc.h"
 #include <stack>
 #include "vxio/interpret/vxu.h"
+#include <vxio/interpret/compiler/grammar.h>
 
 namespace vxio
 {
@@ -34,11 +35,12 @@ class context
 public:
     
     token_data::iterator start;
-    token_data::iterator finish;
-    token_data::iterator last;
+    token_data::iterator c;
+    token_data::iterator last; // dernier token du stream
     bloc*  blk = nullptr;
     xio* instruction = nullptr;
-    xio::collection xios; ///< locally compiled xio's.
+    const rule* _rule = nullptr;
+    xio::collection xio_accumulator; ///< locally compiled xio's.
     
     std::vector<token_data::iterator> i_tokens; ///< (Sous r&eacute;serve) In expression parser for example, we would iterate
                                     ///< forward by filling in the local token iterators collection while the token
@@ -61,11 +63,11 @@ public:
     
     token_data::iterator operator++(int);
     token_data::iterator operator++();
-    bool end() { return finish == last; }
+    bool end() { return c == last; }
     
     
     std::string describe();
-    
+    static std::size_t clear_xio_accumulator(xio::collection& acc);
 };
 
 }

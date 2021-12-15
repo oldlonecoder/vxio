@@ -133,13 +133,15 @@ xio* bloc::query_object(const std::string& id)
 */
 xio* bloc::create_local_variable(token_data* token, std::pair<bool, vxio::type::T> attr)
 {
-    xio* v = query_local_variable(token->text());
+    //xio* v = query_local_variable(token->text());
+    xio* v = query_variable(token->text());
     if (v)
         return create_local_reference_variable(token, v);
     logger::debug() << " => " << token->details();
+    auto [stat, t] = attr;
     v = new xio(this, token);
-    v->t0->s |= attr.second|vxio::type::number_t;
-    // pour static storage, on es pas encore rendu la...
+    v->t0->s |= t;
+    v->mem.sstatic = stat; // On en es pas encore rendus là...
     variables.push_back(v);
     return v;
 }

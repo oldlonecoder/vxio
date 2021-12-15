@@ -14,30 +14,33 @@ namespace vxio
 
 
 grammar::Dictionary grammar::grammar_dictionnary = {
-    {':',  &grammar::EnterRuleDef},
-    {'|',  &grammar::NewSequence},
-    {'.',  &grammar::EndRule},
-    {'+',  &grammar::SetRepeat},
-    {'*',  &grammar::SetOptional},
-    {'?',  &grammar::SetOneof}, // One of
-    {'\'', &grammar::EnterLitteral},
-    {'"',  &grammar::EnterLitteral},
-    {'#',  &grammar::SetDirective},
+    {':', &grammar::enter_rule_def},
+    {'|', &grammar::new_sequence},
+    {'.', &grammar::end_rule},
+    {'+', &grammar::set_repeat},
+    {'*', &grammar::set_optional},
+    {'?', &grammar::set_oneof}, // One of
+    {'\'', &grammar::enter_litteral},
+    {'"', &grammar::enter_litteral},
+    {'#', &grammar::set_directive},
 };
 
-rule::collection grammar::_Rules;
+rule::collection grammar::rules;
 static bool      built                            = false;
 
+
+
 std::string grammar_text = R"(
+xio-unit           : 'unit' id_t;.
 stmts              : +statement.
 statement          : ';' | instruction | assignstmt ';'| declvar ';'| #expression ';'| #var_id ';'.
 assignstmt         : declvar assign_t expression | #var_id assign_t #expression.
 declvar            : *typename #newvar.
 funcsig            : *typename function_id '(' *params ')'.
-declfunc           : funcsig ';'| funcsig bloc.
+declfunc           : funcsig ';'| funcsig statement ';' | funcsig bloc.
 paramseq           : ',' param.
 param              : *typename id_t.
-function_call      : function_id ( args ) | objcfncall.
+function_call      : function_id '(' args ')' | objcfncall.
 params             : param *+paramseq.
 objcarg            : id_t ':' #expression.
 arg                : objcarg | #expression.
@@ -64,12 +67,12 @@ grammar::grammar()
 grammar::~grammar()
 {
     
-    for(auto rit: _Rules)
+    for(auto rit: rules)
     {
         rule *r = rit.second;
         delete r;
     }
-    _Rules.clear();
+    rules.clear();
 }
 
 rem::code grammar::build()
@@ -81,13 +84,13 @@ rem::code grammar::build()
         return rem::code::ok;
     }
     
-    _Text = grammar_text;
+    _text = grammar_text;
     logger::debug()
         << color::White << ":Building rules :\n----------------------------\n"
-        << color::Yellow << _Text
+        << color::Yellow << _text
         << color::White << "\n----------------------------------\n";
     
-    std::size_t   count = _Text.words(tokens, ":;,|.+*?#", true);
+    std::size_t   count = _text.words(tokens, ":;,|.+*?#", true);
     iostr::list_t List;
     logger::debug() << "building words list...";
     for(auto s: tokens)
@@ -112,25 +115,25 @@ rem::code grammar::build()
         }
         else
         {
-            r = ParseIdentifier(s);
+            r = parse_identifier(s);
         }
         if(r != rem::code::accepted)
             return r;
     }
     while(s != List.end());
     logger::debug() << ":";
-    // Dump(); // disabled
+    // dump(); // disabled
     return rem::code::accepted;
 }
 
-void grammar::Dump()
+void grammar::dump()
 {
     
     logger::info() << color::DarkBlue << "mnemonic" << color::Black << ',' <<
                    color::DarkRed << "rule" << color::Black << ',' <<
                    color::DarkCyan << "semantic" << color::Black << ',' << color::DarkMagenta << " Strict (implicit) rule:\n";
     iostr Out;
-    for(const auto &rule: _Rules)
+    for(const auto &rule: rules)
     {
         Out << color::Violet << rule.second->_id << color::White << ':';
         
@@ -178,9 +181,9 @@ void grammar::init_rules()
 
 }
 
-rem::code grammar::ParseIdentifier(iostr::Iterator &crs)
+rem::code grammar::parse_identifier(iostr::Iterator &crs)
 {
-    rule *r = QueryRule(*crs);
+    rule *r = query_rule(*crs);
     switch(_state)
     {
         case st_begin:
@@ -191,12 +194,12 @@ rem::code grammar::ParseIdentifier(iostr::Iterator &crs)
                     logger::fatal() << " rule, named: " << *crs << " already exists in the context of a new rule definition.";
                     return rem::code::rejected;
                 }
-                _Rule = r;
+                _rule = r;
             }
             else
             {
-                _Rule = new rule(*crs);
-                _Rules[*crs] = _Rule;
+                _rule = new rule(*crs);
+                rules[*crs] = _rule;
             }
             a.Reset();
             _state = st_init_rule; //  expect ':' as next token in main loop.
@@ -208,8 +211,8 @@ rem::code grammar::ParseIdentifier(iostr::Iterator &crs)
             // lexem::T ?
             /*lexer::lexem::lexer::lexem::mnemonic m = lexem::m(crs->c_str());
             if( m != lexer::lexem::lexer::lexem::mnemonic::knull ) {
-                _Rule->a = a;
-                (*_Rule) | m;
+                _rule->a = a;
+                (*_rule) | m;
                 a.reset();
                 break;
             }*/
@@ -217,26 +220,26 @@ rem::code grammar::ParseIdentifier(iostr::Iterator &crs)
             type::T t = type::from_str(*crs);
             if(t)// & teacc::type::bloc_t) // Quick and dirty hack about bypassing the lexer::teacc::type::bloc type:
             {
-                _Rule->a = a;
-                (*_Rule) | t;
+                _rule->a = a;
+                (*_rule) | t;
                 a.Reset();
                 break;
             }
             
             if(r)
             {
-                _Rule->a = a;
-                (*_Rule) | r;
+                _rule->a = a;
+                (*_rule) | r;
                 a.Reset();
                 break;
             }
             else
             {
                 r = new rule(*crs);
-                _Rules[*crs] = r;
-                _Rule->a = a;
+                rules[*crs] = r;
+                _rule->a = a;
                 _state = st_seq; //  expect ':' as next token in main loop.
-                (*_Rule) | r;
+                (*_rule) | r;
                 a.Reset();
             }
             break;
@@ -245,7 +248,7 @@ rem::code grammar::ParseIdentifier(iostr::Iterator &crs)
     return rem::code::accepted;
 }
 
-rem::code grammar::EnterRuleDef(iostr::Iterator &crs)
+rem::code grammar::enter_rule_def(iostr::Iterator &crs)
 {
     // logdebug
     //     << color::HCyan << __FUNCTION__
@@ -265,7 +268,7 @@ rem::code grammar::EnterRuleDef(iostr::Iterator &crs)
     return rem::code::accepted;
 }
 
-rem::code grammar::NewSequence(iostr::Iterator &crs)
+rem::code grammar::new_sequence(iostr::Iterator &crs)
 {
     // logdebug
     //     << color::HCyan << __FUNCTION__
@@ -280,14 +283,14 @@ rem::code grammar::NewSequence(iostr::Iterator &crs)
         return rem::code::rejected;
     }
     
-    _Rule->new_sequence();
+    _rule->new_sequence();
     _state = st_seq;
     a.Reset();
     ++crs;
     return rem::code::accepted;
 }
 
-rem::code grammar::EndRule(iostr::Iterator &crs)
+rem::code grammar::end_rule(iostr::Iterator &crs)
 {
     // logdebug
     //     << color::HCyan << __FUNCTION__
@@ -300,7 +303,7 @@ rem::code grammar::EndRule(iostr::Iterator &crs)
     return rem::code::accepted;
 }
 
-rem::code grammar::SetRepeat(iostr::Iterator &crs)
+rem::code grammar::set_repeat(iostr::Iterator &crs)
 {
     //logdebug
     //    << color::HCyan << __FUNCTION__
@@ -314,7 +317,7 @@ rem::code grammar::SetRepeat(iostr::Iterator &crs)
     return rem::code::accepted;
 }
 
-rem::code grammar::SetDirective(iostr::Iterator &crs)
+rem::code grammar::set_directive(iostr::Iterator &crs)
 {
     !a;
     _state = st_option;
@@ -330,7 +333,7 @@ rem::code grammar::SetDirective(iostr::Iterator &crs)
     return rem::code::accepted;
 }
 
-rem::code grammar::SetOptional(iostr::Iterator &crs)
+rem::code grammar::set_optional(iostr::Iterator &crs)
 {
     //logdebug
     //    << color::HCyan << __FUNCTION__
@@ -344,7 +347,7 @@ rem::code grammar::SetOptional(iostr::Iterator &crs)
     return rem::code::accepted;
 }
 
-rem::code grammar::EnterLitteral(iostr::Iterator &crs)
+rem::code grammar::enter_litteral(iostr::Iterator &crs)
 {
     
     //    logger::debug()
@@ -369,8 +372,8 @@ rem::code grammar::EnterLitteral(iostr::Iterator &crs)
     token_data token = token_data::scan(i->c_str());
     if(token)
     {
-        _Rule->a = a;
-        (*_Rule) | token.c;
+        _rule->a = a;
+        (*_rule) | token.c;
         a.Reset();
     }
     else
@@ -387,7 +390,7 @@ rem::code grammar::EnterLitteral(iostr::Iterator &crs)
     return rem::code::accepted;
 }
 
-rem::code grammar::SetOneof(iostr::Iterator &crs)
+rem::code grammar::set_oneof(iostr::Iterator &crs)
 {
     //     logdebug
     //         << color::HCyan << __FUNCTION__
@@ -400,16 +403,24 @@ rem::code grammar::SetOneof(iostr::Iterator &crs)
     return rem::code::accepted;
 }
 
-[[maybe_unused]] int grammar::Init()
+[[maybe_unused]] int grammar::init()
 {
-    _Text = "";
+    _text = "";
     return 0;
 }
 
-rule *grammar::QueryRule(const std::string &a_id)
+rule *grammar::query_rule(const std::string &a_id)
 {
-    auto i = _Rules.find(a_id);
-    return i == _Rules.end() ? nullptr : i->second;
+    auto i = rules.find(a_id);
+    return i == rules.end() ? nullptr : i->second;
+}
+
+
+const rule *grammar::operator[](const std::string &r_id) const
+{
+    auto i = rules.find(r_id);
+    if(i == rules.end()) return nullptr;
+    return i->second;
 }
 
 term::term(rule *r, term_properties a_)

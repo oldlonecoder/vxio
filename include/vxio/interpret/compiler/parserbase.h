@@ -21,6 +21,7 @@
 #pragma once
 
 #include <vxio/interpret/compiler/context.h>
+#include <map>
 
 
 namespace vxio{
@@ -28,6 +29,8 @@ namespace vxio{
 
 class parser_base
 {
+    using parsers_map = std::map<std::string, parser_base*>;
+    
 protected:
     context _ctx;
     
@@ -35,6 +38,10 @@ public:
     parser_base()=default;
     virtual ~parser_base() = default;
     virtual rem::code parse(context ctx_) = 0;
+    virtual expect<xio*> parse_rule(const rule* rule_);
+    virtual expect<xio*> parse_sequence(const term_seq& seq );
+    
+    
 };
 
 }

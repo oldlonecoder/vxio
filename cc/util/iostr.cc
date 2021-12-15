@@ -514,7 +514,7 @@ int iostr::filter(const iostr::list_t &a_exp)
         return 0;
     auto i = a_exp.cbegin();
     
-    // array::front is the Init of the match at the beginning of this string.
+    // array::front is the init of the match at the beginning of this string.
     // if ...front() is Empty, then there is no required match at the beginning of this string
     // so proceed to the next substring to find.
     // if the last is not Empty, then match the last substring.
@@ -616,7 +616,7 @@ std::string iostr::type_of(string &&func_desc)// , const std::string& _T) -> _T 
         std::cout << s();
     }
     std::cout << '\n';
-    return "finish to implement, please\n";
+    return "c to implement, please\n";
 }
 
 void iostr::process_arg(iostr::lambda_fn_t Fn)

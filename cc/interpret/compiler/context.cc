@@ -15,11 +15,11 @@ context::stack context::ctx_stack;
 context::context(const context &ctx) noexcept
 {
     start = ctx.start;
-    finish = ctx.finish;
+    c     = ctx.c;
     last  = ctx.last;
-    blk = ctx.blk;
-    xios = ctx.xios;
-    i_tokens = ctx.i_tokens;
+    blk             = ctx.blk;
+    xio_accumulator = ctx.xio_accumulator;
+    i_tokens        = ctx.i_tokens;
 }
 
 
@@ -31,11 +31,11 @@ start(first_), last(last_),blk(bloc_)
 
 
 context::context(context &&ctx) noexcept:
-start(ctx.start),
-finish(ctx.finish),
+    start(ctx.start),
+c(ctx.c),
 last(ctx.last),
 blk(ctx.blk),
-xios(ctx.xios),
+xio_accumulator(ctx.xio_accumulator),
 i_tokens(ctx.i_tokens)
 {
 
@@ -45,11 +45,11 @@ i_tokens(ctx.i_tokens)
 context &context::operator=(context &&ctx) noexcept
 {
     start = ctx.start;
-    finish = ctx.finish;
+    c     = ctx.c;
     last  = ctx.last;
-    blk = ctx.blk;
-    xios = ctx.xios;
-    i_tokens = ctx.i_tokens;
+    blk             = ctx.blk;
+    xio_accumulator = ctx.xio_accumulator;
+    i_tokens        = ctx.i_tokens;
     return *this;
 }
 
@@ -57,21 +57,21 @@ context &context::operator=(context &&ctx) noexcept
 context &context::operator=(const context &ctx) noexcept
 {
     start = ctx.start;
-    finish = ctx.finish;
+    c     = ctx.c;
     last  = ctx.last;
-    blk = ctx.blk;
-    xios = ctx.xios;
-    i_tokens = ctx.i_tokens;
+    blk             = ctx.blk;
+    xio_accumulator = ctx.xio_accumulator;
+    i_tokens        = ctx.i_tokens;
     return *this;
 }
 
 
 context::~context()
 {
-//    if(xios)
+//    if(xio_accumulator)
 //    {
-        xios.clear();
-//        delete xios;
+        xio_accumulator.clear();
+//        delete xio_accumulator;
 //    }
     i_tokens.clear();
     while(!context::ctx_stack.empty()) context::ctx_stack.pop();
@@ -96,16 +96,16 @@ rem::code context::pop(context& ctx)
 
 token_data::iterator context::operator++(int)
 {
-    auto i = finish;
-    finish++;
+    auto i = c;
+    c++;
     return i;
 }
 
 
 token_data::iterator context::operator++()
 {
-    ++finish;
-    return finish;
+    ++c;
+    return c;
 }
 std::string context::describe()
 {
@@ -130,6 +130,12 @@ std::string context::describe()
     
     //...
     return str();
+}
+std::size_t context::clear_xio_accumulator(xio::collection &acc)
+{
+    for(auto* x : acc) delete x;
+    acc.clear();
+    return 0;
 }
 
 }

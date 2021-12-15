@@ -36,7 +36,7 @@ class grammar;
 
 /*!
  * @brief
- * @todo Holly shit!! Confused on X flag: Accept state and Directive Flag!!!! ^^ ?
+ * @todo Holly shit!! Confused on X flag: accept state and Directive Flag!!!! ^^ ?
  *
  */
 struct term_properties
@@ -109,7 +109,7 @@ struct term
         nil
     };
     
-    void Accept()
+    void accept()
     { a.accept(); }
     void Reject()
     { a.reject(); }
@@ -173,18 +173,18 @@ struct term
     
     std::string operator()() const;
     
-    bool IsRule() const
+    bool is_rule() const
     { return _type == type::r; }
-    bool IsSemantic() const
+    bool is_semantic() const
     { return _type == type::s; }
-    bool IsMnemonic() const
+    bool is_mnemonic() const
     { return _type == type::m; }
-    bool IsNull() const
+    bool is_null() const
     { return _type == type::nil; }
     
-    static term Query(const char *C_);
-    static term Query(vxio::type::T T_);
-    static term Query(mnemonic M_);
+    //static term query(const char *C_);
+    //static term query(vxio::type::T T_);
+    //static term query(mnemonic M_);
 };
 
 struct term_seq
@@ -257,9 +257,9 @@ struct rule
     rule &operator|(mnemonic _t);
     std::string name()
     { return _id; }
-    term_seq::const_iterator Begin() const
+    term_seq::const_iterator begin() const
     { return sequences.cbegin(); }
-    bool End(term_seq::const_iterator s) const
+    bool end(term_seq::const_iterator s) const
     { return s == sequences.cend(); }
 };
 
@@ -279,10 +279,10 @@ public:
     
     ~grammar();
     iostr &text()
-    { return _Text; }
+    { return _text; }
     rem::code build();
     
-    void Dump();
+    void dump();
 
 private:
     enum state_mac
@@ -300,27 +300,23 @@ private:
     
     state_mac               _state = grammar::st_begin;
     
-    [[maybe_unused]] int Init();
-    static rule::collection _Rules;
-    rule                    *_Rule = nullptr;
-    static rule *QueryRule(const std::string &a_id);
+    [[maybe_unused]] int init();
+    static rule::collection rules;
+    rule                    *_rule = nullptr;
+    static rule *query_rule(const std::string &a_id);
     
     using RuleScanner = rem::code(grammar::*)(iostr::Iterator &);
-    iostr::word::list_t     tokens;
-    iostr                   _Text;
+    iostr::word::list_t tokens;
+    iostr               _text;
     
     using Dictionary = std::map<char, grammar::RuleScanner>;
     static Dictionary grammar_dictionnary;
 
 public:
-    const rule *operator[](const std::string &r_id) const
-    {
-        return _Rules[r_id];
-        //rule* r = _Rules[r_id]; rem::code (const rule*)r;
-    }
+    const rule *operator[](const std::string &r_id) const;
     
     static bool built()
-    { return _Rules.size() != 0; }
+    { return rules.size() != 0; }
     
     static void init_rules();
 
@@ -329,15 +325,15 @@ private:
     
     //--------------- Rules builders -------------------
     
-    rem::code ParseIdentifier(iostr::Iterator &crs);
-    rem::code EnterRuleDef(iostr::Iterator &crs);
-    rem::code NewSequence(iostr::Iterator &crs);
-    rem::code EndRule(iostr::Iterator &crs);
-    rem::code SetRepeat(iostr::Iterator &crs);
-    rem::code SetOptional(iostr::Iterator &crs);
-    rem::code EnterLitteral(iostr::Iterator &crs);
-    rem::code SetOneof(iostr::Iterator &crs);
-    rem::code SetDirective(iostr::Iterator &crs);
+    rem::code parse_identifier(iostr::Iterator &crs);
+    rem::code enter_rule_def(iostr::Iterator &crs);
+    rem::code new_sequence(iostr::Iterator &crs);
+    rem::code end_rule(iostr::Iterator &crs);
+    rem::code set_repeat(iostr::Iterator &crs);
+    rem::code set_optional(iostr::Iterator &crs);
+    rem::code enter_litteral(iostr::Iterator &crs);
+    rem::code set_oneof(iostr::Iterator &crs);
+    rem::code set_directive(iostr::Iterator &crs);
 };
 }
 //#endif //VXIO_GRAMMAR_H

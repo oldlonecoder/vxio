@@ -34,15 +34,17 @@ rem::code vxu::load_code()
 }
 
 
-rem::code vxu::compile()
+rem::code vxu::compile(const rule* rule_)
 {
-    logger::debug() << __PRETTY_FUNCTION__ << ":";
+    
+    logger::debug() << __PRETTY_FUNCTION__ << "[" << color::Yellow << _id << color::Reset << "]:";
     lexer lex;
     lex.config() = {
         _config.source,
         &_tokens
     };
     load_code(); ///... fake, but sets _id to _fname.
+    logger::debug() << __PRETTY_FUNCTION__ << "[" << color::Yellow << _id << color::Reset << "]:";
     auto r = lex();
     logger::debug() << ": lexer done " << _tokens.size() << " tokens.";
     if(r!=rem::code::accepted)

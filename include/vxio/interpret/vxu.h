@@ -22,6 +22,7 @@
 #pragma once
 #include <vxio/interpret/bloc.h>
 #include <vxio/lexer/lexer.h>
+#include <vxio/interpret/compiler/grammar.h>
 
 namespace vxio
 {
@@ -47,7 +48,7 @@ public:
     alu jsr() override;
     rem::code load_code();
     vxu::config& config_data() { return _config; }
-    rem::code compile();
+    rem::code compile(const rule*);
     std::string id() { return _id; }
 protected:
     vxu::config _config;

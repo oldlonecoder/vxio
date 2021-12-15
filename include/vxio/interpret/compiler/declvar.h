@@ -1,9 +1,9 @@
 //
-// Created by oldlonecoder on 21-12-11.
+// Created by oldlonecoder on 21-12-15.
 //
 
-//#ifndef VXIO_INTERPRET_H
-//#define VXIO_INTERPRET_H
+//#ifndef VXIO_DECLVAR_H
+//#define VXIO_DECLVAR_H
 
 /**********************************************************************************************************************************
     Copyright 2021 Serge Lussier (oldlonecoder), lussier.serge@gmail.com
@@ -22,26 +22,21 @@
 
 
 #pragma once
-#include <vxio/interpret/vxu.h>
-
-
+#include <vxio/interpret/compiler/parserbase.h>
 namespace vxio
 {
-class VXIO_API_DLL interpret : public bloc
+
+class declvar : public parser_base
 {
-    vxu* _main = nullptr;
-    
 public:
-    interpret() = default;
-    ~interpret() override;
+    declvar():parser_base(){}
+    ~declvar() override;
     
-    alu operator[](std::string src_);
-    
-    rem::code init();
-    static interpret* instance();
-    static const rule* get_rule(const std::string& name_);
+    rem::code parse(context ctx_) override;
+    expect<xio *> parse_rule(const rule *rule_) override;
+    expect<xio *> parse_sequence(const term_seq &seq) override;
 };
 
 }
 
-//#endif //VXIO_INTERPRET_H
+//#endif //VXIO_DECLVAR_H

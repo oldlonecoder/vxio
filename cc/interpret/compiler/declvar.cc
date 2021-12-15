@@ -1,14 +1,33 @@
 //
-// Created by oldlonecoder on 21-12-10.
+// Created by oldlonecoder on 21-12-15.
 //
 
-#include <vxio/interpret/compiler/parserbase.h>
+#include <vxio/interpret/compiler/declvar.h>
+#include <vxio/interpret/interpret.h>
 
 
 namespace vxio
 {
 
-expect<xio *> parser_base::parse_rule(const rule *rule_)
+declvar::~declvar()
+{
+
+}
+rem::code declvar::parse(context ctx_)
+{
+    _ctx._rule = interpret::get_rule("declvar");
+    if(!_ctx._rule)
+    {
+        logger::error() << "declvar::parse (internal):" << " no such rule.";
+        return rem::code::null_ptr;
+    }
+    
+    std::pair<bool, type::T> attr{false, type::u64_t};
+    auto x = parse_rule(_ctx._rule);
+    
+    return rem::code::rejected;
+}
+expect<xio *> declvar::parse_rule(const rule *rule_)
 {
     context::push(_ctx);
     
@@ -30,7 +49,7 @@ expect<xio *> parser_base::parse_rule(const rule *rule_)
 }
 
 
-expect<xio *> parser_base::parse_sequence(const term_seq &seq)
+expect<xio *> declvar::parse_sequence(const term_seq &seq)
 {
     xio* x = nullptr;
     for(const auto& trm : seq.terms)
@@ -49,8 +68,6 @@ expect<xio *> parser_base::parse_sequence(const term_seq &seq)
         
         }
     }
-    return x;
+    return expect<xio *>();
 }
-
-
 }
