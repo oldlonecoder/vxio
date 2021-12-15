@@ -312,14 +312,7 @@ rem::code lexer::input_binary_operator(token_data &token)
             return rem::code::accepted;
     }
     Push(token);
-    if(src_cursor._F)
-    {
-        if(token.c == mnemonic::k_open_par)
-        {
-            insert_multiply(token);
-            src_cursor._F = false;
-        }
-    }
+    src_cursor._F = false;
     return rem::code::accepted;
 }
 
@@ -360,13 +353,10 @@ rem::code lexer::input_unary_operator(token_data& atoken)
 
 rem::code lexer::input_punctuation(token_data &atoken)
 {
-    //rem::codeDebug(__PRETTY_FUNCTION__) << '\n' << mCursor.mark();
-    // Note: Appliquer la pile de open_par pour verifier les openpars mis à 1 lorsque nous alons traiter les close pars...
     if(atoken.c == mnemonic::k_open_par)
     {
         if(src_cursor._F)
         {
-            atoken._flags.V = 1;
             Push(atoken);
             insert_multiply(atoken);
             src_cursor._F = false;
@@ -375,7 +365,7 @@ rem::code lexer::input_punctuation(token_data &atoken)
         // La seule et unique condition est que le token precedant soit une valeur numerique litterale (ex.: '4').
         if(!mConfig.Tokens->empty())
         {
-            if((mConfig.Tokens->back().s & type::const_t|type::number_t) && (mConfig.Tokens->back().t != type::id_t))
+            if((mConfig.Tokens->back().s & type::const_t|type::number_t) && (mConfig.Tokens->back().t != type::id_t) && !(mConfig.Tokens->back().s & type::operator_t))
             {
                 Push(atoken);
                 insert_multiply(atoken);
@@ -714,7 +704,7 @@ rem::code lexer::Exec()
             {vxio::type::punc_t, &lexer::input_punctuation},
             {vxio::type::prefix_t, &lexer::scan_prefix},
             {vxio::type::keyword_t, &lexer::input_keyword},
-            {vxio::type::open_pair_t, &lexer::input_punctuation},
+            //{vxio::type::open_pair_t, &lexer::input_punctuation},
             
         };
     }

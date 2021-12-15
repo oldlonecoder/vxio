@@ -31,12 +31,13 @@ static bool      built                            = false;
 std::string grammar_text = R"(
 stmts              : +statement.
 statement          : ';' | instruction | assignstmt ';'| declvar ';'| #expression ';'| #var_id ';'.
-assignstmt         : declvar assign_t #expression | #var_id assign_t #expression.
+assignstmt         : declvar assign_t expression | #var_id assign_t #expression.
 declvar            : *typename #newvar.
 funcsig            : *typename function_id '(' *params ')'.
 declfunc           : funcsig ';'| funcsig bloc.
 paramseq           : ',' param.
 param              : *typename id_t.
+function_call      : function_id ( args ) | objcfncall.
 params             : param *+paramseq.
 objcarg            : id_t ':' #expression.
 arg                : objcarg | #expression.
@@ -52,6 +53,7 @@ ifbody             : truebloc *elsebloc.
 condexpr           : assignstmt | #expression.
 function_id        : *'::' #functionid | #objectid '::' #functionid | #obj_instance '.' #functionid.
 objcfncall         : '[' function_id  *args ']'.
+
 )";
 
 grammar::grammar()

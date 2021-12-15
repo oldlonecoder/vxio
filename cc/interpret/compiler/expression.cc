@@ -4,10 +4,18 @@
 
 #include <vxio/interpret/compiler/expression.h>
 #include <vxio/util/logger.h>
+#include <vxio/util/geometry.h>
 
 namespace vxio
 {
 
+#define input_trace_log\
+       logger::debug(src_funcname) \
+        << color::White << type::name(token->t) << ':'\
+        << color::Yellow << token->text()\
+        << color::White << "<-"\
+        << color::Yellow << n->token->text() << ':'\
+        << color::White <<  mnemonic_name(n->token->c);
 
 std::stack<expression::node*> pars;
 std::stack<expression::node*> indexes;
@@ -28,6 +36,8 @@ expression::node::lr_pair_table  expression::node::lr_input_table =
      {{type::binary_t, type::leaf_t}, &expression::node::input_binary_leaf},
      {{type::postfix_t, type::binary_t}, &expression::node::input_postfix_binary},
      {{type::prefix_t, type::prefix_t}, &expression::node::input_prefix_prefix},
+     {{type::open_pair_t, type::leaf_t}, &expression::node::input_open_pair_leaf},
+     {{type::open_pair_t, type::operator_t}, &expression::node::input_open_pair_operator},
      
 };
 
@@ -155,10 +165,12 @@ xio *expression::create_xio(token_data *token_)
 
 expression::node::result expression::node::op_input_binary_op(expression::node *n)
 {
-        logger::debug(src_funcname)
-        << color::Yellow << token->text()
-        << color::White << ":<-:"
-        << color::Yellow << n->token->text();
+    input_trace_log
+    
+    if(token->c == mnemonic::k_open_par)
+    {
+        return set_left(n);
+    }
     if(token->d < n->token->d)
     {
         if(op)
@@ -186,10 +198,7 @@ expression::node::result expression::node::op_input_binary_op(expression::node *
  */
 expression::node::result expression::node::input_leaf_binary_op(expression::node *n)
 {
-        logger::debug(src_funcname)
-        << color::Yellow << token->text()
-        << color::White << ":<-:"
-        << color::Yellow << n->token->text();
+   input_trace_log
     if(op)
         return op->op_input_binary_op(n);
     
@@ -209,10 +218,7 @@ expression::node::result expression::node::input_leaf_binary_op(expression::node
  */
 expression::node::result expression::node::input_id_open_pair(expression::node *n)
 {
-        logger::debug(src_funcname)
-        << color::Yellow << token->text()
-        << color::White << ":<-:"
-        << color::Yellow << n->token->text();
+    input_trace_log
     
     return logger::syntax(src_funcname) << rem::code::_fn_ << ": unexpected token on expression ast node input: unimplemented yet: \n" << n->token->mark();
 }
@@ -221,8 +227,9 @@ expression::node::result expression::node::input_leaf_open_pair(expression::node
 {
         logger::debug(src_funcname)
         << color::Yellow << token->text()
-        << color::White << ":<-:"
-        << color::Yellow << n->token->text();
+        << color::White << "<-"
+        << color::Yellow << n->token->text() << ':'
+        << color::White <<  mnemonic_name(n->token->c);
     return logger::syntax(src_funcname) << rem::code::_fn_ << ": unexpected token on expression ast node input: unimplemented yet: \n" << n->token->mark();
 }
 
@@ -240,20 +247,15 @@ expression::node::result expression::node::input_leaf_open_pair(expression::node
  */
 expression::node::result expression::node::input_prefix_open_pair(expression::node *n)
 {
-        logger::debug(src_funcname)
-        << color::Yellow << token->text()
-        << color::White << ":<-:"
-        << color::Yellow << n->token->text();
+    input_trace_log
     return set_right(n);
 }
 
 // !*dd
 expression::node::result expression::node::input_fncall_open_pair(expression::node *n)
 {
-        logger::debug(src_funcname)
-        << color::Yellow << token->text()
-        << color::White << ":<-:"
-        << color::Yellow << n->token->text();
+    input_trace_log
+        
     return logger::warning(src_funcname) << rem::code::_fn_ << ": implement";
 }
 
@@ -273,14 +275,12 @@ expression::node::result expression::node::input_fncall_open_pair(expression::no
  */
 expression::node::result expression::node::set_left(expression::node *n)
 {
-        logger::debug(src_funcname)
-        << color::Yellow << token->text()
-        << color::White << ":<-:"
-        << color::Yellow << n->token->text();
+    input_trace_log
 
     n->op = this;
     ls = n;
-    return this;
+    logger::debug() << '\n' << node::trace_connect_binary_operands(this);
+    return n;
 }
 
 
@@ -293,10 +293,7 @@ expression::node::result expression::node::set_left(expression::node *n)
 
 expression::node::result expression::node::set_right(expression::node *n)
 {
-        logger::debug(src_funcname)
-        << color::Yellow << token->text()
-        << color::White << ":<-:"
-        << color::Yellow << n->token->text();
+    input_trace_log
     if(rs)
     {
         rs->op = n;
@@ -310,6 +307,8 @@ expression::node::result expression::node::set_right(expression::node *n)
         indexes.push(n);
     if(n->token->c == mnemonic::Openbrace)
         braces.push(n);
+    
+    logger::debug() << '\n' << node::trace_connect_binary_operands(this);
     return rs;
 }
 
@@ -328,10 +327,7 @@ expression::node::result expression::node::set_right(expression::node *n)
  */
 expression::node::result expression::node::input_binary_open_pair(expression::node *n)
 {
-        logger::debug(src_funcname)
-        << color::Yellow << token->text()
-        << color::White << ":<-:"
-        << color::Yellow << n->token->text();
+    input_trace_log
     return set_right(n);
 }
 expression::node::~node()
@@ -344,10 +340,7 @@ expression::node::~node()
 }
 expression::node::result expression::node::input_binary_leaf(expression::node *n)
 {
-        logger::debug(src_funcname)
-        << color::Yellow << token->text()
-        << color::White << ":<-:"
-        << color::Yellow << n->token->text();
+    input_trace_log
     if(rs)
         return logger::syntax() << " expected binary or postfix operator:\n" << n->token->mark();
     return set_right(n);
@@ -370,10 +363,7 @@ expression::node::result expression::node::input_binary_leaf(expression::node *n
  */
 expression::node::result expression::node::input_postfix_binary(expression::node *n)
 {
-        logger::debug(src_funcname)
-        << color::Yellow << token->text()
-        << color::White << ":<-:"
-        << color::Yellow << n->token->text();
+    input_trace_log
     return n->set_left(this);
 }
 
@@ -386,11 +376,102 @@ expression::node::result expression::node::input_postfix_binary(expression::node
  */
 expression::node::result expression::node::input_prefix_prefix(expression::node *n)
 {
-        logger::debug(src_funcname)
-        << color::Yellow << token->text()
-        << color::White << ":<-:"
-        << color::Yellow << n->token->text();
+    input_trace_log
     return set_right(n);
 }
+
+/*!
+ * @brief input_open_pair_leaf
+ * @param n
+ * @return node*
+ *
+ * @code
+ * 4ac(8 + 5/6)
+ *         *                   *                  *                    *
+ *        / \                 / \                / \                  / \
+ *       4   *               4   *              4   *                4   *
+ *          / \                 / \                / \                  / \
+ *         a   c <- *          a   * <- (         a   *                a   *
+ *                                                   / \                  / \
+ *                                                  c   ( <- 8           c   (
+ *                                                                          /
+ *                                                                         8  <- +
+ *
+ *        *                         *                   *                        *
+         / \                       / \                 / \                      / \
+        4   *                     4   *               4   *                    4   *
+           / \                       / \                 / \                      / \
+          a   *                     a   *               a   *                    a   *
+             / \                       / \                 / \                      / \
+            c   (                     c   (               c   (                    c   ) <- +  .....
+               /                         /                   /                        /
+              +                         +                   +                        +
+             /                         / \                 / \                      / \
+            8 <- 5                    8   5 <-/           8  [/]                   8  [/]
+ *                                                           / \                      / \
+ *                                                          5   6 <- )               5   6
+ * @endcode
+ */
+expression::node::result expression::node::input_open_pair_leaf(expression::node *n)
+{
+    set_left(n);
+    return n;
+}
+
+expression::node::result expression::node::input_open_pair_operator(expression::node *n)
+{
+    n->op = this;
+    ls->op = n;
+    if(n->token->is_prefix())
+        n->rs = ls;
+    else
+        n->ls = ls;
+    return n;
+}
+
+
+
+// <summary>
+///
+///          +
+///         / \
+///        va vari
+/// </summary>
+/// <returns></returns>
+ std::string expression::node::trace_connect_binary_operands(expression::node* x)
+ {
+     // assume this binary operator already has its lhs rhs operands !!
+     //iostr str;
+     int lw,rw,ow,w = 0;
+     if(x->ls) lw = x->ls->token->text().length();
+     if(x->rs) rw = x->rs->token->text().length();
+     ow = x->token->text().length();
+     w = lw + rw + 3; // total width
+     w -= lw % 2 == 0;
+     
+     int m_lhs = lw - (lw > 1 ? 1 : 0);
+
+     vxy oper_xy = vxy( m_lhs+1,0 );
+     oper_xy.x -= ow % 2 == 0 ? 1 : 0;
+
+     winbuffer area;
+     area.set_geometry(w, 3); // pour l'instant m'est hardcoded.
+     area.gotoxy(oper_xy.x,0);
+     area << x->token->text();
+     area << vxy{m_lhs,1} << "/ \\";
+    
+     if(x->ls)
+     {
+         area.gotoxy(0, 2);
+         area << x->ls->token->text();
+     }
+     if(x->rs)
+     {
+         area.gotoxy(m_lhs + 2 + (rw <= 1 ? 1 : 0), 2);
+         area << x->rs->token->text();
+     }
+     return area;
+ }
+
 
 }

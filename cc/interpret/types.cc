@@ -176,6 +176,7 @@ std::string mnemonic_name(mnemonic M)
                                                   {mnemonic::k_assign_c1,          "k_assign_c1"},
                                                   {mnemonic::k_assign_left_shift,  "k_assign_left_shift"},
                                                   {mnemonic::k_assign_right_shift, "k_assign_right_shift"},
+                                                  {mnemonic::k_deref,              "k_deref"},
                                                   {mnemonic::k_less_eq,            "k_less_eq"},
                                                   {mnemonic::k_greater_eq,         "k_greater_eq"},
                                                   {mnemonic::k_equal,              "k_equal"},

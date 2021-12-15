@@ -50,6 +50,7 @@ public:
         
         static expression::node::result begin_ast(token_data& token);
         static expression::node::result close_ast(token_data& token);
+        static std::string trace_connect_binary_operands(expression::node* x);
         
         expression::node::result input(token_data& token);
         expression::node::result input_leaf_binary_op(expression::node* n);
@@ -57,6 +58,8 @@ public:
         expression::node::result input_leaf_open_pair(expression::node* n);
         expression::node::result input_prefix_open_pair(expression::node* n);
         expression::node::result input_fncall_open_pair(expression::node* n);
+        expression::node::result input_open_pair_leaf(expression::node* n);
+        expression::node::result input_open_pair_operator(expression::node* n);
         
         expression::node::result op_input_binary_op(expression::node* n);
         expression::node::result input_binary_open_pair(expression::node* n);
