@@ -40,7 +40,8 @@ public:
     virtual rem::code parse(context ctx_) = 0;
     virtual expect<xio*> parse_rule(const rule* rule_);
     virtual expect<xio*> parse_sequence(const term_seq& seq );
-    
+    virtual expect<xio*> create_xio(token_data& token_);
+    virtual void push_instruction();
     
 };
 

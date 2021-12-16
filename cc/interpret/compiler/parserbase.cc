@@ -46,11 +46,28 @@ expect<xio *> parser_base::parse_sequence(const term_seq &seq)
         }
         if(trm == *_ctx.c)
         {
-        
+            auto x = create_xio(*_ctx.c);
+            if(!x)
+                return nullptr;
         }
     }
     return x;
 }
 
+
+/**
+ * @brief Really creates new default xio.
+ * @param token_
+ * @return pointer to the new xio
+ */
+expect<xio *> parser_base::create_xio(token_data &token_)
+{
+    _ctx.xio_accumulator.push_back(new xio(_ctx.blk, &token_));
+    return _ctx.xio_accumulator.back();
+}
+void parser_base::push_instruction()
+{
+
+}
 
 }
