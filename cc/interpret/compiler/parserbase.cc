@@ -70,4 +70,18 @@ void parser_base::push_instruction()
 
 }
 
+rem::code parser_base::parse(context ctx_)
+{
+    //...
+    if(!_ctx._rule)
+    {
+        logger::error() << "declvar::parse (internal):" << " no such rule.";
+        return rem::code::null_ptr;
+    }
+
+    std::pair<bool, type::T> attr{false, type::u64_t};
+    auto x = parse_rule(_ctx._rule);
+
+    return rem::code::rejected;
+}
 }

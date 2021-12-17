@@ -36,7 +36,7 @@ class grammar;
 
 /*!
  * @brief
- * @todo Holly shit!! Confused on X flag: accept state and Directive Flag!!!! ^^ ?
+ * @todo Holly shit!! Confused on X flag: accept state and Implicit-Rule Flag!!!! ^^ ?
  *
  */
 struct term_properties

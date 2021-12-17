@@ -37,11 +37,12 @@ protected:
 public:
     parser_base()=default;
     virtual ~parser_base() = default;
-    virtual rem::code parse(context ctx_) = 0;
+    virtual rem::code parse(context ctx_);
     virtual expect<xio*> parse_rule(const rule* rule_);
     virtual expect<xio*> parse_sequence(const term_seq& seq );
     virtual expect<xio*> create_xio(token_data& token_);
     virtual void push_instruction();
+    virtual expect<xio*> make_xio(token_data* token_);
     
 };
 

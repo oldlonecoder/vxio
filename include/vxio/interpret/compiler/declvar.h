@@ -32,9 +32,9 @@ public:
     declvar():parser_base(){}
     ~declvar() override;
     
-    rem::code parse(context ctx_) override;
-    expect<xio *> parse_rule(const rule *rule_) override;
-    expect<xio *> parse_sequence(const term_seq &seq) override;
+//    rem::code parse(context ctx_) override;
+//    expect<xio *> parse_rule(const rule *rule_) override;
+//    expect<xio *> parse_sequence(const term_seq &seq) override;
 };
 
 }
