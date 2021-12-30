@@ -278,8 +278,8 @@ public:
     grammar();
     
     ~grammar();
-    iostr &text()
-    { return _text; }
+    iostr &text() { return _text; }
+    
     rem::code build();
     
     void dump();
@@ -319,7 +319,7 @@ public:
     { return rules.size() != 0; }
     
     static void init_rules();
-
+    static void destroy_rules();
 private:
     grammar::Dictionary::iterator RuleIt;
     

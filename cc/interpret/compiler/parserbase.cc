@@ -8,79 +8,82 @@
 namespace vxio
 {
 
-expect<xio *> parser_base::parse_rule(const rule *rule_)
+expect<> parser_base::parse_rule(const rule *rule_, std::function<expect<>(context&)> lamda_fn)
 {
     context::push(_ctx);
     
     auto seq = rule_->begin();
-    while(!parse_sequence(*seq))
+    while(*parse_sequence(*seq,lamda_fn) != rem::code::accepted)
     {
-        context::clear_xio_accumulator(_ctx.xio_accumulator);
-        // ... cleanup de _ctx.xio_accumulator.
         seq++;
         if(rule_->end(seq))
         {
             context::pop(_ctx);
-            return nullptr;
+            return rem::code::rejected;
         }
     }
-    expect<xio*> x = _ctx.instruction;
+    // sequence, then rule accepted.
+    // invoke production here
+    if(lamda_fn)
+    {
+        if(*lamda_fn(_ctx) != rem::code::accepted)
+        {
+            context::pop(_ctx);
+            return rem::code::rejected;
+        }
+    }
     context::pop(_ctx);
-    return x;
+    return rem::code::accepted;
 }
 
 
-expect<xio *> parser_base::parse_sequence(const term_seq &seq)
+expect<> parser_base::parse_sequence(const term_seq &seq, std::function<expect<>(context&)> lamda_fn)
 {
-    xio* x = nullptr;
+    _ctx.i_tokens.clear();
+    
     for(const auto& trm : seq.terms)
     {
         if(trm.is_rule())
         {
-            const rule* r = trm.object.r;
-            auto x = parse_rule(r);
-            if(!x)
-                return nullptr;
-            _ctx.xio_accumulator.push_back(*x);
+            repeat:
+            if(*parse_rule(trm.object.r,lamda_fn) != rem::code::accepted)
+            {
+                if(trm.a.is_oneof()) continue;
+            }
+            if(trm.a.is_repeat())
+                goto repeat;
+            
             continue;
         }
         if(trm == *_ctx.c)
         {
-            auto x = create_xio(*_ctx.c);
-            if(!x)
-                return nullptr;
+            _ctx.push_token(_ctx.c);
+            ++_ctx;
         }
     }
-    return x;
+    return rem::code::accepted;
 }
 
 
-/**
- * @brief Really creates new default xio.
- * @param token_
- * @return pointer to the new xio
- */
-expect<xio *> parser_base::create_xio(token_data &token_)
-{
-    _ctx.xio_accumulator.push_back(new xio(_ctx.blk, &token_));
-    return _ctx.xio_accumulator.back();
-}
+
 void parser_base::push_instruction()
 {
 
 }
 
-rem::code parser_base::parse(context ctx_)
+rem::code parser_base::parse(context ctx_, std::function<expect<>(context&)> lamda_fn)
 {
     //...
+    
+    _ctx = std::move(ctx_);
     if(!_ctx._rule)
     {
-        logger::error() << "declvar::parse (internal):" << " no such rule.";
+        logger::error() << "parser_base::parse (internal):" << " no such rule.";
         return rem::code::null_ptr;
     }
 
     std::pair<bool, type::T> attr{false, type::u64_t};
-    auto x = parse_rule(_ctx._rule);
+    auto x = parse_rule(_ctx._rule, lamda_fn);
 
     return rem::code::rejected;
 }

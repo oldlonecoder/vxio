@@ -48,10 +48,10 @@ public:
     using stack = std::stack<context>;
     static context::stack ctx_stack;
     
-
+    void push_token(token_data::iterator itoken_);
     context()   = default;
     ~context();
-    context(const context& ctx)noexcept;
+    context(const context& ctx);
     context(bloc* bloc_, token_data::iterator first_, token_data::iterator last_);
     context(context&& ctx) noexcept;
     

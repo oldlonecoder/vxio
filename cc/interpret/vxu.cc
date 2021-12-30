@@ -55,7 +55,7 @@ rem::code vxu::compile(const rule* rule_)
     expression cc;
     logger::debug() << ": now parsing expression:";
     std::cout << __PRETTY_FUNCTION__ << " now parsing expression:\n";
-    r = cc.parse({this, _tokens.begin(),--_tokens.end()});
+    r = cc.parse({this, _tokens.begin(),--_tokens.end()},nullptr);
     // ...
     return r;
 }

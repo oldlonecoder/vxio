@@ -12,7 +12,7 @@ namespace vxio
 
 context::stack context::ctx_stack;
 
-context::context(const context &ctx) noexcept
+context::context(const context &ctx)
 {
     start = ctx.start;
     c     = ctx.c;
@@ -20,6 +20,7 @@ context::context(const context &ctx) noexcept
     blk             = ctx.blk;
     xio_accumulator = ctx.xio_accumulator;
     i_tokens        = ctx.i_tokens;
+    _rule = ctx._rule;
 }
 
 
@@ -36,7 +37,8 @@ c(ctx.c),
 last(ctx.last),
 blk(ctx.blk),
 xio_accumulator(ctx.xio_accumulator),
-i_tokens(ctx.i_tokens)
+i_tokens(ctx.i_tokens),
+_rule(ctx._rule)
 {
 
 }
@@ -50,6 +52,7 @@ context &context::operator=(context &&ctx) noexcept
     blk             = ctx.blk;
     xio_accumulator = ctx.xio_accumulator;
     i_tokens        = ctx.i_tokens;
+    _rule = ctx._rule;
     return *this;
 }
 
@@ -62,6 +65,7 @@ context &context::operator=(const context &ctx) noexcept
     blk             = ctx.blk;
     xio_accumulator = ctx.xio_accumulator;
     i_tokens        = ctx.i_tokens;
+    _rule = ctx._rule;
     return *this;
 }
 
@@ -136,6 +140,11 @@ std::size_t context::clear_xio_accumulator(xio::collection &acc)
     for(auto* x : acc) delete x;
     acc.clear();
     return 0;
+}
+void context::push_token(token_data::iterator itoken_)
+{
+    i_tokens.push_back(itoken_);
+    
 }
 
 }

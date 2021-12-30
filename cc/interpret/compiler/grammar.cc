@@ -67,12 +67,7 @@ grammar::grammar()
 grammar::~grammar()
 {
     
-    for(auto rit: rules)
-    {
-        rule *r = rit.second;
-        delete r;
-    }
-    rules.clear();
+
 }
 
 rem::code grammar::build()
@@ -83,8 +78,9 @@ rem::code grammar::build()
         logger::debug() << "grammar is already built - ok";
         return rem::code::ok;
     }
+    if(_text.empty())
+        _text = grammar_text;
     
-    _text = grammar_text;
     logger::debug()
         << color::White << ":Building rules :\n----------------------------\n"
         << color::Yellow << _text
@@ -365,7 +361,7 @@ rem::code grammar::enter_litteral(iostr::Iterator &crs)
     ++i;
     if((*i == "'") || (*i == "\""))
     {
-        logger::fatal() << "error: litteral Tea grammar element cannot be empty";
+        logger::fatal() << "error: litteral grammar element cannot be empty";
         return rem::code::rejected;
     }
     
@@ -418,9 +414,24 @@ rule *grammar::query_rule(const std::string &a_id)
 
 const rule *grammar::operator[](const std::string &r_id) const
 {
-    auto i = rules.find(r_id);
-    if(i == rules.end()) return nullptr;
+    logger::debug(src_long_funcname) << " query: '" << r_id << "':\n";
+    auto i = grammar::rules.find(r_id);
+    if(i == grammar::rules.end())
+    {
+        logger::error() << " no such rule: '" << r_id << "'";
+        return nullptr;
+    }
+    logger::debug() << " rule '" << r_id << "' found.";
     return i->second;
+}
+void grammar::destroy_rules()
+{
+     for(auto rit: grammar::rules)
+     {
+         rule *r = rit.second;
+         delete r;
+     }
+    rules.clear();
 }
 
 term::term(rule *r, term_properties a_)

@@ -682,7 +682,7 @@ void lexer::dump_tokens(std::function<void(const token_data &)> callback_)
 
 rem::code lexer::input_text(token_data &atoken)
 {
-    logger::debug() << __PRETTY_FUNCTION__ << ":\n";
+    //logger::debug() << __PRETTY_FUNCTION__ << ":\n";
     
     std::string R = src_cursor.scan_string();
     //@todo Separate this token into three : {quote, text, quote}

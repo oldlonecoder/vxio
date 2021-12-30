@@ -34,7 +34,7 @@ public:
     expression():parser_base(){}
     ~expression() override;
     
-    rem::code parse(context ctx_) override;
+    rem::code parse(context ctx_, std::function<expect<>(context&)> lamda_fn) override;
     xio* create_xio(token_data* token_);
 };
 

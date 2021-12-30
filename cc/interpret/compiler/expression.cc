@@ -9,7 +9,7 @@
 namespace vxio
 {
 
-rem::code expression::parse(context ctx_)
+rem::code expression::parse(context ctx_, std::function<expect<>(context&)> lamda_fn)
 {
     
     _ctx = std::move(ctx_);
