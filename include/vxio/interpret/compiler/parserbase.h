@@ -42,7 +42,7 @@ public:
     virtual expect<xio*> parse_sequence(const term_seq& seq );
     virtual expect<xio*> create_xio(token_data& token_);
     virtual void push_instruction();
-    virtual expect<xio*> make_xio(token_data* token_);
+    //virtual expect<xio*> make_xio(token_data* token_);
     
 };
 

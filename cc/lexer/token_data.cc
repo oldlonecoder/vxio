@@ -32,7 +32,6 @@ std::string token_data::location_data::text() const
     
     std::string str;
     const char *ptr = begin;
-    //str += '\'';
     str += *ptr++;
     if(!end)
     {

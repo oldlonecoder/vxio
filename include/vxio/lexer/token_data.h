@@ -74,6 +74,10 @@ public:
 
     static token_data scan(const char* C_);
 
+    [[nodiscard]] bool is_text() const
+    {
+        return t == type::text_t;
+    }
     [[nodiscard]] bool is_binary() const
     {
         return s & vxio::type::binary_t;

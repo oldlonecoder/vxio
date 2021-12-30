@@ -153,9 +153,8 @@ std::string lexer::internal_cursor::line_num() const
 
 std::string lexer::internal_cursor::mark() const
 {
-    iostr Str = line_num();
-    //logger::debug() << "std::string lexer::internal_cursor::mark() const:\n'" << Str() << "'\n";
-    Str += '\n';
+    iostr Str;
+    Str << L << "," << Col << " =>\n";
     for(int x = 1; x < Col; x++)
         Str << ' ';
     Str << '^';
@@ -193,13 +192,21 @@ std::string lexer::internal_cursor::scan_string()
     Str += *be;
     ++be;
     
-    while((be <= E) && (*be != Quote_))
+    Continue:
+    while((be <= E) && (*be != '\\') && (*be != Quote_))
         Str += *be++;
+    if(*be == '\\')
+    {
+        Str += *be++;
+        Str += *be++; // Assume no terminal escape sequence here!!!!! PLEASE be a quote!!!
+        goto Continue;
+    }
     
     if((*be != Quote_) && (be > E))
     {
         sync();
-        return {"eof"};//(//rem::codePush() << //rem::codevxio::type::Error << //rem::codeInt::Eof << " : Unterminated string constant:\n" << mark());
+        logger::error() << " : Unterminated string constant:\n" << mark();
+        return "eof";
     }
     Str += *be; // Include the rhs Quote.
     return Str;
@@ -376,6 +383,10 @@ rem::code lexer::input_punctuation(token_data &atoken)
     }
     if(atoken.c == mnemonic::k_dot)
         return scan_number(atoken);
+    
+    if(atoken.c == mnemonic::k_comment_cpp)
+        return skip_cpp_comment();
+    
     return Push(atoken);
 }
 
@@ -671,19 +682,29 @@ void lexer::dump_tokens(std::function<void(const token_data &)> callback_)
 
 rem::code lexer::input_text(token_data &atoken)
 {
-    //rem::codeDebug() << __PRETTY_FUNCTION__ << ":\n";
+    logger::debug() << __PRETTY_FUNCTION__ << ":\n";
+    
     std::string R = src_cursor.scan_string();
+    //@todo Separate this token into three : {quote, text, quote}
+    
     if(R.empty())
         return rem::code::rejected;
     
-    std::string str = R;
-    atoken.mLoc.begin   = src_cursor.C;
-    atoken.mLoc.end     = src_cursor.C + str.length() - 1;
-    atoken.mLoc.linenum = src_cursor.L;
-    atoken.mLoc.colnum  = src_cursor.Col;
-    atoken.mLoc.offset  = src_cursor.Index();
-    
-    //rem::codeDebug() << "Scanned iostr: " << *r << '\n';
+    // We separate tokens here ...
+    Push(atoken);
+    //...
+    const char* e = src_cursor.C + (R.length()-2);  // oops!
+    atoken.mLoc.begin = src_cursor.C;
+    atoken.mLoc.end = e-1;
+    atoken.c = mnemonic::noop_;
+    atoken.t = type::text_t;
+    atoken.s = type::text_t|type::leaf_t|type::const_t;
+    Push(atoken);
+
+    atoken.mLoc.begin = atoken.mLoc.end = e;
+    atoken.t = type::text_t;
+    atoken.s = type::text_t|type::leaf_t|type::operator_t;
+    atoken.c = *e == '\'' ? mnemonic::k_squote : mnemonic::k_dquote;
     
     Push(atoken);
     return rem::code::accepted;
@@ -704,8 +725,8 @@ rem::code lexer::Exec()
             {vxio::type::punc_t, &lexer::input_punctuation},
             {vxio::type::prefix_t, &lexer::scan_prefix},
             {vxio::type::keyword_t, &lexer::input_keyword},
-            //{vxio::type::open_pair_t, &lexer::input_punctuation},
-            
+            {vxio::type::text_t, &lexer::input_text}
+            //...
         };
     }
     
@@ -740,7 +761,13 @@ rem::code lexer::Exec()
         }
         else
         {
-            return rem::code::rejected;//rem::codeFatal("lexer loop:") << //rem::codevxio::type::Internal << " No scanner for token:\n" << mCursor.mark();
+            if(atoken.c == mnemonic::k_comment_cpp)
+            {
+                skip_cpp_comment();
+                continue;
+            }
+            logger::error() << "lexer loop: there is no scanner for token:\n" << src_cursor.mark();
+            return rem::code::rejected;
         }
         
     }
@@ -761,7 +788,8 @@ rem::code lexer::step_begin()
             {vxio::type::hex_t, &lexer::input_hex},
             {vxio::type::punc_t, &lexer::input_punctuation},
             {vxio::type::prefix_t, &lexer::scan_prefix},
-            {vxio::type::keyword_t, &lexer::input_keyword}
+            {vxio::type::keyword_t, &lexer::input_keyword},
+            {vxio::type::text_t, &lexer::input_text}
         };
     }
     src_cursor = lexer::internal_cursor(mConfig.Source);
@@ -795,9 +823,17 @@ token_data *lexer::step()
             return nullptr;// status() << rem::coderejected << " -> Aborted: Unexpected token:\n" << src_cursor.mark();
     }
     else
-        return nullptr;// status() << rem::coderejected << " No scanner for token:\n" << src_cursor.mark();
+        return nullptr;// status() << rem::code::rejected << " No scanner for token:\n" << src_cursor.mark();
     
     return &mConfig.Tokens->back(); // Ouch... 
+}
+
+
+rem::code lexer::skip_cpp_comment()
+{
+    src_cursor.scan_to_eol();
+    src_cursor.skip_ws();
+    return rem::code::accepted;
 }
 
 }

@@ -13,20 +13,20 @@ declvar::~declvar()
 {
 
 }
-rem::code declvar::parse(context ctx_)
-{
-    _ctx._rule = interpret::get_rule("declvar");
-    if(!_ctx._rule)
-    {
-        logger::error() << "declvar::parse (internal):" << " no such rule.";
-        return rem::code::null_ptr;
-    }
-
-    std::pair<bool, type::T> attr{false, type::u64_t};
-    auto x = parse_rule(_ctx._rule);
-
-    return rem::code::rejected;
-}
+//rem::code declvar::parse(context ctx_)
+//{
+//    _ctx._rule = interpret::get_rule("declvar");
+//    if(!_ctx._rule)
+//    {
+//        logger::error() << "declvar::parse (internal):" << " no such rule.";
+//        return rem::code::null_ptr;
+//    }
+//
+//    std::pair<bool, type::T> attr{false, type::u64_t};
+//    auto x = parse_rule(_ctx._rule);
+//
+//    return rem::code::rejected;
+//}
 //expect<xio *> declvar::parse_rule(const rule *rule_)
 //{
 //    context::push(_ctx);

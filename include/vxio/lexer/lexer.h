@@ -133,6 +133,7 @@ private:
     rem::code scan_sign_prefix(token_data&);
     rem::code scan_prefix(token_data&);
     rem::code scan_postfix(token_data&);
+    rem::code skip_cpp_comment();
     
     #pragma endregion Scanners
 
