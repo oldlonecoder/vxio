@@ -37,18 +37,20 @@ public:
     token_data::iterator start;
     token_data::iterator c;
     token_data::iterator last; // dernier token du stream
+    
     bloc*  blk = nullptr;
-    xio* instruction = nullptr;
     const rule* _rule = nullptr;
+    xio* instruction = nullptr;
+    
     xio::collection xio_accumulator; ///< locally compiled xio's.
     
-    std::vector<token_data::iterator> i_tokens; ///< (Sous r&eacute;serve) In expression parser for example, we would iterate
+    std::vector<token_data*> i_tokens; ///< (Sous r&eacute;serve) In expression parser for example, we would iterate
                                     ///< forward by filling in the local token iterators collection while the token
                                     ///< is a usable value in an arithmetic expression
     using stack = std::stack<context>;
     static context::stack ctx_stack;
     
-    void push_token(token_data::iterator itoken_);
+    void push_token(token_data* token_);
     context()   = default;
     ~context();
     context(const context& ctx);
@@ -63,8 +65,9 @@ public:
     
     token_data::iterator operator++(int);
     token_data::iterator operator++();
-    bool end() { return c == last; }
+    [[nodiscard]] bool end() const { return c == last; }
     
+    std::string cached_tokens();
     
     std::string describe();
     static std::size_t clear_xio_accumulator(xio::collection& acc);

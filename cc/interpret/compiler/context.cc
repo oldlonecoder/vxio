@@ -146,5 +146,17 @@ void context::push_token(token_data::iterator itoken_)
     i_tokens.push_back(itoken_);
     
 }
+std::string context::cached_tokens()
+{
+    std::string str = "{";
+    for(auto token: i_tokens)
+    {
+        str += token->text();
+        str += ',';
+    }
+    str.back() = '}';
+    
+    return str;
+}
 
 }

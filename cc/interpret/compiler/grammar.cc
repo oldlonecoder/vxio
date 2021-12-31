@@ -86,7 +86,7 @@ rem::code grammar::build()
         << color::Yellow << _text
         << color::White << "\n----------------------------------\n";
     
-    std::size_t   count = _text.words(tokens, ":;,|.+*?#", true);
+    std::size_t   count = _text.words(tokens, ":.+*?#", true);
     iostr::list_t List;
     logger::debug() << "building words list...";
     for(auto s: tokens)
@@ -125,17 +125,17 @@ rem::code grammar::build()
 void grammar::dump()
 {
     
-    logger::info() << color::DarkBlue << "mnemonic" << color::Black << ',' <<
-                   color::DarkRed << "rule" << color::Black << ',' <<
-                   color::DarkCyan << "semantic" << color::Black << ',' << color::DarkMagenta << " Strict (implicit) rule:\n";
+    logger::info() << color::LightCoral << "mnemonic" << color::White << ',' <<
+                   color::LightPink4 << "rule" << color::White << ',' <<
+                   color::LightCyan3 << "semantic" << color::White << ',' << color::Magenta6 << " Strict (implicit) rule:\n";
     iostr Out;
     for(const auto &rule: rules)
     {
-        Out << color::Violet << rule.second->_id << color::White << ':';
+        Out << color::LightPink4 << rule.second->_id << color::White << ':';
         
         for(auto seq: rule.second->sequences)
         {
-            Out << color::Black << " | ";// << Ends;
+            Out << color::White << " | ";// << Ends;
             for(auto t: seq.terms)
             {
                 if(t.a.is_oneof())
@@ -151,14 +151,14 @@ void grammar::dump()
                 
                 switch(t._type)
                 {
-                    case term::type::m:Out << color::DarkCyan;
+                    case term::type::m:Out << color::LightCoral;
                         break;
                     case term::type::r:
                     {
                         if(t.a.X)
-                            Out << color::Black;
+                            Out << color::White;
                         else
-                            Out << color::Red4;
+                            Out << color::LightPink4;
                     }
                         break;
                     default: break;
@@ -246,22 +246,16 @@ rem::code grammar::parse_identifier(iostr::Iterator &crs)
 
 rem::code grammar::enter_rule_def(iostr::Iterator &crs)
 {
-    // logdebug
-    //     << color::HCyan << __FUNCTION__
-    //     << color::White << ": ["
-    //     << color::Yellow << *crs
-    //     << color::White << ']'
-    //     << Ends;
-    if(_state != st_init_rule)
+    // ':' :
+    if(_state == st_init_rule)
     {
-        logger::fatal() << " syntax error: '" << *crs << "' is invalid in this context";
-        return rem::code::rejected;
+        _state = st_seq;
+        a.Reset();
+        ++crs;
+        return rem::code::accepted;
     }
-    
-    _state = st_seq;
-    a.Reset();
-    ++crs;
-    return rem::code::accepted;
+    logger::fatal(src_long_funcname) << " misplaced ':' ";
+    return rem::code::rejected;
 }
 
 rem::code grammar::new_sequence(iostr::Iterator &crs)
@@ -357,9 +351,10 @@ rem::code grammar::enter_litteral(iostr::Iterator &crs)
         return rem::code::rejected;
     }
     
-    iostr::Iterator i = crs;
+    iostr::Iterator i, quote;
+    i = quote = crs;
     ++i;
-    if((*i == "'") || (*i == "\""))
+    if(*i == *quote)
     {
         logger::fatal() << "error: litteral grammar element cannot be empty";
         return rem::code::rejected;
@@ -379,7 +374,7 @@ rem::code grammar::enter_litteral(iostr::Iterator &crs)
     }
     crs = i;
     ++crs;
-    if((*crs == "'") || (*crs == "\""))
+    if(*crs == *quote)
         ++crs;
     //++crs; // will be on the next token.
     

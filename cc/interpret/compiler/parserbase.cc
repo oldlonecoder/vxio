@@ -10,10 +10,11 @@ namespace vxio
 
 expect<> parser_base::parse_rule(const rule *rule_, std::function<expect<>(context&)> lamda_fn)
 {
+    logger::debug(src_long_funcname) << " enter rule '" << rule_->_id << "':\n";
     context::push(_ctx);
-    
+    expect<> R;
     auto seq = rule_->begin();
-    while(*parse_sequence(*seq,lamda_fn) != rem::code::accepted)
+    while(*(R = parse_sequence(*seq,lamda_fn)) != rem::code::accepted)
     {
         seq++;
         if(rule_->end(seq))
@@ -22,6 +23,7 @@ expect<> parser_base::parse_rule(const rule *rule_, std::function<expect<>(conte
             return rem::code::rejected;
         }
     }
+    if(*R != rem::code::accepted) return R;
     // sequence, then rule accepted.
     // invoke production here
     if(lamda_fn)
@@ -33,6 +35,8 @@ expect<> parser_base::parse_rule(const rule *rule_, std::function<expect<>(conte
         }
     }
     context::pop(_ctx);
+    logger::debug(src_funcname) << _ctx.cached_tokens() << "\n";
+    
     return rem::code::accepted;
 }
 
@@ -40,26 +44,50 @@ expect<> parser_base::parse_rule(const rule *rule_, std::function<expect<>(conte
 expect<> parser_base::parse_sequence(const term_seq &seq, std::function<expect<>(context&)> lamda_fn)
 {
     _ctx.i_tokens.clear();
-    
-    for(const auto& trm : seq.terms)
+    logger::debug(src_long_funcname) << " enter sequence: \n";
+    auto it = seq.begin();
+    while(!seq.end(it))
     {
+        term trm = *it;
+        logger::debug() << " " << _ctx._rule->_id << "::" << trm() << " :\n";
         if(trm.is_rule())
         {
             repeat:
-            if(*parse_rule(trm.object.r,lamda_fn) != rem::code::accepted)
+            if(*parse_rule(it->object.r,lamda_fn) != rem::code::accepted)
             {
-                if(trm.a.is_oneof()) continue;
+                if(it->a.is_oneof())
+                {
+                    ++it;
+                    continue;
+                }
             }
-            if(trm.a.is_repeat())
+            if(it->a.is_repeat())
                 goto repeat;
-            
+            ++it;
             continue;
         }
-        if(trm == *_ctx.c)
+        if(*it == *_ctx.c)
         {
             _ctx.push_token(_ctx.c);
             ++_ctx;
         }
+        else
+        {
+            logger::debug(src_long_funcname) << ":\n" << " no match in sequence in rule '" << _ctx._rule->_id << "': \n";
+            logger::debug() << _ctx.c->details(true) << "\n checking term attributes:\n";
+            if(!(it->a.is_oneof() || (it->a.is_optional())) )
+            {
+                logger::debug() << " token rejected, expected: " << (*it)();
+                return rem::code::rejected;
+            }
+            if(it->a.is_oneof())
+            {
+                _ctx.push_token(_ctx.c);
+                ++_ctx;
+                return rem::code::accepted;
+            }
+        }
+        ++it;
     }
     return rem::code::accepted;
 }
