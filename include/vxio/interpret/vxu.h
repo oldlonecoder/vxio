@@ -48,7 +48,7 @@ public:
     alu jsr() override;
     rem::code load_code();
     vxu::config& config_data() { return _config; }
-    rem::code compile(const rule*);
+    rem::code compile();
     std::string id() { return _id; }
 protected:
     vxu::config _config;

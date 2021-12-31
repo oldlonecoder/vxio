@@ -22,19 +22,17 @@
 
 
 #pragma once
-#include <vxio/interpret/compiler/parserbase.h>
+#include <vxio/interpret/compiler/parser.h>
 namespace vxio
 {
 
-class declvar : public parser_base
+class declvar : public parser
 {
 public:
-    declvar():parser_base(){}
+    declvar(): parser(){}
     ~declvar() override;
     
-//    rem::code parse(context ctx_) override;
-//    expect<xio *> parse_rule(const rule *rule_) override;
-//    expect<xio *> parse_sequence(const term_seq &seq) override;
+
 };
 
 }

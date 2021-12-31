@@ -89,7 +89,7 @@ void rem::init_text_attr()
         vxio::color::ansi(vxio::color::Yellow),         //warning,
         vxio::color::ansi(vxio::color::BlueViolet),     //info,
         vxio::color::ansi(vxio::color::Cyan3),          //exception,
-        vxio::color::ansi(vxio::color::DarkBlue),       //fatal,
+        vxio::color::ansi(vxio::color::DeepSkyBlue7),       //fatal,
         vxio::color::ansi(vxio::color::DarkSlateGray1), //status,
         vxio::color::ansi(vxio::color::LightCoral),     //debug,
         vxio::color::ansi(vxio::color::White),          //output,

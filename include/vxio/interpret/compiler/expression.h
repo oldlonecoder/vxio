@@ -21,21 +21,19 @@
 *************************************************************************************************************************************/
 
 #pragma once
-#include <vxio/interpret/compiler/parserbase.h>
+#include <vxio/interpret/compiler/parser.h>
 #include <vxio/util/expect.h>
 //#include <vxio/
 
 namespace vxio
 {
-class expression : public parser_base
+class expression : public parser
 {
 
 public:
-    expression():parser_base(){}
+    expression(): parser(){}
     ~expression() override;
     
-    rem::code parse(context ctx_, std::function<expect<>(context&)> lamda_fn) override;
-    xio* create_xio(token_data* token_);
 };
 
 }

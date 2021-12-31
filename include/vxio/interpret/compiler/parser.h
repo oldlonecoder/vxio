@@ -20,29 +20,62 @@
 *************************************************************************************************************************************/
 #pragma once
 
-#include <vxio/interpret/compiler/context.h>
-#include <map>
 
+#include <map>
+#include <vxio/interpret/interpret.h>
 
 namespace vxio{
 
 
-class parser_base
+class parser
 {
-    using parsers_map = std::map<std::string, parser_base*>;
-    
-protected:
-    context _ctx;
+    using parsers_map = std::map<std::string, parser*>;
     
 public:
-    parser_base()=default;
-    virtual ~parser_base() = default;
-    virtual rem::code parse(context ctx_, std::function<expect<>(context&)> lamda_fn);
-    virtual expect<> parse_rule(const rule* rule_, std::function<expect<>(context&)> lamda_fn);
-    virtual expect<> parse_sequence(const term_seq& seq, std::function<expect<>(context&)> lamda_fn );
-    virtual void push_instruction();
-    //virtual expect<xio*> make_xio(token_data* token_);
+    struct context_t
+    {
+        bloc* blk = nullptr;
+        token_data::collection tokens_cache;
+        token_data::iterator   cursor,head;
+        token_data::collection* tokens = nullptr;
+        
+        const rule* r = nullptr;
+        
+        context_t() = default;
+        context_t(context_t&&) noexcept=default;
+        context_t(const context_t&)=default;
+        
+        bool operator++();
+        bool operator++(int);
+        bool end(token_data::iterator it) const;
+        bool end() const;
+        
+        parser::context_t& operator=(parser::context_t&&)noexcept=default;
+        parser::context_t& operator=(const parser::context_t&)=default;
+        
+    };
     
+protected:
+    context_t context;
+    token_data::collection* tokens = nullptr;
+    
+public:
+    
+    using assembler_fn = std::function<expect<>(parser::context_t&)>;
+    
+    
+    parser()=default;
+    parser& set_bloc(bloc* blk_);
+    parser& set_tokens_stream(token_data::collection * tokens_);
+    parser& set_assembler(parser::assembler_fn assembler);
+    
+    virtual ~parser() = default;
+    virtual rem::code parse(const std::string& rule_id);
+    virtual expect<> parse_rule(const rule* rule_);
+    virtual expect<> parse_sequence(const term_seq& seq);
+    
+protected:
+    assembler_fn assembler_fnptr = nullptr; //
 };
 
 }

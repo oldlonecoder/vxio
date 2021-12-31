@@ -43,7 +43,7 @@ alu interpret::operator[](std::string src_)
         "../../res/main.vxu", // dummy
         src_.c_str()
     };
-    _main->compile(gram["declvar"]);
+    _main->compile();
     
     //...
     return 42; // return nothing... (0.lf)
