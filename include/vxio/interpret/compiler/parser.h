@@ -35,7 +35,7 @@ public:
     struct context_t
     {
         bloc* blk = nullptr;
-        token_data::collection tokens_cache;
+        token_data::cache tokens_cache;
         token_data::iterator   cursor,head;
         token_data::collection* tokens = nullptr;
         
@@ -47,12 +47,13 @@ public:
         
         bool operator++();
         bool operator++(int);
-        bool end(token_data::iterator it) const;
-        bool end() const;
+        [[nodiscard]] bool end(token_data::iterator it) const;
+        [[nodiscard]] bool end() const;
         
         parser::context_t& operator=(parser::context_t&&)noexcept=default;
         parser::context_t& operator=(const parser::context_t&)=default;
-        
+        void sync(const parser::context_t& rhs);
+        std::string cache();
     };
     
 protected:

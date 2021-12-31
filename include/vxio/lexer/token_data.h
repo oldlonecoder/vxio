@@ -17,6 +17,10 @@ public:
     void* vdata = nullptr;
 
     using collection = std::vector<token_data>;
+    // ----------------------------------------
+    using cache      = std::vector<token_data*>;
+    using pointer    = cache::iterator;
+    // ----------------------------------------
     using iterator = collection::iterator;
 
     struct VXIO_API_DLL  location_data
