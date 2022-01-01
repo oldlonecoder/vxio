@@ -45,7 +45,7 @@ expect<> parser::parse_rule(const rule *rule_)
     context_t saved_ctx = context;
     context.head = context.cursor;
     context.r = rule_;
-    logger::debug(src_funcname) << " begin parsing rule '" << context.r->_id << "' :\n";
+    logger::debug(src_funcname) << context.status();
     auto seqit = context.r->begin();
     while(!context.r->end(seqit))
     {
@@ -59,7 +59,7 @@ expect<> parser::parse_rule(const rule *rule_)
         }
         if(*e == rem::code::accepted)
         {
-            logger::debug(src_funcname) << context.cache() << "\n";
+            logger::debug(src_funcname) << " sequence accepted : " << context.status() << "\n";
             if(assembler_fnptr)
             {
                 e = assembler_fnptr(context);
@@ -80,14 +80,15 @@ expect<> parser::parse_rule(const rule *rule_)
 expect<> parser::parse_sequence(const term_seq &seq)
 {
     auto elit = seq.begin();
-    logger::debug(src_funcname) << ":\n" << "starting rule element '" << (*elit)() << "':\n";
+    logger::debug(src_funcname) << ":\n" << "starting sequence element '" << color::Yellow << (*elit)() << color::White << "':\n";
     while(!seq.end(elit))
     {
         if(elit->is_rule())
         {
-            logger::debug(src_funcname) << " element is rule '" <<  (*elit)() << "':\n";
             repeat:
+            logger::debug(src_funcname) << " element is rule '" <<  (*elit)() << "':\n";
             auto e = parse_rule(elit->object.r);
+            logger::debug(src_funcname) << context.status() << "\n then rule element: '" << color::Yellow << (*elit)() << color::Reset;
             if(!e || (*e != rem::code::accepted))
             {
                 if(elit->a.is_optional())
@@ -99,17 +100,26 @@ expect<> parser::parse_sequence(const term_seq &seq)
             }
             if(*e == rem::code::accepted)
             {
-                context.tokens_cache.push_back(&(*context.cursor));
-                ++context;
-                if(elit->a.is_repeat()) goto repeat;
-                if(elit->a.is_oneof()) break;
+                context.tokens_cache.clear();
+                if(elit->a.is_repeat())
+                {
+                    logger::debug(src_funcname) << "sequence element '" << (*elit)() << "' has repeat:";
+                    goto repeat;
+                }
+                if(elit->a.is_oneof())
+                {
+                    logger::debug() << "element '" << (*elit)() << "' is a one_of then leaving.";
+                    break;
+                }
             }
         }
         if(*elit != *context.cursor)
         {
+            logger::debug() << "no match between element '"  << color::Yellow << (*elit)() << color::Reset <<  "' and '" << context.cursor->text() << "'\n";
             if(elit->a.is_oneof())
             {
                 ++elit;
+                logger::debug() << " on next sequence element: '" << (*elit)() << "':";
                 continue;
             }
             return rem::code::rejected;
@@ -162,6 +172,11 @@ std::string parser::context_t::cache()
     auto token = tokens_cache.begin();
     iostr str;
     str << color::Reset << "cache {";
+    if(tokens_cache.empty())
+    {
+        str << color::Yellow <<  "Empty" << color::Reset << "};";
+        return str();
+    }
     while(token != tokens_cache.end())
     {
         str << color::Yellow <<  (*token)->text() << color::Reset;
@@ -169,6 +184,31 @@ std::string parser::context_t::cache()
         if(token != tokens_cache.end()) str += ' ';
     }
     str += "};";
+    return str();
+}
+bool parser::context_t::operator--()
+{
+    if(token_ptr == tokens_cache.end()) return false;
+    ++token_ptr;
+    return token_ptr != tokens_cache.end();
+}
+bool parser::context_t::operator--(int)
+{
+    if(token_ptr == tokens_cache.end()) return false;
+    ++token_ptr;
+    return token_ptr != tokens_cache.end();
+}
+
+token_data::pointer parser::context_t::begin_cache()
+{
+    token_ptr = tokens_cache.begin();
+    return token_ptr;
+}
+std::string parser::context_t::status()
+{
+    iostr str ="%scontext status:\nrule{%s%s%s}\n%s\n%s" ;
+    str << color::White << color::Yellow << r->_id << color::White << cache() << cursor->details(true);
+    
     return str();
 }
 
