@@ -121,7 +121,7 @@ struct term
         rule          *r;
         vxio::type::T sem;
         mnemonic      m;
-    }          object = {nullptr};
+    }object = {nullptr};
     
     using collection = std::vector<term>;
     using iterator = collection::iterator;
@@ -283,6 +283,7 @@ public:
     rem::code build();
     
     void dump();
+    std::string dump_sequence(const term_seq& seq);
 
 private:
     enum state_mac

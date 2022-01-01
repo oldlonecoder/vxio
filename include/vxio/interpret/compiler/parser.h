@@ -60,6 +60,7 @@ public:
         token_data::pointer begin_cache();
         std::string status();
         std::string cache();
+        inline void clear_cache() { tokens_cache.clear(); }
     };
     
 protected:
@@ -68,7 +69,7 @@ protected:
     
 public:
     
-    using assembler_fn = std::function<expect<>(parser::context_t&)>;
+    using assembler_fn = std::function<rem::code(parser::context_t&)>;
     
     
     parser()=default;
@@ -78,8 +79,8 @@ public:
     
     virtual ~parser() = default;
     virtual rem::code parse(const std::string& rule_id);
-    virtual expect<> parse_rule(const rule* rule_);
-    virtual expect<> parse_sequence(const term_seq& seq);
+    virtual rem::code parse_rule(const rule* rule_);
+    //virtual rem::code parse_sequence(const term_seq& seq);
     
 protected:
     assembler_fn assembler_fnptr = nullptr; //

@@ -122,6 +122,44 @@ rem::code grammar::build()
     return rem::code::accepted;
 }
 
+std::string grammar::dump_sequence(const term_seq& seq)
+{
+    iostr Out;
+    Out << color::White << " | ";// << Ends;
+    for(auto t: seq.terms)
+    {
+        if(t.a.is_oneof())
+            Out << color::Cornsilk1;
+        else if(t.a.is_optional())
+            Out << color::Wheat4;
+        else if(t.a.is_strict())
+            Out << color::Thistle3;
+        else if(t.a.X)
+            Out << color::Black;
+        else
+            Out << color::Black;
+
+        switch(t._type)
+        {
+            case term::type::m:Out << color::LightCoral;
+            break;
+            case term::type::r:
+            {
+                if(t.a.X)
+                    Out << color::White;
+                else
+                    Out << color::LightPink4;
+            }
+            break;
+            default: break;
+        }
+        Out << t() << ' ';// << Ends;
+    }
+    Out << color::Reset;
+    return Out();
+}
+
+
 void grammar::dump()
 {
     
@@ -135,41 +173,13 @@ void grammar::dump()
         
         for(auto seq: rule.second->sequences)
         {
-            Out << color::White << " | ";// << Ends;
-            for(auto t: seq.terms)
-            {
-                if(t.a.is_oneof())
-                    Out << color::Cornsilk1;
-                else if(t.a.is_optional())
-                    Out << color::Wheat4;
-                else if(t.a.is_strict())
-                    Out << color::Thistle3;
-                else if(t.a.X)
-                    Out << color::Black;
-                else
-                    Out << color::Black;
-                
-                switch(t._type)
-                {
-                    case term::type::m:Out << color::LightCoral;
-                        break;
-                    case term::type::r:
-                    {
-                        if(t.a.X)
-                            Out << color::White;
-                        else
-                            Out << color::LightPink4;
-                    }
-                        break;
-                    default: break;
-                }
-                Out << t() << ' ';// << Ends;
-            }
-            //Out << color::Aquamarine3 << " }" << color::White;// << Ends;
+            iostr SeqStr;
+            SeqStr <<  dump_sequence(seq);
+            Out << SeqStr;
         }
-        Out << color::Reset << '\n';
+        Out << '\n';
     }
-    logger::output() << '\n' << Out();
+    logger::output() << rem::code::endl  << Out();
 }
 
 void grammar::init_rules()
@@ -661,3 +671,4 @@ std::string term_properties::operator()()
 }
 
 }
+

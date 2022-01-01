@@ -75,7 +75,10 @@ rem::rem(rem::type type_, const source::location &src)
 
 rem &rem::operator<<(rem::code c_)
 {
-    
+    iostr str;
+    int i = static_cast<int>(c_);
+    str << rem::codes_ansi256_attr[i] << codes_text[i].data();
+    _components.emplace_back(str());
     return *this;
 }
 
@@ -109,7 +112,7 @@ void rem::init_text_attr()
         vxio::color::ansi(vxio::color::Grey)            ,//empty,
         vxio::color::ansi(vxio::color::LightSteelBlue3),//unexpected,
         vxio::color::ansi(vxio::color::LightSteelBlue3),//expected,
-        vxio::color::ansi(vxio::color::White),          //endl,
+        vxio::color::ansi(vxio::color::Reset),          //endl,
         vxio::color::ansi(vxio::color::White),          //implement,
         vxio::color::ansi(vxio::color::White),          //_file_,
         vxio::color::ansi(vxio::color::LightSteelBlue3),//_function_,

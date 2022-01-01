@@ -30,107 +30,131 @@ parser &parser::set_assembler(parser::assembler_fn assembler)
 
 rem::code parser::parse(const std::string &rule_id)
 {
-    context.r = grammar()[rule_id];
     context.tokens = tokens;
     context.head = context.cursor = tokens->begin();
     
-    auto R = parse_rule(context.r);
-    
+    auto R = parse_rule(grammar()[rule_id]);
     return rem::code::accepted;
 }
 
-expect<> parser::parse_rule(const rule *rule_)
-{
-    context.tokens_cache.clear();
-    context_t saved_ctx = context;
-    context.head = context.cursor;
-    context.r = rule_;
-    logger::debug(src_funcname) << context.status();
-    auto seqit = context.r->begin();
-    while(!context.r->end(seqit))
-    {
-        
-        auto e = parse_sequence(*seqit);
-        if(!e || (*e != rem::code::accepted))
-        {
-            ++seqit;
-            context = saved_ctx;
-            continue;
-        }
-        if(*e == rem::code::accepted)
-        {
-            logger::debug(src_funcname) << " sequence accepted : " << context.status() << "\n";
-            if(assembler_fnptr)
-            {
-                e = assembler_fnptr(context);
-                if(!e || (*e != rem::code::accepted))
-                {
-                    context = saved_ctx;
-                    return e;
-                }
-                context.tokens_cache.clear();
-                return rem::code::accepted;
-            }
-        }
-    }
-    context = saved_ctx;
-    return rem::code::rejected;
-}
+#define ContextElement color::Yellow << local.r->_id << color::White << "::" << color::Yellow << (*elit)() << color::White
+#define Context color::Yellow << local.r->_id << color::White
 
-expect<> parser::parse_sequence(const term_seq &seq)
+rem::code parser::parse_rule(const rule *rule_)
 {
-    auto elit = seq.begin();
-    logger::debug(src_funcname) << ":\n" << "starting sequence element '" << color::Yellow << (*elit)() << color::White << "':\n";
-    while(!seq.end(elit))
+    auto saved_ctx = context;
+    auto local = context;
+    local.r = rule_;
+    local.clear_cache();
+    logger::debug(src_funcname) << ": entering rule '" << color::Yellow << local.r->_id << color::Reset << "':" << rem::code::endl << local.status();
+    logger::debug() << " initiating rule's sequences list -> " << color::Yellow << local.r->sequences.size() << color::White << " alternative(s) :";
+    auto seq_it = local.r->begin();
+    int seq_index = 1;
+    rem::code code = rem::code::rejected;
+    while(!local.r->end(seq_it))
     {
-        if(elit->is_rule())
+        auto saved_cursor = local.cursor;
+        logger::debug() << " initiating sequence elements list: " << color::Yellow << seq_index << color::White << "/" << color::Cyan3 << local.r->sequences.size()
+        << rem::code::endl << grammar().dump_sequence(*seq_it);
+        auto elit = seq_it->begin();
+        while(!seq_it->end(elit))
         {
-            repeat:
-            logger::debug(src_funcname) << " element is rule '" <<  (*elit)() << "':\n";
-            auto e = parse_rule(elit->object.r);
-            logger::debug(src_funcname) << context.status() << "\n then rule element: '" << color::Yellow << (*elit)() << color::Reset;
-            if(!e || (*e != rem::code::accepted))
+            logger::debug() << color::White << "element top loop " << ContextElement << ":";
+            if(elit->is_rule())
             {
-                if(elit->a.is_optional())
+                logger::debug() << ContextElement << " is a rule, thus recurse parse_rule";
+                code = parse_rule(elit->object.r);
+                //context = saved_ctx;
+                logger::debug() << ContextElement << " was " << code;
+                if(code == rem::code::accepted)
                 {
+
+                    logger::debug() << ContextElement << " accepted.";
+                    if(elit->a.is_repeat())
+                    {
+                        logger::debug() << "repeating " << ContextElement;
+                        continue;
+                    }
+                    if(elit->a.is_oneof())
+                    {
+                        return rem::code::accepted;
+                    }
                     ++elit;
                     continue;
                 }
-                return rem::code::rejected;
-            }
-            if(*e == rem::code::accepted)
-            {
-                context.tokens_cache.clear();
-                if(elit->a.is_repeat())
+                optional_term:
+                if(elit->a.is_optional())
                 {
-                    logger::debug(src_funcname) << "sequence element '" << (*elit)() << "' has repeat:";
-                    goto repeat;
+                    logger::debug() << ContextElement << "is optional so proceed to next element";
+                    ++elit;
+                    if(seq_it->end(elit))
+                    {
+                        logger::debug() << " no   more elements so "<< Context << " is rejected";
+                        return rem::code::rejected;
+                    }
+                    continue;
                 }
-                if(elit->a.is_oneof())
-                {
-                    logger::debug() << "element '" << (*elit)() << "' is a one_of then leaving.";
-                    break;
-                }
-            }
-        }
-        if(*elit != *context.cursor)
-        {
-            logger::debug() << "no match between element '"  << color::Yellow << (*elit)() << color::Reset <<  "' and '" << context.cursor->text() << "'\n";
-            if(elit->a.is_oneof())
-            {
+
                 ++elit;
-                logger::debug() << " on next sequence element: '" << (*elit)() << "':";
+                if(seq_it->end(elit))
+                {
+                    logger::debug() << " no more elements so "<< Context << " is rejected";
+                    return rem::code::rejected;
+                }
                 continue;
             }
-            return rem::code::rejected;
+            if(*elit == *local.cursor)
+            {
+                local.tokens_cache.emplace_back(&(*local.cursor));
+                logger::debug() << ContextElement <<  " matches token " << color::Yellow << local.cursor->text() << rem::code::endl << "token pushed on context cache." << rem::code::endl << local.cache();
+                ++local;
+                logger::debug() << Context << " next token: " << color::Yellow << local.cursor->text();
+                if(elit->a.is_oneof())
+                {
+                    logger::debug() << ContextElement << " is a oneof then leaving as accepted";
+                    if(assembler_fnptr)
+                        return assembler_fnptr(context);
+                    else
+                        return rem::code::accepted;
+                }
+                ++elit;
+                if(seq_it->end(elit))
+                {
+                    logger::debug() << Context << " Sequence #" << color::Cyan3 << seq_index << color::White << " complete match. leaving as rule was accepted";
+                    saved_cursor = context.cursor;
+
+                    context.cursor = saved_cursor;
+                    if(assembler_fnptr)
+                        return assembler_fnptr(context);
+                    else
+                        return rem::code::accepted;
+
+                }
+                logger::debug() << " We Are Here: " << ContextElement;
+                continue;
+            }
+            logger::debug() << ContextElement << " no match, checking if element is optional:";
+            if(elit->a.is_optional())
+            {
+                logger::debug() << ContextElement << "is optional so proceed to next element";
+                ++elit;
+                if(seq_it->end(elit))
+                {
+                    logger::debug() << " no   more elements so "<< Context << " is rejected";
+                }
+                else continue;
+            }
+            logger::debug() << ContextElement << " not optional, rejected.";
+            break;
         }
-        logger::debug(src_funcname) << " element '" << (*elit)() << "' matches '" << context.cursor->text() << "'.";
-        context.tokens_cache.push_back(&(*context.cursor));
-        ++context;
-        if(elit->a.is_oneof()) break;
-        ++elit;
+
+        logger::debug() << "rule'" << color::Yellow << context.r->_id << color::Reset << " go to the next sequence:"<< rem::code::endl << context.cache();
+        ++seq_it; ++seq_index;
+        context.cursor = saved_cursor;
+        context.clear_cache();
     }
-    return rem::code::accepted;
+    context = saved_ctx;
+    return rem::code::rejected;
 }
 
 
@@ -160,11 +184,16 @@ bool parser::context_t::end() const
 {
     return cursor == tokens->end();
 }
+
+
+
+
 void parser::context_t::sync(const parser::context_t &rhs)
 {
     cursor = rhs.cursor;
-    
+    //...
 }
+
 std::string parser::context_t::cache()
 {
     using vxio::color;
@@ -186,6 +215,14 @@ std::string parser::context_t::cache()
     str += "};";
     return str();
 }
+/**
+ * @brief --> Advance the internal cached token iterator
+ *
+ * @author &copy;2022 Serge Lussier (lussier.serge@gmail.com); oldlonecoder
+ * @return boolean, true if the iterator is not at the end of the cache, false otherwise.
+ *
+ * @note note.... lol.
+ */
 bool parser::context_t::operator--()
 {
     if(token_ptr == tokens_cache.end()) return false;
@@ -204,9 +241,11 @@ token_data::pointer parser::context_t::begin_cache()
     token_ptr = tokens_cache.begin();
     return token_ptr;
 }
+
+
 std::string parser::context_t::status()
 {
-    iostr str ="%scontext status:\nrule{%s%s%s}\n%s\n%s" ;
+    iostr str ="%scontext status on rule{%s%s%s}\n%s\n%s" ;
     str << color::White << color::Yellow << r->_id << color::White << cache() << cursor->details(true);
     
     return str();
