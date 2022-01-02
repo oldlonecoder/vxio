@@ -88,8 +88,8 @@ rem::code parser::enter_sequence(const term_seq& sequence)
 {
     auto elit = sequence.begin();
     logger::debug(src_funcname) << grammar().dump_sequence(sequence);
-    context.tokens_cache.clear();
     rem::code code = rem::code::rejected;
+    context.clear_cache();
     while(!sequence.end(elit))
     {
         if(elit->is_rule())
@@ -99,8 +99,19 @@ rem::code parser::enter_sequence(const term_seq& sequence)
             {
                 //...
                 if(elit->a.is_repeat()) goto repeat_after_me;
-
+                ++elit;
+                continue;
             }
+            if(elit->a.is_optional())
+            {
+                ++elit;
+                continue;
+            }
+            return code;
+        }
+        // ----------------------------- iterate here -----------------------------
+        if(*elit == *context.cursor)
+        {
 
         }
     }
