@@ -23,6 +23,8 @@
 
 #include <map>
 #include <vxio/interpret/interpret.h>
+#include <stack>
+
 
 namespace vxio{
 
@@ -61,6 +63,10 @@ public:
         std::string status();
         std::string cache();
         inline void clear_cache() { tokens_cache.clear(); }
+        static int push(const parser::context_t& ctx);
+        static int pop(parser::context_t& ctx, bool synchronise = false);
+
+        static std::stack<parser::context_t> stack;
     };
     
 protected:
@@ -79,11 +85,14 @@ public:
     
     virtual ~parser() = default;
     virtual rem::code parse(const std::string& rule_id);
-    virtual rem::code parse_rule(const rule* rule_);
-    //virtual rem::code parse_sequence(const term_seq& seq);
-    
+    virtual rem::code enter_rule(const rule* rule_);
+    virtual rem::code enter_sequence(const term_seq& seq_);
+
+    virtual rem::code invoke_assembler();
+
 protected:
     assembler_fn assembler_fnptr = nullptr; //
+
 };
 
 }

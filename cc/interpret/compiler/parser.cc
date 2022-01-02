@@ -10,6 +10,9 @@
 namespace vxio
 {
 
+
+std::stack<parser::context_t> parser::context_t::stack;
+
 parser &parser::set_bloc(bloc *blk_)
 {
     context.blk = blk_;
@@ -33,130 +36,76 @@ rem::code parser::parse(const std::string &rule_id)
     context.tokens = tokens;
     context.head = context.cursor = tokens->begin();
     
-    auto R = parse_rule(grammar()[rule_id]);
+    auto R = enter_rule(grammar()[rule_id]);
     return rem::code::accepted;
 }
 
 #define ContextElement color::Yellow << local.r->_id << color::White << "::" << color::Yellow << (*elit)() << color::White
 #define Context color::Yellow << local.r->_id << color::White
 
-rem::code parser::parse_rule(const rule *rule_)
+
+/**
+ * @brief Enters rule analyse.
+ *
+ * @ul
+ *  @li Iterates the rule's list of alternative sequences.
+ *  @li Once one of the sequences is accepted (matches the list of elements against the tokens):
+ *  @ul
+ *      @li Invokes the supplied "assembler" for the production from the cached tokens.
+ *      @li Updates the parent context with the local context data
+ *      @li return status as accepted to the parent context/recursion call up to the original invokation.s
+ *
+ * @author &copy;2022 Serge Lussier (lussier.serge@gmail.com); oldlonecoder
+ * @return result code as rem::code value (reject or accepted);
+ *
+ * @note
+ *
+ */
+
+rem::code parser::enter_rule(const rule *rule_)
 {
-    auto saved_ctx = context;
-    auto local = context;
-    local.r = rule_;
-    local.clear_cache();
-    logger::debug(src_funcname) << ": entering rule '" << color::Yellow << local.r->_id << color::Reset << "':" << rem::code::endl << local.status();
-    logger::debug() << " initiating rule's sequences list -> " << color::Yellow << local.r->sequences.size() << color::White << " alternative(s) :";
-    auto seq_it = local.r->begin();
-    int seq_index = 1;
+    context_t::push(context);
+    context.clear_cache();
+    context.r = rule_;
+    auto seqit = context.r->begin();
     rem::code code = rem::code::rejected;
-    while(!local.r->end(seq_it))
+
+    while(!context.r->end(seqit))
     {
-        auto saved_cursor = local.cursor;
-        logger::debug() << " initiating sequence elements list: " << color::Yellow << seq_index << color::White << "/" << color::Cyan3 << local.r->sequences.size()
-        << rem::code::endl << grammar().dump_sequence(*seq_it);
-        auto elit = seq_it->begin();
-        while(!seq_it->end(elit))
+        if((code = enter_sequence(*seqit)) == rem::code::accepted)
         {
-            logger::debug() << color::White << "element top loop " << ContextElement << ":";
-            if(elit->is_rule())
-            {
-                logger::debug() << ContextElement << " is a rule, thus recurse parse_rule";
-                code = parse_rule(elit->object.r);
-                //context = saved_ctx;
-                logger::debug() << ContextElement << " was " << code;
-                if(code == rem::code::accepted)
-                {
+            code = invoke_assembler();
+            context_t::pop(context,code==rem::code::accepted);
 
-                    logger::debug() << ContextElement << " accepted.";
-                    if(elit->a.is_repeat())
-                    {
-                        logger::debug() << "repeating " << ContextElement;
-                        continue;
-                    }
-                    if(elit->a.is_oneof())
-                    {
-                        return rem::code::accepted;
-                    }
-                    ++elit;
-                    continue;
-                }
-                optional_term:
-                if(elit->a.is_optional())
-                {
-                    logger::debug() << ContextElement << "is optional so proceed to next element";
-                    ++elit;
-                    if(seq_it->end(elit))
-                    {
-                        logger::debug() << " no   more elements so "<< Context << " is rejected";
-                        return rem::code::rejected;
-                    }
-                    continue;
-                }
-
-                ++elit;
-                if(seq_it->end(elit))
-                {
-                    logger::debug() << " no more elements so "<< Context << " is rejected";
-                    return rem::code::rejected;
-                }
-                continue;
-            }
-            if(*elit == *local.cursor)
-            {
-                local.tokens_cache.emplace_back(&(*local.cursor));
-                logger::debug() << ContextElement <<  " matches token " << color::Yellow << local.cursor->text() << rem::code::endl << "token pushed on context cache." << rem::code::endl << local.cache();
-                ++local;
-                logger::debug() << Context << " next token: " << color::Yellow << local.cursor->text();
-                if(elit->a.is_oneof())
-                {
-                    logger::debug() << ContextElement << " is a oneof then leaving as accepted";
-                    if(assembler_fnptr)
-                        return assembler_fnptr(context);
-                    else
-                        return rem::code::accepted;
-                }
-                ++elit;
-                if(seq_it->end(elit))
-                {
-                    logger::debug() << Context << " Sequence #" << color::Cyan3 << seq_index << color::White << " complete match. leaving as rule was accepted";
-                    saved_cursor = context.cursor;
-
-                    context.cursor = saved_cursor;
-                    if(assembler_fnptr)
-                        return assembler_fnptr(context);
-                    else
-                        return rem::code::accepted;
-
-                }
-                logger::debug() << " We Are Here: " << ContextElement;
-                continue;
-            }
-            logger::debug() << ContextElement << " no match, checking if element is optional:";
-            if(elit->a.is_optional())
-            {
-                logger::debug() << ContextElement << "is optional so proceed to next element";
-                ++elit;
-                if(seq_it->end(elit))
-                {
-                    logger::debug() << " no   more elements so "<< Context << " is rejected";
-                }
-                else continue;
-            }
-            logger::debug() << ContextElement << " not optional, rejected.";
-            break;
         }
 
-        logger::debug() << "rule'" << color::Yellow << context.r->_id << color::Reset << " go to the next sequence:"<< rem::code::endl << context.cache();
-        ++seq_it; ++seq_index;
-        context.cursor = saved_cursor;
-        context.clear_cache();
     }
-    context = saved_ctx;
+
     return rem::code::rejected;
 }
 
+rem::code parser::enter_sequence(const term_seq& sequence)
+{
+    auto elit = sequence.begin();
+    logger::debug(src_funcname) << grammar().dump_sequence(sequence);
+    context.tokens_cache.clear();
+    rem::code code = rem::code::rejected;
+    while(!sequence.end(elit))
+    {
+        if(elit->is_rule())
+        {
+            repeat_after_me:
+            if((code = enter_rule(context.r)) == rem::code::accepted)
+            {
+                //...
+                if(elit->a.is_repeat()) goto repeat_after_me;
+
+            }
+
+        }
+    }
+    return rem::code::accepted;
+}
 
 bool parser::context_t::operator++()
 {
@@ -251,4 +200,37 @@ std::string parser::context_t::status()
     return str();
 }
 
+int parser::context_t::push(const parser::context_t& ctx)
+{
+    stack.push(ctx);
+    return stack.size();
 }
+int parser::context_t::pop(parser::context_t& ctx, bool synchronise)
+{
+    if(stack.empty()) return 0;
+    context_t to_sync = stack.top();
+
+    if(synchronise)
+    {
+        to_sync.cursor = ctx.cursor;
+        // to_sync.instruction = ctx.instruction;
+        //...
+    }
+
+    stack.pop();
+    return stack.size();
+}
+
+
+rem::code parser::invoke_assembler()
+{
+    logger::debug(src_funcname) <<  rem::code::endl << context.status();
+
+    if(assembler_fnptr)
+        return assembler_fnptr(context);
+    return rem::code::rejected;
+}
+
+
+}
+
