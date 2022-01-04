@@ -76,13 +76,22 @@ rem::code parser::enter_rule(const rule *rule_)
         {
             code = invoke_assembler();
             context_t::pop(context,code==rem::code::accepted);
-
         }
 
     }
 
     return rem::code::rejected;
 }
+
+
+/**
+ * @brief iterates a sequence of elements.
+ *
+ * @author &copy;2022 Serge Lussier (lussier.serge@gmail.com); oldlonecoder
+ * @return accepted or rejected.
+ *
+ * @note (fr) - Si la s&eacute;quence est optionnelle ( tous les &eacutesl&eacute;ments sont optionnels), il y aura un faux rem::code::accepted.
+ */
 
 rem::code parser::enter_sequence(const term_seq& sequence)
 {
@@ -112,7 +121,10 @@ rem::code parser::enter_sequence(const term_seq& sequence)
         // ----------------------------- iterate here -----------------------------
         if(*elit == *context.cursor)
         {
-
+            context.tokens_cache.push_back(&(*context.cursor));
+            ++elit;
+            if(sequence.end(elit))
+                return rem::code::accepted;
         }
     }
     return rem::code::accepted;
