@@ -108,6 +108,7 @@ rem::code parser::enter_sequence(const term_seq& sequence)
             {
                 //...
                 if(elit->a.is_repeat()) goto repeat_after_me;
+                if(elit->a.is_optional()) return code;
                 ++elit;
                 continue;
             }
@@ -116,7 +117,7 @@ rem::code parser::enter_sequence(const term_seq& sequence)
                 ++elit;
                 continue;
             }
-            return code;
+            return rem::code::rejected; // more readable than "code";
         }
         // ----------------------------- iterate here -----------------------------
         if(*elit == *context.cursor)
@@ -126,8 +127,11 @@ rem::code parser::enter_sequence(const term_seq& sequence)
             if(sequence.end(elit))
                 return rem::code::accepted;
         }
+        ++elit;
+        if(sequence.end(elit))
+            return rem::code::rejected;
     }
-    return rem::code::accepted;
+    return code;
 }
 
 bool parser::context_t::operator++()
