@@ -40,8 +40,8 @@ rem::code parser::parse(const std::string &rule_id)
     return rem::code::accepted;
 }
 
-#define ContextElement color::Yellow << local.r->_id << color::White << "::" << color::Yellow << (*elit)() << color::White
-#define Context color::Yellow << local.r->_id << color::White
+#define ContextElement color::Yellow << context.r->_id << color::White << "::" << color::Yellow << (*elit)() << color::White
+#define Context color::Yellow << context.r->_id << color::White
 
 
 /**
@@ -76,10 +76,11 @@ rem::code parser::enter_rule(const rule *rule_)
         {
             code = invoke_assembler();
             context_t::pop(context,code==rem::code::accepted);
+            return code;
         }
-
+        ++seqit;
     }
-
+    context_t::pop(context);
     return rem::code::rejected;
 }
 
@@ -103,6 +104,7 @@ rem::code parser::enter_sequence(const term_seq& sequence)
     {
         if(elit->is_rule())
         {
+            logger::debug() << ContextElement << " is a rule.";
             repeat_after_me:
             if((code = enter_rule(context.r)) == rem::code::accepted)
             {
@@ -122,14 +124,24 @@ rem::code parser::enter_sequence(const term_seq& sequence)
         // ----------------------------- iterate here -----------------------------
         if(*elit == *context.cursor)
         {
+            logger::debug() << ContextElement << " matches token:" << rem::code::endl << context.cursor->mark();
             context.tokens_cache.push_back(&(*context.cursor));
             ++elit;
             if(sequence.end(elit))
+            {
+                logger::debug() << " sequence terminated and accpeted;";
                 return rem::code::accepted;
+            }
+            logger::debug() << "next:"  << ContextElement;
         }
-        ++elit;
-        if(sequence.end(elit))
-            return rem::code::rejected;
+        else
+        {
+            if(elit->a.is_optional())
+            {
+                ++elit;
+                continue;
+            }
+        }
     }
     return code;
 }
