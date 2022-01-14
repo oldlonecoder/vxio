@@ -69,17 +69,21 @@ rem::code parser::enter_rule(const rule *rule_)
     context.r = rule_;
     auto seqit = context.r->begin();
     rem::code code = rem::code::rejected;
-
+    int i=1;
+    size_t cnt = context.r->sequences.size();
     while(!context.r->end(seqit))
     {
+        logger::debug(src_funcname) << grammar().dump_sequence(*seqit) << " - " << color::Yellow << cnt << color::White << '/' << color::LightPink4 << cnt;
         if((code = enter_sequence(*seqit)) == rem::code::accepted)
         {
             code = invoke_assembler();
+            logger::debug(src_funcname) << grammar().dump_sequence(*seqit) << " - " << color::Yellow << cnt << color::White << '/' << color::LightPink4 << cnt << "accepted\n";
             context_t::pop(context,code==rem::code::accepted);
             return code;
         }
         ++seqit;
     }
+    logger::debug(src_funcname) << Context << " - rejected ";
     context_t::pop(context);
     return rem::code::rejected;
 }
@@ -97,28 +101,33 @@ rem::code parser::enter_rule(const rule *rule_)
 rem::code parser::enter_sequence(const term_seq& sequence)
 {
     auto elit = sequence.begin();
-    logger::debug(src_funcname) << grammar().dump_sequence(sequence);
+
     rem::code code = rem::code::rejected;
     context.clear_cache();
+    logger::debug(src_funcname) << grammar().dump_sequence(sequence) << " : ";
     while(!sequence.end(elit))
     {
         if(elit->is_rule())
         {
             logger::debug() << ContextElement << " is a rule.";
             repeat_after_me:
-            if((code = enter_rule(context.r)) == rem::code::accepted)
+            if((code = enter_rule(elit->object.r)) == rem::code::accepted)
             {
                 //...
+                if(elit->a.is_oneof()) return code;
                 if(elit->a.is_repeat()) goto repeat_after_me;
-                if(elit->a.is_optional()) return code;
-                ++elit;
-                continue;
+                if(elit->a.is_optional())
+                {
+                    ++elit;
+                    continue;
+                }
             }
             if(elit->a.is_optional())
             {
                 ++elit;
                 continue;
             }
+            std::cout << (logger::debug() << ContextElement << " rejected").cc() << "\n";
             return rem::code::rejected; // more readable than "code";
         }
         // ----------------------------- iterate here -----------------------------
