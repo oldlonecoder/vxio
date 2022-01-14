@@ -77,7 +77,6 @@ rem::code parser::enter_rule(const rule *rule_)
         if((code = enter_sequence(*seqit)) == rem::code::accepted)
         {
             code = invoke_assembler();
-            logger::debug(src_funcname) << grammar().dump_sequence(*seqit) << " - " << color::Yellow << cnt << color::White << '/' << color::LightPink4 << cnt << "accepted\n";
             context_t::pop(context,code==rem::code::accepted);
             return code;
         }
@@ -107,6 +106,7 @@ rem::code parser::enter_sequence(const term_seq& sequence)
     logger::debug(src_funcname) << grammar().dump_sequence(sequence) << " : ";
     while(!sequence.end(elit))
     {
+        logger::debug() << "element: '" << ContextElement << " <:> " << context.cursor->text();
         if(elit->is_rule())
         {
             logger::debug() << ContextElement << " is a rule.";
@@ -135,7 +135,7 @@ rem::code parser::enter_sequence(const term_seq& sequence)
         {
             logger::debug() << ContextElement << " matches token:" << rem::code::endl << context.cursor->mark();
             context.tokens_cache.push_back(&(*context.cursor));
-            ++elit;
+            ++elit; ++context;
             if(sequence.end(elit))
             {
                 logger::debug() << " sequence terminated and accpeted;";
@@ -148,6 +148,7 @@ rem::code parser::enter_sequence(const term_seq& sequence)
             if(elit->a.is_optional())
             {
                 ++elit;
+                logger::debug() << "next:"  << ContextElement;
                 continue;
             }
         }
