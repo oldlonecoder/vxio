@@ -106,7 +106,7 @@ rem::code parser::enter_sequence(const term_seq& sequence)
     logger::debug(src_funcname) << grammar().dump_sequence(sequence) << " : ";
     while(!sequence.end(elit))
     {
-        logger::debug() << "element: '" << ContextElement << " <:> " << context.cursor->text();
+        logger::debug(src_funcname) << "element: '" << ContextElement << " <:> " << context.cursor->text();
         if(elit->is_rule())
         {
             logger::debug() << ContextElement << " is a rule.";
@@ -133,25 +133,29 @@ rem::code parser::enter_sequence(const term_seq& sequence)
         // ----------------------------- iterate here -----------------------------
         if(*elit == *context.cursor)
         {
-            logger::debug() << ContextElement << " matches token:" << rem::code::endl << context.cursor->mark();
+            logger::debug(src_funcname) << ContextElement << " matches token:" << rem::code::endl << context.cursor->mark();
             context.tokens_cache.push_back(&(*context.cursor));
             ++elit; ++context;
             if(sequence.end(elit))
             {
-                logger::debug() << " sequence terminated and accpeted;";
+                logger::debug(src_funcname) << " sequence terminated and accpeted;";
                 return rem::code::accepted;
             }
-            logger::debug() << "next:"  << ContextElement;
+            logger::debug(src_funcname) << "next:"  << ContextElement;
+            continue;
         }
         else
         {
             if(elit->a.is_optional())
             {
+                logger::debug(src_funcname) << ContextElement << " optional.";
                 ++elit;
-                logger::debug() << "next:"  << ContextElement;
+                logger::debug(src_funcname) << "try next:"  << ContextElement;
                 continue;
             }
         }
+        logger::debug(src_funcname) << ContextElement << " Rejecting sequence.";
+        return rem::code::rejected;
     }
     return code;
 }
@@ -185,12 +189,11 @@ bool parser::context_t::end() const
 
 
 
-
-void parser::context_t::sync(const parser::context_t &rhs)
-{
-    cursor = rhs.cursor;
+///
+//{
+//    cursor = rhs.cursor;
     //...
-}
+//}
 
 std::string parser::context_t::cache()
 {
