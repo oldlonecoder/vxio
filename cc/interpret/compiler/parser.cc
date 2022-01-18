@@ -40,7 +40,7 @@ rem::code parser::parse(const std::string &rule_id)
     return rem::code::accepted;
 }
 
-#define ContextElement color::Yellow << context.r->_id << color::White << "::" << color::Yellow << (*elit)() << color::White
+#define ContextElement color::Yellow << context.r->_id << color::White << "::'" << color::Yellow << (*elit)() << color::White << "'"
 #define Context color::Yellow << context.r->_id << color::White
 
 
@@ -71,9 +71,10 @@ rem::code parser::enter_rule(const rule *rule_)
     rem::code code = rem::code::rejected;
     int i=1;
     size_t cnt = context.r->sequences.size();
+    logger::debug(src_funcname) << color::White << " '" << color::Yellow << context.r->_id << color::White << "' " << color::Yellow << cnt << color::White << " alternative sequence(s):";
     while(!context.r->end(seqit))
     {
-        logger::debug(src_funcname) << grammar().dump_sequence(*seqit) << " - " << color::Yellow << cnt << color::White << '/' << color::LightPink4 << cnt;
+        logger::debug() << grammar().dump_sequence(*seqit) << " - " << color::Yellow << cnt << color::White << '/' << color::LightPink4 << cnt;
         if((code = enter_sequence(*seqit)) == rem::code::accepted)
         {
             code = invoke_assembler();
@@ -106,7 +107,7 @@ rem::code parser::enter_sequence(const term_seq& sequence)
     logger::debug(src_funcname) << grammar().dump_sequence(sequence) << " : ";
     while(!sequence.end(elit))
     {
-        logger::debug(src_funcname) << "element: '" << ContextElement << " <:> " << context.cursor->text();
+        logger::debug(src_funcname) << "element:" << ContextElement << " <=> " << context.cursor->text();
         if(elit->is_rule())
         {
             logger::debug() << ContextElement << " is a rule.";
