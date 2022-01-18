@@ -40,8 +40,8 @@ rem::code parser::parse(const std::string &rule_id)
     return rem::code::accepted;
 }
 
-#define ContextElement color::Yellow << context.r->_id << color::White << "::'" << color::Yellow << (*elit)() << color::White << "'"
-#define Context color::Yellow << context.r->_id << color::White
+#define ContextElement color::Yellow << context.r->_id << color::White << "::'" << color::Yellow << (*elit)() << color::White << "' => token '" << color::Yellow << context.cursor->text() << color::White << "':"
+#define Context color::Yellow << context.r->_id << color::White << " token back to '" << color::Yellow << context.cursor->text() << color::White
 
 
 /**
@@ -74,14 +74,16 @@ rem::code parser::enter_rule(const rule *rule_)
     logger::debug(src_funcname) << color::White << " '" << color::Yellow << context.r->_id << color::White << "' " << color::Yellow << cnt << color::White << " alternative sequence(s):";
     while(!context.r->end(seqit))
     {
-        logger::debug() << grammar().dump_sequence(*seqit) << " - " << color::Yellow << cnt << color::White << '/' << color::LightPink4 << cnt;
+        logger::debug() << grammar().dump_sequence(*seqit) << " - " << color::Yellow << i << color::White << '/' << color::LightPink4 << cnt;
         if((code = enter_sequence(*seqit)) == rem::code::accepted)
         {
             code = invoke_assembler();
             context_t::pop(context,code==rem::code::accepted);
             return code;
         }
-        ++seqit;
+        ++seqit;++i;
+        context_t::pop(context);
+        logger::debug(src_funcname) << "pop to previous context: " << Context << ":";
     }
     logger::debug(src_funcname) << Context << " - rejected ";
     context_t::pop(context);
@@ -136,10 +138,11 @@ rem::code parser::enter_sequence(const term_seq& sequence)
         {
             logger::debug(src_funcname) << ContextElement << " matches token:" << rem::code::endl << context.cursor->mark();
             context.tokens_cache.push_back(&(*context.cursor));
+            logger::debug() << context.cache();
             ++elit; ++context;
             if(sequence.end(elit))
             {
-                logger::debug(src_funcname) << " sequence terminated and accpeted;";
+                logger::debug(src_funcname) << " sequence terminated and accepted;";
                 return rem::code::accepted;
             }
             logger::debug(src_funcname) << "next:"  << ContextElement;
@@ -156,6 +159,7 @@ rem::code parser::enter_sequence(const term_seq& sequence)
             }
         }
         logger::debug(src_funcname) << ContextElement << " Rejecting sequence.";
+
         return rem::code::rejected;
     }
     return code;
