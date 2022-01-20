@@ -47,7 +47,7 @@ rem::code parser::parse(const std::string &rule_id)
 }
 
 #define ContextElement color::Yellow << ctx.r->_id << color::White << "::'" << color::Yellow << (*elit)() << color::White << "' => token '" << color::Yellow << ctx.cursor->text() << color::White << "':"
-#define Context color::White << "rule[" << color::Yellow << ctx.r->_id << color::White << "] token cursor on '" << color::Yellow << ctx.cursor->text() << color::White << "'"
+#define Context color::White << "Current context : rule[" << color::Yellow << ctx.r->_id << color::White << "] token cursor on '" << color::Yellow << ctx.cursor->text() << color::White << "'"
 
 
 /**
@@ -84,7 +84,16 @@ rem::code parser::enter_rule(const rule *rule_)
     {
         logger::debug() << Context << "; " << grammar().dump_sequence(*seqit) << i << color::White << "/" << cnt;
         code = enter_sequence(*seqit);
-        if(code != rem::code::accepted) return code;
+        if(code != rem::code::accepted)
+        {
+            logger::debug() << color::White << "sequence rejected. Leaving rule [" << color::Yellow << ctx.r->_id << color::White << "].";
+            context::pop(ctx);
+            logger::debug() << "Context back to " << ctx.status();
+            return code;
+        }
+        context::pop(ctx,true);
+        logger::debug() << color::White << "sequence accepted. Context back to " << ctx.status();
+        return rem::code::accepted;
     }
     return rem::code::rejected;
 }
@@ -106,14 +115,15 @@ rem::code parser::enter_sequence(const term_seq& sequence)
     rem::code code = rem::code::rejected;
     ctx.clear_cache();
     logger::debug(src_funcname) << grammar().dump_sequence(sequence) << " : ";
-/*
+    logger::debug() << ctx.status();
+
     while(!sequence.end(elit))
     {
         logger::debug(src_funcname) << "element:" << ContextElement << " <=> " << ctx.cursor->text();
-
-        return rem::code::rejected;
+        ++elit;
+        //return rem::code::rejected;
     }
-*/
+
     return code;
 }
 
