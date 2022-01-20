@@ -34,7 +34,7 @@ class parser
     using parsers_map = std::map<std::string, parser*>;
     
 public:
-    struct context_t
+    struct context
     {
         bloc* blk = nullptr;
         token_data::cache   tokens_cache;
@@ -43,9 +43,9 @@ public:
         token_data::collection* tokens = nullptr;
         const rule* r = nullptr;
         
-        context_t() = default;
-        context_t(context_t&&) noexcept=default;
-        context_t(const context_t&)=default;
+        context() = default;
+        context(context&&) noexcept;
+        context(const context&);
         
         bool operator++();
         bool operator++(int);
@@ -56,27 +56,28 @@ public:
         [[nodiscard]] bool end(token_data::iterator it) const;
         [[nodiscard]] bool end() const;
         
-        parser::context_t& operator=(parser::context_t&&)noexcept=default;
-        parser::context_t& operator=(const parser::context_t&)=default;
-        void sync(const parser::context_t& rhs);
+        parser::context& operator=(parser::context&&)noexcept;
+        parser::context& operator=(const parser::context&);
+        void sync(const parser::context& rhs);
         token_data::pointer begin_cache();
         std::string status();
         std::string cache();
         inline void clear_cache() { tokens_cache.clear(); }
-        static int push(const parser::context_t& ctx);
-        static int pop(parser::context_t& ctx, bool synchronise = false);
+        static int push(const parser::context& ctx);
+        static int pop(parser::context& ctx, bool synchronise = false);
 
-        static std::stack<parser::context_t> stack;
+        static std::stack<parser::context> stack;
     };
     
 protected:
-    context_t context;
+    context ctx;
     token_data::collection* tokens = nullptr;
     
 public:
     
-    using assembler_fn = std::function<rem::code(parser::context_t&)>;
-    
+    using assembler_fn = std::function<rem::code(parser::context&)>;
+    using assemblers_t = std::map<const rule*, assembler_fn>;
+
     
     parser()=default;
     parser& set_bloc(bloc* blk_);
@@ -90,9 +91,11 @@ public:
 
     virtual rem::code invoke_assembler();
 
+
 protected:
     assembler_fn assembler_fnptr = nullptr; //
-
+private:
+    static parser::assemblers_t assemblers;
 };
 
 }

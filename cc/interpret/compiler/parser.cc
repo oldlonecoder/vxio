@@ -11,11 +11,14 @@ namespace vxio
 {
 
 
-std::stack<parser::context_t> parser::context_t::stack;
+std::stack<parser::context> parser::context::stack;
+
+parser::assemblers_t parser::assemblers;
+
 
 parser &parser::set_bloc(bloc *blk_)
 {
-    context.blk = blk_;
+    ctx.blk = blk_;
     return *this;
 }
 
@@ -33,15 +36,18 @@ parser &parser::set_assembler(parser::assembler_fn assembler)
 
 rem::code parser::parse(const std::string &rule_id)
 {
-    context.tokens = tokens;
-    context.head = context.cursor = tokens->begin();
+    ctx.tokens = tokens;
+    ctx.head = tokens->begin();
+    ctx.cursor = ctx.head;
     
-    auto R = enter_rule(grammar()[rule_id]);
-    return rem::code::accepted;
+    rem::code R = enter_rule(grammar()[rule_id]);
+    //...
+    return R;
+
 }
 
-#define ContextElement color::Yellow << context.r->_id << color::White << "::'" << color::Yellow << (*elit)() << color::White << "' => token '" << color::Yellow << context.cursor->text() << color::White << "':"
-#define Context color::Yellow << context.r->_id << color::White << " token back to '" << color::Yellow << context.cursor->text() << color::White
+#define ContextElement color::Yellow << ctx.r->_id << color::White << "::'" << color::Yellow << (*elit)() << color::White << "' => token '" << color::Yellow << ctx.cursor->text() << color::White << "':"
+#define Context color::White << "rule[" << color::Yellow << ctx.r->_id << color::White << "] token cursor on '" << color::Yellow << ctx.cursor->text() << color::White << "'"
 
 
 /**
@@ -64,29 +70,22 @@ rem::code parser::parse(const std::string &rule_id)
 
 rem::code parser::enter_rule(const rule *rule_)
 {
-    context_t::push(context);
-    context.clear_cache();
-    context.r = rule_;
-    auto seqit = context.r->begin();
+    context::push(ctx);
+
+    ctx.clear_cache();
+    ctx.r = rule_;
+    auto seqit = ctx.r->begin();
     rem::code code = rem::code::rejected;
     int i=1;
-    size_t cnt = context.r->sequences.size();
-    logger::debug(src_funcname) << color::White << " '" << color::Yellow << context.r->_id << color::White << "' " << color::Yellow << cnt << color::White << " alternative sequence(s):";
-    while(!context.r->end(seqit))
+    size_t cnt = ctx.r->sequences.size();
+    logger::debug(src_funcname) << color::White << " '" << color::Yellow << ctx.r->_id << color::White << "' " << color::Yellow << cnt << color::White << " alternative sequence(s):";
+    logger::debug(src_funcname) << Context << " Entering loop:";
+    while(!ctx.r->end(seqit))
     {
-        logger::debug() << grammar().dump_sequence(*seqit) << " - " << color::Yellow << i << color::White << '/' << color::LightPink4 << cnt;
-        if((code = enter_sequence(*seqit)) == rem::code::accepted)
-        {
-            code = invoke_assembler();
-            context_t::pop(context,code==rem::code::accepted);
-            return code;
-        }
-        ++seqit;++i;
-        context_t::pop(context);
-        logger::debug(src_funcname) << "pop to previous context: " << Context << ":";
+        logger::debug() << Context << "; " << grammar().dump_sequence(*seqit) << i << color::White << "/" << cnt;
+        code = enter_sequence(*seqit);
+        if(code != rem::code::accepted) return code;
     }
-    logger::debug(src_funcname) << Context << " - rejected ";
-    context_t::pop(context);
     return rem::code::rejected;
 }
 
@@ -105,67 +104,20 @@ rem::code parser::enter_sequence(const term_seq& sequence)
     auto elit = sequence.begin();
 
     rem::code code = rem::code::rejected;
-    context.clear_cache();
+    ctx.clear_cache();
     logger::debug(src_funcname) << grammar().dump_sequence(sequence) << " : ";
+/*
     while(!sequence.end(elit))
     {
-        logger::debug(src_funcname) << "element:" << ContextElement << " <=> " << context.cursor->text();
-        if(elit->is_rule())
-        {
-            logger::debug() << ContextElement << " is a rule.";
-            repeat_after_me:
-            if((code = enter_rule(elit->object.r)) == rem::code::accepted)
-            {
-                //...
-                if(elit->a.is_oneof()) return code;
-                if(elit->a.is_repeat()) goto repeat_after_me;
-                if(elit->a.is_optional())
-                {
-                    ++elit;
-                    continue;
-                }
-            }
-            if(elit->a.is_optional())
-            {
-                ++elit;
-                continue;
-            }
-            std::cout << (logger::debug() << ContextElement << " rejected").cc() << "\n";
-            return rem::code::rejected; // more readable than "code";
-        }
-        // ----------------------------- iterate here -----------------------------
-        if(*elit == *context.cursor)
-        {
-            logger::debug(src_funcname) << ContextElement << " matches token:" << rem::code::endl << context.cursor->mark();
-            context.tokens_cache.push_back(&(*context.cursor));
-            logger::debug() << context.cache();
-            ++elit; ++context;
-            if(sequence.end(elit))
-            {
-                logger::debug(src_funcname) << " sequence terminated and accepted;";
-                return rem::code::accepted;
-            }
-            logger::debug(src_funcname) << "next:"  << ContextElement;
-            continue;
-        }
-        else
-        {
-            if(elit->a.is_optional())
-            {
-                logger::debug(src_funcname) << ContextElement << " optional.";
-                ++elit;
-                logger::debug(src_funcname) << "try next:"  << ContextElement;
-                continue;
-            }
-        }
-        logger::debug(src_funcname) << ContextElement << " Rejecting sequence.";
+        logger::debug(src_funcname) << "element:" << ContextElement << " <=> " << ctx.cursor->text();
 
         return rem::code::rejected;
     }
+*/
     return code;
 }
 
-bool parser::context_t::operator++()
+bool parser::context::operator++()
 {
     if(cursor == tokens->end())
         return false;
@@ -173,7 +125,7 @@ bool parser::context_t::operator++()
     return cursor == tokens->end();
 }
 
-bool parser::context_t::operator++(int)
+bool parser::context::operator++(int)
 {
     if(cursor == tokens->end())
         return false;
@@ -181,13 +133,13 @@ bool parser::context_t::operator++(int)
     return cursor == tokens->end();
 }
 
-bool parser::context_t::end(token_data::iterator it) const
+bool parser::context::end(token_data::iterator it) const
 {
     return it == tokens->end();
 }
 
 
-bool parser::context_t::end() const
+bool parser::context::end() const
 {
     return cursor == tokens->end();
 }
@@ -200,7 +152,7 @@ bool parser::context_t::end() const
     //...
 //}
 
-std::string parser::context_t::cache()
+std::string parser::context::cache()
 {
     using vxio::color;
     
@@ -229,27 +181,29 @@ std::string parser::context_t::cache()
  *
  * @note note.... lol.
  */
-bool parser::context_t::operator--()
-{
-    if(token_ptr == tokens_cache.end()) return false;
-    ++token_ptr;
-    return token_ptr != tokens_cache.end();
-}
-bool parser::context_t::operator--(int)
+bool parser::context::operator--()
 {
     if(token_ptr == tokens_cache.end()) return false;
     ++token_ptr;
     return token_ptr != tokens_cache.end();
 }
 
-token_data::pointer parser::context_t::begin_cache()
+
+bool parser::context::operator--(int)
+{
+    if(token_ptr == tokens_cache.end()) return false;
+    ++token_ptr;
+    return token_ptr != tokens_cache.end();
+}
+
+token_data::pointer parser::context::begin_cache()
 {
     token_ptr = tokens_cache.begin();
     return token_ptr;
 }
 
 
-std::string parser::context_t::status()
+std::string parser::context::status()
 {
     iostr str ="%scontext status on rule{%s%s%s}\n%s\n%s" ;
     str << color::White << color::Yellow << r->_id << color::White << cache() << cursor->details(true);
@@ -257,23 +211,24 @@ std::string parser::context_t::status()
     return str();
 }
 
-int parser::context_t::push(const parser::context_t& ctx)
+int parser::context::push(const parser::context& ctx)
 {
+    //logger::debug(src_location) << color::White  << " cursor {push} on " << color::Yellow << ctx.cursor->details(true);
     stack.push(ctx);
     return stack.size();
 }
-int parser::context_t::pop(parser::context_t& ctx, bool synchronise)
+
+int parser::context::pop(parser::context& ctx, bool synchronise)
 {
     if(stack.empty()) return 0;
-    context_t to_sync = stack.top();
-
+    context to_sync = stack.top();
+    //logger::debug(src_location) << color::White  << " cursor in stack on " << color::Yellow << to_sync.cursor->details(true);
     if(synchronise)
     {
         to_sync.cursor = ctx.cursor;
-        // to_sync.instruction = ctx.instruction;
         //...
     }
-
+    ctx = to_sync;
     stack.pop();
     return stack.size();
 }
@@ -281,13 +236,67 @@ int parser::context_t::pop(parser::context_t& ctx, bool synchronise)
 
 rem::code parser::invoke_assembler()
 {
-    logger::debug(src_funcname) <<  rem::code::endl << context.status();
+    logger::debug(src_funcname) <<  rem::code::endl << ctx.status();
 
     if(assembler_fnptr)
-        return assembler_fnptr(context);
+        return assembler_fnptr(ctx);
     return rem::code::rejected;
 }
 
 
 }
 
+
+vxio::parser::context::context(const vxio::parser::context& rhs)
+{
+    blk = rhs.blk;
+    tokens_cache = rhs.tokens_cache;
+    token_ptr = rhs.token_ptr;
+    cursor = rhs.cursor;
+    head = rhs.head;
+    tokens = rhs.tokens;
+    r = rhs.r;
+}
+
+vxio::parser::context::context(vxio::parser::context && rhs) noexcept
+{
+    blk = rhs.blk;
+    tokens_cache = std::move(rhs.tokens_cache);
+    token_ptr = std::move(rhs.token_ptr);
+    cursor = std::move(rhs.cursor);
+    head = std::move(rhs.head);
+    tokens = rhs.tokens;
+    r = rhs.r;
+}
+
+
+vxio::parser::context & vxio::parser::context::operator=(const parser::context& rhs)
+{
+    blk = rhs.blk;
+    tokens_cache = rhs.tokens_cache;
+    token_ptr = rhs.token_ptr;
+    cursor = rhs.cursor;
+    head = rhs.head;
+    tokens = rhs.tokens;
+    r = rhs.r;
+
+    return *this;
+}
+
+vxio::parser::context & vxio::parser::context::operator=(parser::context && rhs) noexcept
+{
+    blk = rhs.blk;
+    tokens_cache = std::move(rhs.tokens_cache);
+    token_ptr = std::move(rhs.token_ptr);
+    cursor = std::move(rhs.cursor);
+    head = std::move(rhs.head);
+    tokens = rhs.tokens;
+    r = rhs.r;
+    return *this;
+}
+
+
+void vxio::parser::context::sync(const parser::context& rhs)
+{
+    cursor = rhs.cursor;
+}
