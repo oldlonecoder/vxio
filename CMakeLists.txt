@@ -25,16 +25,16 @@ add_library(
         cc/lexer/lexer.cc
         cc/interpret/alu.cc
         cc/interpret/xio.cc
-	    cc/interpret/bloc.cc
+        cc/interpret/bloc.cc
         cc/vconio/vconio.cc
         cc/vconio/vdc.cc
-		cc/interpret/vxu.cc
-		cc/interpret/compiler/expression.cc include/vxio/interpret/compiler/expression.h
+	cc/interpret/vxu.cc
+	cc/interpret/compiler/expression.cc include/vxio/interpret/compiler/expression.h
         cc/interpret/compiler/parser.cc include/vxio/interpret/compiler/parser.h
-		cc/interpret/interpret.cc include/vxio/interpret/interpret.h
-		cc/interpret/compiler/grammar.cc include/vxio/interpret/compiler/grammar.h include/vxio/util/expect.h
-		cc/interpret/variable.cc include/vxio/interpret/variable.h
-		cc/interpret/compiler/declvar.cc include/vxio/interpret/compiler/declvar.h
+	cc/interpret/interpret.cc include/vxio/interpret/interpret.h
+	cc/interpret/compiler/grammar.cc include/vxio/interpret/compiler/grammar.h include/vxio/util/expect.h
+	cc/interpret/variable.cc include/vxio/interpret/variable.h
+	cc/interpret/compiler/declvar.cc include/vxio/interpret/compiler/declvar.h
 )
 
 

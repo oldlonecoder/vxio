@@ -65,7 +65,7 @@ public:
         inline void clear_cache() { tokens_cache.clear(); }
         static int push(const parser::context& ctx);
         static int pop(parser::context& ctx, bool synchronise = false);
-
+        context& operator << (token_data::iterator it);
         static std::stack<parser::context> stack;
     };
     
@@ -86,7 +86,7 @@ public:
     
     virtual ~parser() = default;
     virtual rem::code parse(const std::string& rule_id);
-    virtual rem::code enter_rule(const rule* rule_);
+    virtual rem::code parse_rule(const rule* rule_);
     virtual rem::code enter_sequence(const term_seq& seq_);
 
     virtual rem::code invoke_assembler();

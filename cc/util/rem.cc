@@ -176,3 +176,18 @@ void rem::init()
 {// ...
     rem::init_text_attr();
 }
+std::string rem::code_text(rem::code c)
+{
+    std::string str;
+    str += rem::codes_ansi256_attr[static_cast<int8_t>(c)];
+    str += rem::codes_text[static_cast<int8_t>(c)];
+    return str;
+}
+
+std::string rem::type_text(rem::type t)
+{
+    std::string str;
+    str += rem::types_ansi256_attr[static_cast<int8_t>(t)];
+    str += rem::types_text[static_cast<int8_t>(t)];
+    return str;
+}

@@ -80,7 +80,9 @@ public:
     static void init();
     rem::code rem_code() { return _code; }
     rem::type rem_type() { return _type; }
-    
+    static std::string code_text(rem::code c);
+    static std::string type_text(rem::type t);
+
 private:
     rem::code _code = rem::code::hello;
     rem::type _type = rem::type::output;
