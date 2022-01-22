@@ -91,15 +91,16 @@ rem::code parser::parse_rule(const rule *rule_)
             logger::debug() << "Back to " << ctx.status();
             return code;
         }
-        if(assembler_fnptr)
-            code = assembler_fnptr(ctx);
-        if(code != rem::code::accepted)
+        ;
+        if((code = invoke_assembler()) != rem::code::accepted)
         {
+            logger::debug() << color::White << "assembler rejected the sequence for rule [" << color::Yellow << ctx.r->_id << color::White << "].";
             context::pop(ctx);
+            logger::debug() << "Back to " << ctx.status();
             return code;
         }
         context::pop(ctx,true);
-        logger::debug() << color::White << "sequence accepted. Back to " << ctx.status();
+        logger::debug() << color::White << "rule["<< color::Yellow << ctx.r->_id << color::White << "]::" << ctx.cache() << " assembled. Back to " << ctx.status();        
         return rem::code::accepted;
     }
     return rem::code::rejected;
@@ -121,7 +122,7 @@ rem::code parser::enter_sequence(const term_seq& sequence)
 
     rem::code code = rem::code::rejected;
     ctx.clear_cache();
-    logger::debug(src_funcname) << grammar().dump_sequence(sequence) << " : ";
+    logger::debug(src_funcname) << color::NavajoWhite3 << "{ " <<  grammar().dump_sequence(sequence) << color::NavajoWhite3 << " }" << color::White << " : ";
     logger::debug() << ctx.status();
 
     while(!sequence.end(elit))
@@ -139,8 +140,12 @@ rem::code parser::enter_sequence(const term_seq& sequence)
                     ++elit;
                     continue;
                 }
+                logger::debug() << "rule element " << (*elit)() << " in sequence is rejected - leaving";
+                return code;
             }
-
+            ++elit;
+            logger::debug() << ctx.status();
+            continue;
         }
         if(*elit == *ctx.cursor)
         {
@@ -159,8 +164,7 @@ rem::code parser::enter_sequence(const term_seq& sequence)
             return code;
         }
     }
-
-    return rem::code::rejected;
+    return code;
 }
 
 bool parser::context::operator++()
