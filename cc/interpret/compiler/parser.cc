@@ -88,11 +88,18 @@ rem::code parser::parse_rule(const rule *rule_)
         {
             logger::debug() << color::White << "sequence rejected. Leaving rule [" << color::Yellow << ctx.r->_id << color::White << "].";
             context::pop(ctx);
-            logger::debug() << "Context back to " << ctx.status();
+            logger::debug() << "Back to " << ctx.status();
+            return code;
+        }
+        if(assembler_fnptr)
+            code = assembler_fnptr(ctx);
+        if(code != rem::code::accepted)
+        {
+            context::pop(ctx);
             return code;
         }
         context::pop(ctx,true);
-        logger::debug() << color::White << "sequence accepted. Context back to " << ctx.status();
+        logger::debug() << color::White << "sequence accepted. Back to " << ctx.status();
         return rem::code::accepted;
     }
     return rem::code::rejected;
@@ -125,25 +132,35 @@ rem::code parser::enter_sequence(const term_seq& sequence)
             logger::debug() << " ===> rule:";
             code = parse_rule(elit->object.r);
             logger::debug() << color::White << " result: " << rem::code_text(code);
+            if(code != rem::code::accepted)
+            {
+                if(elit->a.is_optional() || elit->a.is_oneof())
+                {
+                    ++elit;
+                    continue;
+                }
+            }
 
         }
         if(*elit == *ctx.cursor)
         {
             logger::debug() << color::White << " element '" << color::Yellow << (*elit)() 
-            << color::White << "' matches token '" << color::Yellow << ctx.cursor->text() 
-            << color::White << rem::code::endl << ctx.cursor->mark();
+            << color::White << "' matches token '" << color::Yellow << ctx.cursor->text() << color::White << "'"
+            <<  rem::code::endl << ctx.cursor->mark();
             ctx << ctx.cursor++;
             if(elit->a.is_oneof()) return rem::code::accepted;
         }
         else
         {
-            if(!elit->a.is_optional())
-                return rem::code::rejected;
+            if(elit->a.is_oneof() || elit->a.is_optional())
+            {    ++elit;
+                 continue;
+            }
+            return code;
         }
-        ++elit;
     }
 
-    return code;
+    return rem::code::rejected;
 }
 
 bool parser::context::operator++()
@@ -187,7 +204,7 @@ std::string parser::context::cache()
     
     auto token = tokens_cache.begin();
     iostr str;
-    str << color::Reset << "cache {";
+    str << color::White << "cache" << color::NavajoWhite3 << "{" << color::White;
     if(tokens_cache.empty())
     {
         str << color::Yellow <<  "Empty" << color::Reset << "};";
@@ -199,7 +216,7 @@ std::string parser::context::cache()
         ++token;
         if(token != tokens_cache.end()) str += ' ';
     }
-    str += "};";
+    str << color::NavajoWhite3 << "};";
     return str();
 }
 /**
@@ -235,7 +252,7 @@ token_data::pointer parser::context::begin_cache()
 std::string parser::context::status()
 {
     iostr str ="%scontext status on rule{%s%s%s}\n%s\n%s" ;
-    std::string rl = r ? r->_id : "none";
+    std::string rl = r ? r->_id : "null";
     str << color::White << color::Yellow << rl << color::White << cache() << cursor->details(true);
     
     return str();
