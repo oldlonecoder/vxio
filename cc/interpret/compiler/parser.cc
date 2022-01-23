@@ -70,41 +70,8 @@ rem::code parser::parse(const std::string &rule_id)
 
 rem::code parser::parse_rule(const rule *rule_)
 {
-    context::push(ctx);
 
-    ctx.clear_cache();
-    ctx.r = rule_;
-    auto seqit = ctx.r->begin();
-    rem::code code = rem::code::rejected;
-    int i=1;
-    size_t cnt = ctx.r->sequences.size();
-    logger::debug(src_funcname) << color::White << " '" << color::Yellow << ctx.r->_id << color::White << "' " << color::Yellow << cnt << color::White << " alternative sequence(s):";
-    logger::debug(src_funcname) << Context << " Entering loop:";
-    while(!ctx.r->end(seqit))
-    {
-        logger::debug() << Context << "; " << grammar().dump_sequence(*seqit) << i << color::White << "/" << cnt;
-        code = parse_sequence(*seqit);
-        if(code != rem::code::accepted)
-        {
-            logger::debug() << color::White << "sequence rejected. Leaving rule [" << color::Yellow << ctx.r->_id << color::White << "].";
-            ctx.restart_sequence();
-            logger::debug() << "Back to " << ctx.status();
-            ++seqit; ++i;
-            continue;
-        }
-        ;
-        if((code = invoke_assembler()) != rem::code::accepted)
-        {
-            logger::debug() << color::White << "assembler rejected the sequence for rule [" << color::Yellow << ctx.r->_id << color::White << "].";
-            context::pop(ctx);
-            logger::debug() << "Back to " << ctx.status();
-            return code;
-        }
-        context::pop(ctx,true);
-        logger::debug() << color::White << "rule["<< color::Yellow << ctx.r->_id << color::White << "]::" << ctx.cache() << " assembled. Back to " << ctx.status();        
-        return rem::code::accepted;
-    }
-    return rem::code::rejected;
+    return rem::code::implement;
 }
 
 
@@ -119,57 +86,8 @@ rem::code parser::parse_rule(const rule *rule_)
 
 rem::code parser::parse_sequence(const term_seq& sequence)
 {
-    auto elit = sequence.begin();
 
-    rem::code code = rem::code::rejected;
-    ctx.clear_cache();
-    ctx.head = ctx.cursor;
-    logger::debug(src_funcname) << color::NavajoWhite3 << "{ " <<  grammar().dump_sequence(sequence) << color::NavajoWhite3 << " }" << color::White << " : ";
-    logger::debug() << ctx.status();
-
-    while(!sequence.end(elit))
-    {
-        logger::debug(src_funcname) << "element:" << ContextElement << " <=> " << ctx.cursor->text();
-        if(elit->is_rule())
-        {
-            logger::debug() << " ===> rule:";
-            code = parse_rule(elit->object.r);
-            logger::debug() << color::White << " result: " << rem::code_text(code);
-            if(code != rem::code::accepted)
-            {
-                if(elit->a.is_optional() || elit->a.is_oneof())
-                {
-                    ++elit;
-                    continue;
-                }
-                logger::debug() << "rule element " << (*elit)() << " in sequence is rejected - leaving";
-                return code;
-            }
-            ++elit;
-            logger::debug() << ctx.status();
-            continue;
-        }
-        if(*elit == *ctx.cursor)
-        {
-            logger::debug() << color::White << " element '" << color::Yellow << (*elit)() 
-            << color::White << "' matches token '" << color::Yellow << ctx.cursor->text() << color::White << "'"
-            <<  rem::code::endl << ctx.cursor->mark();
-            ctx << ctx.cursor++;
-            logger::debug() << ctx.cache();
-            if(elit->a.is_oneof()) return rem::code::accepted;
-            ++elit;
-            if(sequence.end(elit)) return rem::code::accepted;
-        }
-        else
-        {
-            if(elit->a.is_oneof() || elit->a.is_optional())
-            {    ++elit;
-                 continue;
-            }
-            return code;
-        }
-    }
-    return code;
+    return rem::code::implement;
 }
 
 bool parser::context::operator++()

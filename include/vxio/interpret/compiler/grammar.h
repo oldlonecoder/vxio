@@ -207,7 +207,7 @@ struct term_seq
     
     bool end(term::const_iterator t) const
     {
-        return terms.cend() == t;
+        return terms.cend() >= t;
     }
     
     term next(term::const_iterator &it) const;
@@ -260,7 +260,7 @@ struct rule
     term_seq::const_iterator begin() const
     { return sequences.cbegin(); }
     bool end(term_seq::const_iterator s) const
-    { return s == sequences.cend(); }
+    { return s >= sequences.cend(); }
 };
 
 /*!
