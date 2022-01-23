@@ -86,6 +86,22 @@ rem::code parser::parse_rule(const rule *rule_)
 
 rem::code parser::parse_sequence(const term_seq& sequence)
 {
+    if(sequence.terms.empty())
+    {
+        logger::error(src_funcname) << " Rejecting empty sequence.";
+        return rem::code::empty;
+    }
+    ctx.clear_cache(); // New sequence then clear the tokens cache.
+
+    auto elit = sequence.begin();
+    logger::debug() << grammar().dump_sequence(sequence);
+
+    do
+    {
+
+        ++elit;
+    } while(!sequence.end(elit));
+
 
     return rem::code::implement;
 }
@@ -100,7 +116,7 @@ bool parser::context::operator++()
 
 bool parser::context::operator++(int)
 {
-    if(cursor == tokens->end())
+    if(cursor== tokens->end())
         return false;
     ++cursor;
     return cursor == tokens->end();
@@ -108,7 +124,7 @@ bool parser::context::operator++(int)
 
 bool parser::context::end(token_data::iterator it) const
 {
-    return it == tokens->end();
+    return it >= tokens->end();
 }
 
 
