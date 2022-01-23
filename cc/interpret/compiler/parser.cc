@@ -83,13 +83,14 @@ rem::code parser::parse_rule(const rule *rule_)
     while(!ctx.r->end(seqit))
     {
         logger::debug() << Context << "; " << grammar().dump_sequence(*seqit) << i << color::White << "/" << cnt;
-        code = enter_sequence(*seqit);
+        code = parse_sequence(*seqit);
         if(code != rem::code::accepted)
         {
             logger::debug() << color::White << "sequence rejected. Leaving rule [" << color::Yellow << ctx.r->_id << color::White << "].";
-            context::pop(ctx);
+            ctx.restart_sequence();
             logger::debug() << "Back to " << ctx.status();
-            return code;
+            ++seqit; ++i;
+            continue;
         }
         ;
         if((code = invoke_assembler()) != rem::code::accepted)
@@ -116,12 +117,13 @@ rem::code parser::parse_rule(const rule *rule_)
  * @note (fr) - Si la s&eacute;quence est optionnelle ( tous les &eacutesl&eacute;ments sont optionnels), il y aura un faux rem::code::accepted.
  */
 
-rem::code parser::enter_sequence(const term_seq& sequence)
+rem::code parser::parse_sequence(const term_seq& sequence)
 {
     auto elit = sequence.begin();
 
     rem::code code = rem::code::rejected;
     ctx.clear_cache();
+    ctx.head = ctx.cursor;
     logger::debug(src_funcname) << color::NavajoWhite3 << "{ " <<  grammar().dump_sequence(sequence) << color::NavajoWhite3 << " }" << color::White << " : ";
     logger::debug() << ctx.status();
 
@@ -153,7 +155,10 @@ rem::code parser::enter_sequence(const term_seq& sequence)
             << color::White << "' matches token '" << color::Yellow << ctx.cursor->text() << color::White << "'"
             <<  rem::code::endl << ctx.cursor->mark();
             ctx << ctx.cursor++;
+            logger::debug() << ctx.cache();
             if(elit->a.is_oneof()) return rem::code::accepted;
+            ++elit;
+            if(sequence.end(elit)) return rem::code::accepted;
         }
         else
         {
@@ -277,6 +282,7 @@ int parser::context::pop(parser::context& ctx, bool synchronise)
     if(synchronise)
     {
         to_sync.cursor = ctx.cursor;
+        to_sync.head = ctx.cursor;
         //...
     }
     ctx = to_sync;
@@ -356,4 +362,10 @@ vxio::parser::context& vxio::parser::context::operator << (token_data::iterator 
 {
     tokens_cache.emplace_back(&(*it));
     return *this;
+}
+
+void vxio::parser::context::restart_sequence()
+{
+    clear_cache();
+    cursor = head;
 }
