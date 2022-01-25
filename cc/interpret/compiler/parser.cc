@@ -83,7 +83,6 @@ rem::code parser::parse_rule(const rule *rule_)
  *
  * @note (fr) - Si la s&eacute;quence est optionnelle ( tous les &eacutesl&eacute;ments sont optionnels), il y aura un faux rem::code::accepted.
  */
-
 rem::code parser::parse_sequence(const term_seq& sequence)
 {
     if(sequence.terms.empty())
@@ -93,9 +92,8 @@ rem::code parser::parse_sequence(const term_seq& sequence)
     }
     ctx.clear_cache(); // New sequence then clear the tokens cache.
 
-    auto elit = sequence.begin();
+    auto elit = sequence.begin(); // Init tokens cache.
     logger::debug() << grammar().dump_sequence(sequence);
-
     do
     {
 

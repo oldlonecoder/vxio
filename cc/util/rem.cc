@@ -126,11 +126,11 @@ std::string rem::cc()
     str += rem::types_ansi256_attr[static_cast<int8_t>(_type)];
     str += rem::types_text[static_cast<int8_t>(_type)];
     str += vxio::color::ansi(vxio::color::White);
-    str += ": ";
+    str += ' ';
     
     if(!_src.filename.empty())
     {
-        str += "\n";
+        //str += '\n';
         str += rem::codes_ansi256_attr[static_cast<int16_t>(rem::code::_file_)];
         iostr fname = _src.filename;
         iostr::word::list_t words;
@@ -156,7 +156,7 @@ std::string rem::cc()
     {
         str += rem::codes_ansi256_attr[static_cast<int16_t>(rem::code::_line_)];
         str += _src.line_no;
-        str += ": ";
+        str += " ";
     }
     
     for(auto const& s : rem::_components)
