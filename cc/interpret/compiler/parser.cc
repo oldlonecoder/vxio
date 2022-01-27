@@ -71,6 +71,17 @@ rem::code parser::parse(const std::string &rule_id)
 rem::code parser::parse_rule(const rule *rule_)
 {
 
+    logger::debug(src_funcname) << ctx.status();
+    auto seqit = ctx.r->begin();
+    int seqnum = 1;
+    int nseq = ctx.r->sequences.size();
+    while(!ctx.r->end(seqit))
+    {
+        logger::debug() << " iterate sequence " << color::Yellow << seqnum++ << color::White << " of " << color::Yellow << nseq;
+        auto code  = parse_sequence(*seqit);
+        ++seqit;
+    }
+
     return rem::code::implement;
 }
 
@@ -96,7 +107,7 @@ rem::code parser::parse_sequence(const term_seq& sequence)
     logger::debug() << grammar().dump_sequence(sequence);
     do
     {
-
+        logger::debug() << ContextElement;
         ++elit;
     } while(!sequence.end(elit));
 
@@ -192,9 +203,11 @@ token_data::pointer parser::context::begin_cache()
 
 std::string parser::context::status()
 {
-    iostr str ="%scontext status on rule{%s%s%s}\n%s\n%s" ;
+    iostr str;
+    str << color::White << "context status on rule{%s%s%s}%s%s%s%s" ;
     std::string rl = r ? r->_id : "null";
-    str << color::White << color::Yellow << rl << color::White << cache() << cursor->details(true);
+    str  << color::Yellow << rl << color::White 
+    << rem::code_text(rem::code::endl) << color::White << cache() << rem::code_text(rem::code::endl) << cursor->mark();
     
     return str();
 }
