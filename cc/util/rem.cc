@@ -144,19 +144,16 @@ std::string rem::cc()
             str += fname();
         str += ' ';
     }
-    
+    if(_src.line_no > 0)
+    {
+        str << ": " << vxio::color::White << _src.line_no << ' ' << rem::codes_ansi256_attr[static_cast<int16_t>(rem::code::_line_)] << ' ';
+    }
+
     if(!_src.func_name.empty())
     {
         str += rem::codes_ansi256_attr[static_cast<int16_t>(rem::code::_function_)];
         str+= _src.func_name;
         str += ": ";
-    }
-    
-    if(_src.line_no > 0)
-    {
-        str += rem::codes_ansi256_attr[static_cast<int16_t>(rem::code::_line_)];
-        str += _src.line_no;
-        str += " ";
     }
     
     for(auto const& s : rem::_components)
