@@ -46,7 +46,7 @@ rem::code parser::parse(const std::string &rule_id)
 
 }
 
-#define ContextElement color::Yellow << ctx.r->_id << color::White << "::'" << color::Yellow << (*elit)() << color::White << "' => token '" << color::Yellow << ctx.cursor->text() << color::White << "':"
+#define ContextElement color::Yellow << ctx.r->_id << color::White << "::'" << color::Aquamarine3 << (*elit)() << color::White << "' => token '" << color::Yellow << ctx.cursor->text() << color::White << "':"
 #define Context color::White << "Current context : rule[" << color::Yellow << (ctx.r ? ctx.r->_id: "nullptr") << color::White << "] token cursor on '" << color::Yellow << ctx.cursor->text() << color::White << "'"
 
 
@@ -87,10 +87,20 @@ rem::code parser::parse_rule(const rule *rule_)
         if(code == rem::code::accepted)
         {
             logger::debug() << color::White << "Rule " << color::Yellow << rule_->_id << "::" << grammar().dump_sequence(*seqit) << color::Lime << " accepted";
+            if(assembler_fnptr)
+            {
+                auto cod = assembler_fnptr(ctx);
+
+            }
             context::pop(ctx,true);
             break;
         }
         ++seqit;
+        if(ctx.r->end(seqit))
+        {
+            context::pop(ctx);
+            return code;
+        }
         ctx.restart_sequence();
     }
     if(code != rem::code::accepted)
@@ -136,6 +146,8 @@ rem::code parser::parse_sequence(const term_seq& sequence)
                     logger::debug(src_funcname) << "Rule '" << color::Yellow << ctx.r->_id << color::White << "':" << rem::code_text(code);
                     return code;
                 }
+                if(elit->a.is_repeat())
+                    return rem::code::accepted;
             }
             else
             {
@@ -157,6 +169,7 @@ rem::code parser::parse_sequence(const term_seq& sequence)
             {
                 logger::debug() << ContextElement << " matches.";
                 ctx << ctx.cursor++;
+                code = rem::code::accepted;
                 logger::debug() << ctx.status();
                 if(elit->a.is_oneof()) return rem::code::accepted;
             }
@@ -170,7 +183,7 @@ rem::code parser::parse_sequence(const term_seq& sequence)
         ++elit;
     } while(!sequence.end(elit));
 
-    logger::debug() << "exit parse_sequence with code: " << color::Yellow << rem::code_text(code);
+    logger::debug(src_funcname) << "exit parse_sequence with code: " <<  rem::code_text(code);
     return code;
 }
 
