@@ -70,19 +70,37 @@ rem::code parser::parse(const std::string &rule_id)
 
 rem::code parser::parse_rule(const rule *rule_)
 {
+    context::push(ctx);
+    ctx.r = rule_;
+    ctx.clear_cache();
+    ctx.head = ctx.cursor;
+    logger::debug(src_funcname) << "[enter]" << ctx.status();
 
-    logger::debug(src_funcname) << ctx.status();
     auto seqit = ctx.r->begin();
     int seqnum = 1;
     int nseq = ctx.r->sequences.size();
+    rem::code code = rem::code::rejected;
     while(!ctx.r->end(seqit))
     {
-        logger::debug() << " iterate sequence " << color::Yellow << seqnum++ << color::White << " of " << color::Yellow << nseq;
-        auto code  = parse_sequence(*seqit);
+        logger::debug() << color::Yellow << ctx.r->_id << color::White << ": iterate sequence " << color::Yellow << seqnum++ << color::White << " of " << color::Yellow << nseq;
+        code  = parse_sequence(*seqit);
+        if(code == rem::code::accepted)
+        {
+            logger::debug() << color::White << "Rule " << color::Yellow << rule_->_id << "::" << grammar().dump_sequence(*seqit) << color::Lime << " accepted";
+            context::pop(ctx,true);
+            break;
+        }
         ++seqit;
+        ctx.restart_sequence();
     }
-
-    return rem::code::implement;
+    if(code != rem::code::accepted)
+    {
+        logger::debug() << color::White << "Rule " << color::Yellow << rule_->_id << "::" << grammar().dump_sequence(*seqit) << color::Lime << " rejected";
+        context::pop(ctx);
+    }
+    else
+        logger::debug() << color::White << "Rule " << color::Yellow << rule_->_id << "::" << grammar().dump_sequence(*seqit) << color::Lime << " accepted";
+    return code;
 }
 
 
@@ -102,17 +120,58 @@ rem::code parser::parse_sequence(const term_seq& sequence)
         return rem::code::empty;
     }
     ctx.clear_cache(); // New sequence then clear the tokens cache.
-
+    rem::code code = rem::code::rejected;
     auto elit = sequence.begin(); // Init tokens cache.
     logger::debug() << grammar().dump_sequence(sequence);
     do
     {
         logger::debug() << ContextElement;
+        if(elit->is_rule())
+        {
+            code = parse_rule(elit->object.r);
+            if(code == rem::code::rejected)
+            {
+                if(!elit->a.is_oneof() && !elit->a.is_optional())
+                {
+                    logger::debug(src_funcname) << "Rule '" << color::Yellow << ctx.r->_id << color::White << "':" << rem::code_text(code);
+                    return code;
+                }
+            }
+            else
+            {
+                logger::debug(src_funcname) << "Rule '" << color::Yellow << ctx.r->_id << color::White << "':" << rem::code_text(code);
+                if(elit->a.is_repeat())
+                {
+                    //context::pop(ctx, true);
+                    ctx.clear_cache();
+
+                    continue;
+                }
+                if(elit->a.is_oneof())
+                    return rem::code::accepted;
+            }
+        }
+        else
+        {
+            if(*elit == *ctx.cursor)
+            {
+                logger::debug() << ContextElement << " matches.";
+                ctx << ctx.cursor++;
+                logger::debug() << ctx.status();
+                if(elit->a.is_oneof()) return rem::code::accepted;
+            }
+            else
+            {
+                logger::debug() << ContextElement << " no match.";
+                if(!elit->a.is_optional())
+                    return rem::code::rejected;
+            }
+        }
         ++elit;
     } while(!sequence.end(elit));
 
-
-    return rem::code::implement;
+    logger::debug() << "exit parse_sequence with code: " << color::Yellow << rem::code_text(code);
+    return code;
 }
 
 bool parser::context::operator++()
@@ -312,5 +371,9 @@ vxio::parser::context& vxio::parser::context::operator << (token_data::iterator 
 void vxio::parser::context::restart_sequence()
 {
     clear_cache();
+    logger::debug(src_funcname) << "cursor on '" << color::Yellow
+    << cursor->text() << color::White
+    << "' to be back on head '" << color::Yellow <<
+    head->text() << color::White << "'";
     cursor = head;
 }
