@@ -34,7 +34,6 @@ namespace vxio {
 
 /*!
     @brief xio : eXecutable Instruction Object.
-    Where the beach is its grain of sand, the Interpreter is its grain of xio. (FUCK! LOL!!!!)
 
     @author &copy;2018, Serge Lussier, (lussier.serge at gmail.com)
     if static i8 a=0.4*5.6 * 4ac(8+3 - 5/4)
@@ -60,7 +59,6 @@ protected:
         
     alu* acc = nullptr; ///< Arithmetic Logical Unit, or Accumulator, or whatever!
 
-
     struct storage_attr {
         uint8_t lvalue : 1; // 0 = rvalue non-assignable (such as const,leaf). 1= left value; assignable.
         uint8_t own : 1; // 1 = this xio owns its acc storage - so will delete it in the destructor.
@@ -73,7 +71,6 @@ protected:
     friend class bloc;
     // friend class compiler;
     // friend class interpreter_t;
-
 
 public:
 

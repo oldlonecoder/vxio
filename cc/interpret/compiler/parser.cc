@@ -142,14 +142,16 @@ rem::code parser::parse_sequence(const term_seq& sequence)
         if(elit->is_rule())
         {
             code = parse_rule(elit->object.r);
+            logger::debug(src_funcname) << "Back to context: " << ContextElement << ":";
             if(code == rem::code::rejected)
             {
                 if(elit->a.is_repeat())
                 {
                     if(repeated)
                     {
-                        logger::debug(src_funcname) << "Rule '" << color::Yellow << ctx.r->_id << color::White << "' repeated at least once. leaving as accepted";
-                        return rem::code::accepted;
+                        logger::debug(src_funcname) << ContextElement << color::White << " repeated at least once. accepting element. going forward.";
+                        ++elit;
+                        continue;
                     }
                 }
                 if(!elit->a.is_oneof() && !elit->a.is_optional())
@@ -160,7 +162,7 @@ rem::code parser::parse_sequence(const term_seq& sequence)
             }
             else
             {
-                logger::debug(src_funcname) << "Rule '" << color::Yellow << ctx.r->_id << color::White << "':" << rem::code_text(code);
+                logger::debug(src_funcname) << ContextElement << ' ' << rem::code_text(code);
                 if(elit->a.is_repeat())
                 {
                     //context::pop(ctx, true);
@@ -289,7 +291,8 @@ std::string parser::context::status()
     str << color::White << "context status on rule{%s%s%s}%s%s%s%s" ;
     std::string rl = r ? r->_id : "null";
     str  << color::Yellow << rl << color::White 
-    << rem::code_text(rem::code::endl) << color::White << cache() << rem::code_text(rem::code::endl) << cursor->mark();
+    << rem::code_text(rem::code::endl) << color::White << cache() << rem::code_text(rem::code::endl)
+    << (end(cursor) ? " end of stream ": cursor->mark());
     
     return str();
 }

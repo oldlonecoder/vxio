@@ -262,7 +262,7 @@ namespace vxio {
                     }
                     xio* x = invoke_maker(a_token);
                     if (!x) return nullptr;
-                    logger::debug() << ":\n" << t0->mark();
+                    logger::debug() << rem::code::endl << t0->mark();
                     return (this->*lr_fnptr)(x);
                 }
             }

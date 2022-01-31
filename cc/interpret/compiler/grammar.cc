@@ -12,7 +12,6 @@ namespace vxio
 
 
 
-
 grammar::Dictionary grammar::grammar_dictionnary = {
     {':', &grammar::enter_rule_def},
     {'|', &grammar::new_sequence},

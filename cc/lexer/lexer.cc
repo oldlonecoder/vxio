@@ -224,7 +224,7 @@ lexer::internal_cursor::internal_cursor(const char *Source_)
 
 #pragma region NumScanner
 
-lexer::num_scanner::num_scanner(const char *_c, const char *_eos) : B(_c), C(_c), E(nullptr), Eos(_eos)
+lexer::num_scanner::num_scanner(const char *_c, const char *_eos) : B(_c),  E(nullptr),C(_c), Eos(_eos)
 {}
 
 /*!
@@ -372,7 +372,7 @@ rem::code lexer::input_punctuation(token_data &atoken)
         // La seule et unique condition est que le token precedant soit une valeur numerique litterale (ex.: '4').
         if(!mConfig.Tokens->empty())
         {
-            if((mConfig.Tokens->back().s & type::const_t|type::number_t) && (mConfig.Tokens->back().t != type::id_t) && !(mConfig.Tokens->back().s & type::operator_t))
+            if( ((mConfig.Tokens->back().s & type::const_t)|type::number_t) && (mConfig.Tokens->back().t != type::id_t) && !(mConfig.Tokens->back().s & type::operator_t))
             {
                 Push(atoken);
                 insert_multiply(atoken);

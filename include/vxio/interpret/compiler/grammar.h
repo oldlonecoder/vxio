@@ -109,10 +109,8 @@ struct term
         nil
     };
     
-    void accept()
-    { a.accept(); }
-    void Reject()
-    { a.reject(); }
+    void accept() { a.accept(); }
+    void Reject() { a.reject(); }
     
     term::type _type  = term::type::nil;
     
@@ -190,8 +188,7 @@ struct term
 struct term_seq
 {
     term_properties a = {0, 0, 0, 0, 0}; ///< default : punctual, strict match
-    
-    //using data = std::vector<term_list_t>;
+
     
     term::collection terms;
     
