@@ -73,6 +73,12 @@ rem::rem(rem::type type_, const source::location &src)
 {
     _type = type_;
     _src = src;
+    if(!src.func_name.empty())
+    {
+        // Use "src_funcname" coorectly soon...;
+        ++rem::_indent;
+        //...
+    }
 }
 
 rem &rem::operator<<(rem::code c_)

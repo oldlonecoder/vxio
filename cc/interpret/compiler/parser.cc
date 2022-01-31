@@ -82,11 +82,13 @@ rem::code parser::parse_rule(const rule *rule_)
     rem::code code = rem::code::rejected;
     while(!ctx.r->end(seqit))
     {
-        logger::debug(src_funcname) << color::Yellow << ctx.r->_id << color::White << ": iterate sequence " << color::Yellow << seqnum++ << color::White << " of " << color::Yellow << nseq;
+        logger::debug(src_funcname) << color::Yellow << ctx.r->_id << color::White << ": iterate sequence "
+        << color::Yellow << seqnum++ << color::White << " of " << color::Yellow << nseq;
         code  = parse_sequence(*seqit);
         if(code == rem::code::accepted)
         {
-            logger::debug(src_funcname) << color::White << "Rule " << color::Yellow << rule_->_id << "::" << grammar().dump_sequence(*seqit) << color::Lime << " accepted";
+            logger::debug(src_funcname) << color::White << "Rule " << color::Yellow << rule_->_id << "::"
+            << grammar().dump_sequence(*seqit) << color::Lime << " accepted";
             if(assembler_fnptr)
             {
                 auto cod = assembler_fnptr(ctx);
@@ -132,6 +134,7 @@ rem::code parser::parse_sequence(const term_seq& sequence)
     ctx.clear_cache(); // New sequence then clear the tokens cache.
     rem::code code = rem::code::rejected;
     auto elit = sequence.begin(); // Init tokens cache.
+    auto repeated = 0;
     logger::debug() << grammar().dump_sequence(sequence);
     do
     {
@@ -141,13 +144,19 @@ rem::code parser::parse_sequence(const term_seq& sequence)
             code = parse_rule(elit->object.r);
             if(code == rem::code::rejected)
             {
+                if(elit->a.is_repeat())
+                {
+                    if(repeated)
+                    {
+                        logger::debug(src_funcname) << "Rule '" << color::Yellow << ctx.r->_id << color::White << "' repeated at least once. leaving as accepted";
+                        return rem::code::accepted;
+                    }
+                }
                 if(!elit->a.is_oneof() && !elit->a.is_optional())
                 {
                     logger::debug(src_funcname) << "Rule '" << color::Yellow << ctx.r->_id << color::White << "':" << rem::code_text(code);
                     return code;
                 }
-                if(elit->a.is_repeat())
-                    return rem::code::accepted;
             }
             else
             {
@@ -155,6 +164,7 @@ rem::code parser::parse_sequence(const term_seq& sequence)
                 if(elit->a.is_repeat())
                 {
                     //context::pop(ctx, true);
+                    repeated++;
                     ctx.clear_cache();
 
                     continue;
