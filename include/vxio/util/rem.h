@@ -14,7 +14,7 @@ class VXIO_API_DLL rem
     source::location _src = {};
     vxio::color::format _format = vxio::color::format::ansi256;
     std::vector<std::string> _components;
-    
+    static int _indent ;
 public:
     
     enum class type : int8_t
@@ -49,7 +49,9 @@ public:
         _file_,
         _function_,
         _fn_,
-        _line_
+        _line_,
+        _enter_, // indent
+        _leave_  // unindent
     };
     
     

@@ -5,6 +5,8 @@
 #include <vxio/util/rem.h>
 
 
+int rem::_indent = 0;
+
 std::vector<std::string_view> rem::types_text=
 {
     {"error"},
@@ -176,6 +178,20 @@ void rem::init()
 std::string rem::code_text(rem::code c)
 {
     std::string str;
+    if(c == rem::code::_enter_)
+    {
+        ++rem::_indent;
+        return "";
+        //...
+    }
+    else
+        if(c==rem::code::_leave_)
+        {
+            --rem::_indent;
+            return "";
+            //...
+        }
+        
     str += rem::codes_ansi256_attr[static_cast<int8_t>(c)];
     str += rem::codes_text[static_cast<int8_t>(c)];
     return str;
