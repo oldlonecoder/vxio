@@ -194,7 +194,7 @@ static token_data::collection tokens_table = {{mnemonic::k_null,               v
                                               {mnemonic::k_add,                vxio::type::binary_t,     0x000C00000,  vxio::type::distance::addition,   lexem::k_addition,     1},
                                               {mnemonic::k_sub,                vxio::type::binary_t,     0x000C00000,  vxio::type::distance::addition,   lexem::k_sub,          1},
                                               {mnemonic::k_mul,                vxio::type::binary_t,     0x000C00000,  vxio::type::distance::product,    lexem::k_multiply,     1},
-                                              {mnemonic::k_comment_cpp,        vxio::type::punc_t,       0x00000,      vxio::type::distance::noop_,      lexem::k_comment_cpp,  0},
+                                              {mnemonic::k_comment_cpp,        vxio::type::punc_t,       0x000400000,      vxio::type::distance::noop_,      lexem::k_comment_cpp,  0},
                                               {mnemonic::k_modulo,             vxio::type::binary_t,     0x000C00000,  vxio::type::distance::product,    lexem::k_modulo,       1},
                                               {mnemonic::k_less_than,          vxio::type::binary_t,     0x200C00000,  vxio::type::distance::equality,   lexem::k_less_than,    1},
                                               {mnemonic::k_greater_than,       vxio::type::binary_t,     0x200C00000,  vxio::type::distance::equality,   lexem::k_greater_than, 1},
@@ -274,46 +274,36 @@ static token_data::collection tokens_table = {{mnemonic::k_null,               v
 token_data token_data::scan(const char *C_)
 {
     int      unicode = 0;
-    int      index   = 0;
-    //Rem::Debug() << __PRETTY_FUNCTION__ << ":\n";
-    for(auto Tok: tokens_table)
+    if(!*C_)
+        return token_data::mNull;
+
+    for(auto token: tokens_table)
     {
         const char *crs  = C_;
-        const char *rtxt = Tok.mLoc.begin;
+        const char *rtxt = token.mLoc.begin;
+
         std::size_t sz = std::strlen(rtxt);
         
-        if(*crs != *Tok.mLoc.begin)
-        {
-            ++index;
-            continue;
-        }
-        ++index;
-        /*
-        * offset arbitrary assume that the UNICODE UNIT is a signed 16 bits AND THAT THE VALUE OF FIRST BYTE IS NEGATIVE.
-        * Then offset take the next byte to determine the unicode ...code...
-        */
+        if(*crs != *token.mLoc.begin) continue;
+
         while((*crs && *rtxt) && (*crs == *rtxt))
         {
-            ////std::cout << *crs <<  *rtxt << ">>>";
             if(*crs < 0)
                 ++unicode;
             ++crs;
             ++rtxt;
         }
-        
         if(*rtxt == 0)
         {
-            //            Rem::Debug() << "Check Token mnemonic :[" << MnemonicName(Tok.m) << ']';
             if(*crs && !isspace(*crs))
             {
-                ///@todo DEBUG! Temporary boolean validation solution... Must be beaten very hard here.
-                if((isalnum(*crs) || (*crs == '_')) && !Tok.is_operator())
+                if((isalnum(*crs) || (*crs == '_')) && !token.is_operator())
                     continue;
             }
             
-            Tok.mLoc.begin = C_;
-            Tok.mLoc.end   = crs - 1;
-            return Tok;
+            token.mLoc.begin = C_;
+            token.mLoc.end   = crs - 1;
+            return token;
         }
     }
     return token_data::mNull;

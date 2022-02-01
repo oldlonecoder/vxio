@@ -26,17 +26,17 @@
 
 namespace vxio
 {
-class vxu : public bloc
+class VXIO_API_DLL vxu : public bloc
 {
-    std::string  _fname; ///< .../filename.vxu
-    std::string  _id;    ///< .../{filename}.vxu
+    std::string  _fname; ///< .../filename.vxunit
+    std::string  _id;    ///< .../{filename}.vxunit
     friend class interpret;
     token_data::collection _tokens;
     lexer              _lexer;
 public:
     struct VXIO_API_DLL config
     {
-        std::string  filename; ///< .../filename.vxu
+        std::string  filename; ///< .../filename.vxunit
         const char*  source;
         //...
     };

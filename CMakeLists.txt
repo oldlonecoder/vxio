@@ -29,12 +29,15 @@ add_library(
         cc/vconio/vconio.cc
         cc/vconio/vdc.cc
 	cc/interpret/vxu.cc
+	cc/interpret/compiler/axt.cc include/vxio/interpret/compiler/axt.h
 	cc/interpret/compiler/expression.cc include/vxio/interpret/compiler/expression.h
         cc/interpret/compiler/parser.cc include/vxio/interpret/compiler/parser.h
 	cc/interpret/interpret.cc include/vxio/interpret/interpret.h
 	cc/interpret/compiler/grammar.cc include/vxio/interpret/compiler/grammar.h include/vxio/util/expect.h
 	cc/interpret/variable.cc include/vxio/interpret/variable.h
 	cc/interpret/compiler/declvar.cc include/vxio/interpret/compiler/declvar.h
+
+	include/vxio/interpret/compiler/parsers
 )
 
 

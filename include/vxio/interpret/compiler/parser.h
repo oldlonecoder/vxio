@@ -42,7 +42,10 @@ public:
         token_data::iterator   cursor,head;
         token_data::collection* tokens = nullptr;
         const rule* r = nullptr;
-        
+        xio::collection xio_cache;  ///<  Sous reserve;
+        xio* instruction = nullptr;
+
+
         context() = default;
         context(context&&) noexcept;
         context(const context&);
@@ -81,6 +84,7 @@ public:
 
     
     parser()=default;
+    parser(parser::context& _ctx);
     parser& set_bloc(bloc* blk_);
     parser& set_tokens_stream(token_data::collection * tokens_);
     parser& set_assembler(parser::assembler_fn assembler);

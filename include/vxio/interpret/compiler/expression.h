@@ -32,8 +32,11 @@ class expression : public parser
 
 public:
     expression(): parser(){}
+    expression(parser::context& _ctx);
     ~expression() override;
-    
+
+private:
+
 };
 
 }

@@ -28,7 +28,6 @@ rule::collection grammar::rules;
 static bool      built                            = false;
 
 
-
 std::string grammar_text = R"(
 xio-unit           : 'unit' id_t;.
 stmts              : +statement.
@@ -356,7 +355,7 @@ rem::code grammar::enter_litteral(iostr::Iterator &crs)
     
     if((_state != st_seq) && (_state != st_option))
     {
-        logger::fatal() << "syntax error '" << *crs << "' is not a valid xio++ grammar token in context" << "(state machine:" << (int) _state << ")";
+        logger::fatal() << "syntax error '" << *crs << "' is not a valid vxio interpret grammar token in context" << "(state machine:" << (int) _state << ")";
         return rem::code::rejected;
     }
     

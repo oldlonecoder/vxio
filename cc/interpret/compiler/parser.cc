@@ -2,7 +2,10 @@
 // Created by oldlonecoder on 21-12-10.
 //
 
-#include <vxio/interpret/compiler/parser.h>
+//#include <vxio/interpret/compiler/parser.h>
+#include <vxio/interpret/compiler/parsers>
+
+//#include <vxio/interpret/compiler/expression.h>
 
 /*!
  * @brief 2021-12-31 (!!) parser::context_t : cleanup; restore; rollback to previous state if no rule match; advance; finish rule.
@@ -313,6 +316,7 @@ int parser::context::pop(parser::context& ctx, bool synchronise)
     {
         to_sync.cursor = ctx.cursor;
         to_sync.head = ctx.cursor;
+        to_sync.instruction = ctx.instruction;
         //...
     }
     ctx = to_sync;
@@ -343,6 +347,7 @@ vxio::parser::context::context(const vxio::parser::context& rhs)
     head = rhs.head;
     tokens = rhs.tokens;
     r = rhs.r;
+    instruction = rhs.instruction;
 }
 
 vxio::parser::context::context(vxio::parser::context && rhs) noexcept
@@ -354,6 +359,7 @@ vxio::parser::context::context(vxio::parser::context && rhs) noexcept
     head = std::move(rhs.head);
     tokens = rhs.tokens;
     r = rhs.r;
+    instruction = rhs.instruction;
 }
 
 
@@ -366,7 +372,7 @@ vxio::parser::context & vxio::parser::context::operator=(const parser::context& 
     head = rhs.head;
     tokens = rhs.tokens;
     r = rhs.r;
-
+    instruction = rhs.instruction;
     return *this;
 }
 
@@ -379,6 +385,7 @@ vxio::parser::context & vxio::parser::context::operator=(parser::context && rhs)
     head = std::move(rhs.head);
     tokens = rhs.tokens;
     r = rhs.r;
+    instruction = rhs.instruction;
     return *this;
 }
 
@@ -403,3 +410,10 @@ void vxio::parser::context::restart_sequence()
     head->text() << color::White << "'";
     cursor = head;
 }
+
+vxio::parser::parser(parser::context& _ctx)
+{
+    ctx = _ctx;
+    tokens = ctx.tokens;
+}
+
