@@ -2,8 +2,6 @@
 // Created by oldlonecoder on 21-12-10.
 //
 
-//#ifndef VXIO_PARSERBASE_H
-//#define VXIO_PARSERBASE_H
 /**********************************************************************************************************************************
     Copyright 2021 Serge Lussier (oldlonecoder), lussier.serge@gmail.com
     Permission is hereby granted, free of charge, to any person obtaining a copy of this software

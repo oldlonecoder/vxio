@@ -48,9 +48,9 @@ struct axt
 
     axt() = default;
     axt(token_data* token);
-    ~axt() = default;
+    ~axt();// = default;
 
-    using input_table_t = std::vector<std::pair<std::pair<type::T, type::T>,axt*(axt::*)(token_data*)>>;
+    using input_table_t = std::vector<std::pair<std::pair<type::T, type::T>,axt*(axt::*)(axt*)>>;
     static input_table_t input_tbl;
     static std::vector<axt> axt_pool;
 
@@ -58,31 +58,53 @@ struct axt
     #pragma region INPUT
 
     axt* input(token_data* token);
-    axt* begin_tree(token_data* token);
-    axt* close_par(token_data* token);
-
-    axt* input_binary(token_data* token);
+    axt* begin(token_data* token);
+    axt* close_par(axt* a);
     axt* input_binary(axt* a);
 
-    axt* input_leaf(token_data* token);
-    axt* to_left(token_data* token);
-    axt* to_right(token_data* token);
-    axt* to_right_to_op(token_data* token);
-
+    axt* input_leaf(axt* a);
     axt* to_left(axt* a);
     axt* to_right(axt* a);
     axt* to_right_to_op(axt* a);
-
-    //axt::lr_input_fnptr associate(axt* a_lhs, axt* a_rhs);
-    axt* lpar_input_binary(token_data* token);
-    axt* input_rpar(token_data* token);
-    axt* input_lpar(token_data* token);
-    axt* rpar_input_postfix(token_data* token);
-    axt* rpar_input_leaf(token_data* token);
-    axt* rpar_rpar(token_data* token);
+    axt* lpar_input_binary(axt* a);
+    axt* input_rpar(axt* a);
+    axt* input_lpar(axt* a);
+    //axt* rpar_input_postfix(axt* a);
+    axt* rpar_input_leaf(axt* a);
+    axt* rpar_rpar(axt* a);
 
     #pragma endregion INPUT
-    void* operator new(size_t sz, token_data* token);
+    void* operator new(size_t);
+
+    void operator delete(void*)
+    {
+        ;
+    }
+
+    std::string attribute() { return t0->text(); }
+
+    auto query(axt* lhs, axt* rhs);
+
+    static void clear_static_pool();
+
+    static std::stack<axt*> pars;
+    static int push_par(axt* a);
+    static axt* pop_par();
+
+
+    #pragma region TRIGRAPH
+
+    static void dot_tree_start(iostr& a_out, const iostr& Title);
+    static void dot_node(axt* A, iostr& a_out);
+    static void dot_null_node(axt*, int, iostr&);
+    static void dot_tree(axt* a_root, iostr& a_out);
+    static void dot_tree_close(iostr& a_out);
+    void dot_attr(iostr& a_out);
+
+    //    static std::string trace_connect_binary_operands2(xio* x);
+
+    #pragma endregion TRIGRAPH
+    static std::string trace_connect_binary_operands(axt* x);
 };
 
 }

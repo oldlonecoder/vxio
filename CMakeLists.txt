@@ -30,6 +30,7 @@ add_library(
         cc/vconio/vdc.cc
 	cc/interpret/vxu.cc
 	cc/interpret/compiler/axt.cc include/vxio/interpret/compiler/axt.h
+	cc/interpret/compiler/context_data.cc include/vxio/interpret/compiler/context_data.h
 	cc/interpret/compiler/expression.cc include/vxio/interpret/compiler/expression.h
         cc/interpret/compiler/parser.cc include/vxio/interpret/compiler/parser.h
 	cc/interpret/interpret.cc include/vxio/interpret/interpret.h

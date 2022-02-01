@@ -1095,8 +1095,9 @@ namespace vxio {
 
         *acc = *lhs->acc / *rhs->acc;
         return *acc; 
-        logger::output() << color::CornflowerBlue << " = " << color::Lime << (*acc)();
+        //logger::output() << color::CornflowerBlue << " = " << color::Lime << (*acc)();
     }
+
     alu xio::factorial()
     {
         *acc = lhs->factorial();

@@ -332,6 +332,13 @@ private:
     rem::code enter_litteral(iostr::Iterator &crs);
     rem::code set_oneof(iostr::Iterator &crs);
     rem::code set_directive(iostr::Iterator &crs);
+
+
+    //--------------------------------------------------
+
+
+
+
 };
 }
 //#endif //VXIO_GRAMMAR_H
