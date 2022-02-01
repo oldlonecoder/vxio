@@ -23,6 +23,10 @@
 #include <vxio/interpret/bloc.h>
 #include <vxio/lexer/lexer.h>
 #include <vxio/interpret/compiler/grammar.h>
+#include <vxio/interpret/compiler/context_data.h>
+#include <vxio/interpret/compiler/axt.h>
+#include <utility>
+#include <map>
 
 namespace vxio
 {
@@ -52,7 +56,18 @@ public:
     std::string id() { return _id; }
 protected:
     vxu::config _config;
-    
+
+    compiler::context_data cc_data;
+
+    expect<axt*> cc_expression  (compiler::context_data& _cdata);
+    expect<xio*> cc_varid       (compiler::context_data& _cdata);
+    expect<xio*> cc_declvar     (compiler::context_data& _cdata);
+    expect<xio*> cc_assign_stmt (compiler::context_data& _cdata);
+
+    rem::code cc_rule(const grammar::rule* _rule);
+    rem::code cc_sequence(const grammar::term_seq& sequence);
+    using xio_maker_t = expect<xio*>(vxu::*)(compiler::context_data&);
+    using cc_rules_t = std::map<std::string, std::pair<std::string, vxu::xio_maker_t>>;
     
 };
 }

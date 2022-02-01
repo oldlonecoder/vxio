@@ -108,6 +108,7 @@ rem::code parser::parse_rule(const rule *rule_)
         }
         ctx.restart_sequence();
     }
+
     if(code != rem::code::accepted)
     {
         logger::debug(src_funcname) << color::White << "Rule " << color::Yellow << rule_->_id << "::" << grammar().dump_sequence(*seqit) << color::Lime << " rejected";

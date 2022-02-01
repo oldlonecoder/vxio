@@ -4,11 +4,14 @@
 
 #include <vxio/interpret/vxu.h>
 #include <vxio/util/logger.h>
-#include <vxio/interpret/compiler/expression.h>
+
 
 
 namespace vxio
 {
+
+using compiler::context_data;
+
 
 vxu::~vxu()
 {
@@ -59,5 +62,7 @@ rem::code vxu::compile()
 //    // ...
 //    return r;
 }
+
+
 
 }

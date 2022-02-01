@@ -28,17 +28,15 @@ add_library(
         cc/interpret/bloc.cc
         cc/vconio/vconio.cc
         cc/vconio/vdc.cc
-	cc/interpret/vxu.cc
-	cc/interpret/compiler/axt.cc include/vxio/interpret/compiler/axt.h
-	cc/interpret/compiler/context_data.cc include/vxio/interpret/compiler/context_data.h
-	cc/interpret/compiler/expression.cc include/vxio/interpret/compiler/expression.h
-        cc/interpret/compiler/parser.cc include/vxio/interpret/compiler/parser.h
-	cc/interpret/interpret.cc include/vxio/interpret/interpret.h
-	cc/interpret/compiler/grammar.cc include/vxio/interpret/compiler/grammar.h include/vxio/util/expect.h
-	cc/interpret/variable.cc include/vxio/interpret/variable.h
-	cc/interpret/compiler/declvar.cc include/vxio/interpret/compiler/declvar.h
+        cc/interpret/compiler/grammar.cc include/vxio/interpret/compiler/grammar.h
+        cc/interpret/vxu.cc include/vxio/interpret/vxu.h
+        cc/interpret/compiler/axt.cc include/vxio/interpret/compiler/axt.h
+        cc/interpret/compiler/context_data.cc include/vxio/interpret/compiler/context_data.h
+        cc/interpret/compiler/vxu.cc_expression.cc
+        cc/interpret/compiler/vxu.cc_declvar.cc
+        cc/interpret/interpret.cc include/vxio/interpret/interpret.h
+        include/vxio/util/expect.h
 
-	include/vxio/interpret/compiler/parsers
 )
 
 

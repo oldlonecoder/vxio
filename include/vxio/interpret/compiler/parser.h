@@ -39,7 +39,7 @@ public:
         token_data::pointer token_ptr;
         token_data::iterator   cursor,head;
         token_data::collection* tokens = nullptr;
-        const rule* r = nullptr;
+        const grammar::rule* r = nullptr;
         xio::collection xio_cache;  ///<  Sous reserve;
         xio* instruction = nullptr;
 

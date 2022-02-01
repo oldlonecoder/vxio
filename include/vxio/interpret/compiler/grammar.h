@@ -30,246 +30,250 @@
 
 namespace vxio
 {
-struct rule;
+//struct rule;
 
-class grammar;
+//class grammar;
 
 /*!
- * @brief
- * @todo Holly shit!! Confused on X flag: accept state and Implicit-Rule Flag!!!! ^^ ?
+ *    @brief the tea gammar class .
  *
+ *    @author &copy;2021, oldlonecoder (lussier.serge@gmail.com).
+ *
+ *    @note offset really don't know why offset need to do a complete syntax grammar (generator) for the tea++ interpreter.
+ *    My first intention was to create a specific arithmetic expression parser and then create a hand made parser for the the rest of the syntax.
  */
-struct term_properties
-{
-    uint8_t Z: 1; ///< Zero or one (optional * )
-    uint8_t R: 1; ///< Repeat      (        + )
-    uint8_t L: 1; ///< List        (one of  ~ ?)
-    uint8_t X: 1; ///< directive    ( exclude from normal ast build : ast directive [Implicit specific Parser term_rule)
-    uint8_t S: 1; ///< State!! 0 = unset/rejected; 1 = set/accepted !!!
-    
-    term_properties &operator|(term_properties const &_)
-    {
-        Z |= _.Z;
-        R |= _.R;
-        L |= _.L;
-        X |= _.X;
-        //s = A.s;
-        return *this;
-    }
-    
-    term_properties &operator+()
-    {
-        R = 1;
-        return *this;
-    }
-    term_properties &operator*()
-    {
-        Z = 1;
-        return *this;
-    }
-    term_properties &operator!()
-    {
-        X = 1;
-        return *this;
-    }
-    term_properties &operator~()
-    {
-        L = 1;
-        return *this;
-    }
-    void Reset()
-    { Z = R = L = X = S = 0; }
-    std::string operator()();
-    [[nodiscard]] bool is_optional() const
-    { return Z != 0; }
-    [[nodiscard]] bool is_oneof() const
-    { return L != 0; }
-    [[nodiscard]] bool is_strict() const
-    { return Z == 0 && L == 0 && R == 0; }
-    [[nodiscard]] bool is_repeat() const
-    { return R != 0; }
-    [[nodiscard]] bool accepted() const
-    { return S != 0; }
-    void accept()
-    { S = 1; }
-    void reject()
-    { S = 0; }
-};
-
-struct term
-{
-    mutable term_properties a = {0, 0, 0, 0, 0}; ///< default : punctual, strict match
-    
-    enum class type : uint8_t
-    {
-        //term,
-        r = 0,
-        s,
-        m,
-        nil
-    };
-    
-    void accept() { a.accept(); }
-    void Reject() { a.reject(); }
-    
-    term::type _type  = term::type::nil;
-    
-    union info
-    {
-        rule          *r;
-        vxio::type::T sem;
-        mnemonic      m;
-    }object = {nullptr};
-    
-    using collection = std::vector<term>;
-    using iterator = collection::iterator;
-    using const_iterator = collection::const_iterator;
-    
-    // pas le choix... 'y faut un parser....
-    
-    term() = default;
-    term(rule *r, term_properties a_ = {0, 0, 0, 0, 0});
-    term(vxio::type::T a_sem, term_properties a_ = {0, 0, 0, 0, 0});
-    term(mnemonic a_code, term_properties a_ = {0, 0, 0, 0, 0});
-    
-    term(const std::string &a_lexem);
-    
-    term(term &&_t) noexcept;
-    term(const term &_t);
-    
-    term &operator=(term &&_t) noexcept;
-    term &operator=(const term &_t);
-    
-    bool operator==(const term &t) const;
-    bool operator==(const token_data &t) const;
-    bool operator!=(const token_data &t) const;
-    
-    operator bool()
-    { return _type != term::type::nil; }
-    ~term();
-    
-    term &operator*()
-    {
-        *a;
-        return *this;
-    }
-    term &operator+()
-    {
-        +a;
-        return *this;
-    }
-    term &operator!()
-    {
-        !a;
-        return *this;
-    }
-    term &operator~()
-    {
-        ~a;
-        return *this;
-    }
-    
-    std::string operator()() const;
-    
-    bool is_rule() const
-    { return _type == type::r; }
-    bool is_semantic() const
-    { return _type == type::s; }
-    bool is_mnemonic() const
-    { return _type == type::m; }
-    bool is_null() const
-    { return _type == type::nil; }
-    
-    //static term query(const char *C_);
-    //static term query(vxio::type::T T_);
-    //static term query(mnemonic M_);
-};
-
-struct term_seq
-{
-    term_properties a = {0, 0, 0, 0, 0}; ///< default : punctual, strict match
-
-    
-    term::collection terms;
-    
-    using collection = std::vector<term_seq>;
-    using const_iterator = collection::const_iterator;
-    using iterator = collection::iterator;
-    using stack = std::stack<iterator>;
-    
-    term_seq() = default;
-    
-    term::const_iterator begin() const
-    { return terms.cbegin(); }
-    
-    bool end(term::const_iterator t) const
-    {
-        return terms.cend() == t;
-    }
-    
-    term next(term::const_iterator &it) const;
-    
-    ~term_seq()
-    {
-        terms.clear();
-    }
-    term_seq &operator<<(term a_t);
-    
-    // Emplace_back:
-    term_seq &operator<<(vxio::type::T a_t);
-    term_seq &operator<<(mnemonic a_t);
-    term_seq &operator<<(rule *a_t);
-};
-
-struct rule
-{
-    term_seq::collection sequences;
-    // ---------------------------------------
-    term_seq::iterator   seq; // Temporary held for building this rule.
-    // ---------------------------------------
-    //term_seq::stack seq_stack;
-    
-    using collection = std::map<std::string, rule *>;
-    using iterator = collection::const_iterator;
-    
-    term_properties a      = {0, 0, 0, 0, 0}; /// Volatile attribute infos. ( Copied into the rule's recursion context  )
-    term_properties inject = {0, 0, 0, 0, 0};
-    
-    std::string _id;
-    
-    rule() = default;
-    rule(const std::string &a_id);
-    
-    rule(int)
-    {}
-    ~rule();
-    bool empty() const
-    { return sequences.empty() ? true : sequences.begin()->terms.empty(); }
-    void inject_attr(term_properties a_a)
-    { inject = a_a; }
-    rule &new_sequence();
-    rule &operator|(rule *_r);
-    //rule& operator |(const char*   _t);
-    rule &operator|(vxio::type::T _t);
-    rule &operator|(mnemonic _t);
-    std::string name()
-    { return _id; }
-    term_seq::const_iterator begin() const
-    { return sequences.cbegin(); }
-    bool end(term_seq::const_iterator s) const
-    { return s == sequences.cend(); }
-};
-
-/*!
-    @brief the tea gammar class .
-
-    @author &copy;2021, oldlonecoder (lussier.serge@gmail.com).
-
-    @note offset really don't know why offset need to do a complete syntax grammar (generator) for the tea++ interpreter.
-    My first intention was to create a specific arithmetic expression parser and then create a hand made parser for the the rest of the syntax.
-*/
 class grammar
 {
+public:
+    class rule;
+
+    /*!
+     * @brief
+     * @todo Holly shit!! Confused on X flag: accept state and Implicit-Rule Flag!!!! ^^ ?
+     *
+     */
+    struct term_properties
+    {
+        uint8_t Z: 1; ///< Zero or one (optional * )
+        uint8_t R: 1; ///< Repeat      (        + )
+        uint8_t L: 1; ///< List        (one of  ~ ?)
+        uint8_t X: 1; ///< directive    ( exclude from normal ast build : ast directive [Implicit specific Parser term_rule)
+        uint8_t S: 1; ///< State!! 0 = unset/rejected; 1 = set/accepted !!!
+
+        term_properties &operator|(term_properties const &_)
+        {
+            Z |= _.Z;
+            R |= _.R;
+            L |= _.L;
+            X |= _.X;
+            //s = A.s;
+            return *this;
+        }
+
+        term_properties &operator+()
+        {
+            R = 1;
+            return *this;
+        }
+        term_properties &operator*()
+        {
+            Z = 1;
+            return *this;
+        }
+        term_properties &operator!()
+        {
+            X = 1;
+            return *this;
+        }
+        term_properties &operator~()
+        {
+            L = 1;
+            return *this;
+        }
+        void Reset()
+        { Z = R = L = X = S = 0; }
+        std::string operator()();
+        [[nodiscard]] bool is_optional() const
+        { return Z != 0; }
+        [[nodiscard]] bool is_oneof() const
+        { return L != 0; }
+        [[nodiscard]] bool is_strict() const
+        { return Z == 0 && L == 0 && R == 0; }
+        [[nodiscard]] bool is_repeat() const
+        { return R != 0; }
+        [[nodiscard]] bool accepted() const
+        { return S != 0; }
+        void accept()
+        { S = 1; }
+        void reject()
+        { S = 0; }
+    };
+
+
+    struct term
+    {
+        mutable term_properties a = {0, 0, 0, 0, 0}; ///< default : punctual, strict match
+
+        enum class type : uint8_t
+        {
+            //term,
+            r = 0,
+            s,
+            m,
+            nil
+        };
+
+        void accept() { a.accept(); }
+        void Reject() { a.reject(); }
+
+        term::type _type  = term::type::nil;
+
+        union info
+        {
+            grammar::rule *r;
+            vxio::type::T sem;
+            mnemonic      m;
+        }object = {nullptr};
+
+        using collection = std::vector<term>;
+        using iterator = collection::iterator;
+        using const_iterator = collection::const_iterator;
+
+        // pas le choix... 'y faut un parser....
+
+        term() = default;
+        term(grammar::rule *r, grammar::term_properties a_ = {0, 0, 0, 0, 0});
+        term(vxio::type::T a_sem, grammar::term_properties a_ = {0, 0, 0, 0, 0});
+        term(mnemonic a_code, grammar::term_properties a_ = {0, 0, 0, 0, 0});
+
+        term(const std::string &a_lexem);
+
+        term(term &&_t) noexcept;
+        term(const term &_t);
+
+        term &operator=(term &&_t) noexcept;
+        term &operator=(const term &_t);
+
+        bool operator==(const term &t) const;
+        bool operator==(const token_data &t) const;
+        bool operator!=(const token_data &t) const;
+
+        operator bool()
+        { return _type != term::type::nil; }
+        ~term();
+
+        term &operator*()
+        {
+            *a;
+            return *this;
+        }
+        term &operator+()
+        {
+            +a;
+            return *this;
+        }
+        term &operator!()
+        {
+            !a;
+            return *this;
+        }
+        term &operator~()
+        {
+            ~a;
+            return *this;
+        }
+
+        std::string operator()() const;
+
+        bool is_rule() const
+        { return _type == type::r; }
+        bool is_semantic() const
+        { return _type == type::s; }
+        bool is_mnemonic() const
+        { return _type == type::m; }
+        bool is_null() const
+        { return _type == type::nil; }
+
+        //static term query(const char *C_);
+        //static term query(vxio::type::T T_);
+        //static term query(mnemonic M_);
+    };
+
+    struct term_seq
+    {
+        grammar::term_properties a = {0, 0, 0, 0, 0}; ///< default : punctual, strict match
+
+
+        grammar::term::collection terms;
+
+        using collection = std::vector<term_seq>;
+        using const_iterator = collection::const_iterator;
+        using iterator = collection::iterator;
+        using stack = std::stack<iterator>;
+
+        term_seq() = default;
+
+        term::const_iterator begin() const
+        { return terms.cbegin(); }
+
+        bool end(term::const_iterator t) const
+        {
+            return terms.cend() == t;
+        }
+
+        grammar::term next(grammar::term::const_iterator &it) const;
+
+        ~term_seq()
+        {
+            terms.clear();
+        }
+        term_seq &operator<<(grammar::term a_t);
+
+        // Emplace_back:
+        term_seq &operator<<(vxio::type::T a_t);
+        term_seq &operator<<(mnemonic a_t);
+        term_seq &operator<<(grammar::rule *a_t);
+    };
+
+    struct rule
+    {
+        grammar::term_seq::collection sequences;
+        // ---------------------------------------
+        grammar::term_seq::iterator   seq; // Temporary held for building this rule.
+        // ---------------------------------------
+        //term_seq::stack seq_stack;
+
+        using collection = std::map<std::string, rule *>;
+        using iterator = collection::const_iterator;
+
+        grammar::term_properties a      = {0, 0, 0, 0, 0}; /// Volatile attribute infos. ( Copied into the rule's recursion context  )
+        grammar::term_properties inject = {0, 0, 0, 0, 0};
+
+        std::string _id;
+
+        rule() = default;
+        rule(const std::string &a_id);
+
+        rule(int)
+        {}
+        ~rule();
+        bool empty() const
+        { return sequences.empty() ? true : sequences.begin()->terms.empty(); }
+        void inject_attr(term_properties a_a)
+        { inject = a_a; }
+        rule &new_sequence();
+        rule &operator|(rule *_r);
+        //rule& operator |(const char*   _t);
+        rule &operator|(vxio::type::T _t);
+        rule &operator|(mnemonic _t);
+        std::string name()
+        { return _id; }
+        grammar::term_seq::const_iterator begin() const
+        { return sequences.cbegin(); }
+        bool end(grammar::term_seq::const_iterator s) const
+        { return s == sequences.cend(); }
+    };
+
 
 public:
     grammar();
@@ -340,5 +344,6 @@ private:
 
 
 };
+
 }
 //#endif //VXIO_GRAMMAR_H

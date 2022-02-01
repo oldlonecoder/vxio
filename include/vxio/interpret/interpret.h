@@ -24,7 +24,6 @@
 #pragma once
 #include <vxio/interpret/vxu.h>
 
-
 namespace vxio
 {
 class VXIO_API_DLL interpret : public bloc
@@ -39,7 +38,9 @@ public:
     
     rem::code init();
     static interpret* instance();
-    static const rule* get_rule(const std::string& name_);
+    static const grammar::rule* get_rule(const std::string& name_);
+
+
 };
 
 }

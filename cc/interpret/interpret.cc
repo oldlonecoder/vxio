@@ -4,7 +4,7 @@
 
 #include <vxio/interpret/interpret.h>
 #include <vxio/util/logger.h>
-#include <vxio/interpret/compiler/grammar.h>
+//#include <vxio/interpret/compiler/grammar.h>
 
 
 namespace vxio
@@ -51,7 +51,7 @@ alu interpret::operator[](std::string src_)
 
 
 
-const rule *interpret::get_rule(const std::string &name_)
+const grammar::rule *interpret::get_rule(const std::string &name_)
 {
     return gram[name_];
 }

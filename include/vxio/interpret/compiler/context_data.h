@@ -20,9 +20,10 @@
 #pragma once
 
 #include <map>
-#include <vxio/interpret/interpret.h>
+#include <vxio/interpret/bloc.h>
 #include <stack>
 #include <vxio/lexer/token_data.h>
+#include <vxio/interpret/compiler/grammar.h>
 
 
 namespace vxio {
@@ -38,7 +39,11 @@ struct context_data
     token_data::pointer token_ptr;
     token_data::iterator   cursor,head;
     token_data::collection* tokens = nullptr;
-    const rule* r = nullptr;
+
+    token_data  type_of;
+    bool        static_storage = false;
+
+    const grammar::rule* r = nullptr;
     xio::collection xio_cache;  ///<  Sous reserve;
     xio* instruction = nullptr;
 
