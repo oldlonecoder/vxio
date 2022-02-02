@@ -36,12 +36,12 @@ alu interpret::operator[](std::string src_)
 {
     if(!_main)
     {
-        logger::error() << "interpret was not initialised.";
+        logger::error() << "vxio interpret was not initialised.";
         return 0.0f;
     }
     _main->_config = {
         "../../res/main.vxu", // dummy
-        src_.c_str()
+        src_.c_str() // for real
     };
     _main->compile();
     

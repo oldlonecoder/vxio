@@ -125,6 +125,9 @@ int context_data::pop(context_data& ctx, bool synchronise)
         to_sync.cursor = ctx.cursor;
         to_sync.head = ctx.cursor;
         to_sync.instruction = ctx.instruction;
+        to_sync.expr_root = ctx.expr_root;
+        to_sync.expr_input = ctx.expr_input;
+
         //...
     }
     ctx = to_sync;
@@ -146,6 +149,9 @@ context_data::context_data(const context_data& rhs)
     tokens = rhs.tokens;
     r = rhs.r;
     instruction = rhs.instruction;
+    expr_root   = rhs.expr_root;
+    expr_input  = rhs.expr_input;
+
 }
 
 context_data::context_data(context_data && rhs) noexcept
@@ -160,6 +166,9 @@ context_data::context_data(context_data && rhs) noexcept
     tokens = rhs.tokens;
     r = rhs.r;
     instruction = rhs.instruction;
+    expr_root   = rhs.expr_root;
+    expr_input  = rhs.expr_input;
+
 }
 
 
@@ -175,6 +184,9 @@ context_data & context_data::operator=(const context_data& rhs)
     tokens = rhs.tokens;
     r = rhs.r;
     instruction = rhs.instruction;
+    expr_root   = rhs.expr_root;
+    expr_input  = rhs.expr_input;
+
     return *this;
 }
 
@@ -190,6 +202,9 @@ context_data & context_data::operator=(context_data && rhs) noexcept
     tokens = rhs.tokens;
     r = rhs.r;
     instruction = rhs.instruction;
+    expr_root   = rhs.expr_root;
+    expr_input  = rhs.expr_input;
+
     return *this;
 }
 

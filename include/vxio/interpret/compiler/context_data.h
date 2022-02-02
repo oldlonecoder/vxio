@@ -24,6 +24,7 @@
 #include <stack>
 #include <vxio/lexer/token_data.h>
 #include <vxio/interpret/compiler/grammar.h>
+#include <vxio/interpret/compiler/axt.h>
 
 
 namespace vxio {
@@ -35,17 +36,20 @@ namespace compiler {
 struct context_data
 {
     bloc* blk = nullptr;
+    const grammar::rule* r  = nullptr;
+    axt* expr_input         = nullptr;  ///< Arithmetic Expression Tree Input location.
+    axt* expr_root          = nullptr;  ///< Arithmetic Expression Tree Root ( tree top/entry ).
+    xio* instruction        = nullptr;  ///< Produced Instruction Object.
+
     token_data::cache   tokens_cache;
     token_data::pointer token_ptr;
     token_data::iterator   cursor,head;
     token_data::collection* tokens = nullptr;
 
     token_data  type_of;
-    bool        static_storage = false;
+    bool        static_storage  = false;
 
-    const grammar::rule* r = nullptr;
-    xio::collection xio_cache;  ///<  Sous reserve;
-    xio* instruction = nullptr;
+    xio::collection xio_cache;
 
 
     context_data() = default;
