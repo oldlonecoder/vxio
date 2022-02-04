@@ -19,7 +19,7 @@ add_library(
         cc/util/iostr.cc
         cc/util/rem.cc
         cc/util/logger.cc
-        #cc/util/rtdl.cc
+        cc/util/rtdl.cc
         cc/interpret/types.cc
         cc/lexer/token_data.cc
         cc/lexer/lexer.cc
@@ -35,6 +35,8 @@ add_library(
         cc/interpret/compiler/vxu.cc_expression.cc
         cc/interpret/compiler/vxu.cc_declvar.cc
         cc/interpret/interpret.cc include/vxio/interpret/interpret.h
+        cc/interpret/compiler/vxu.cc_declvar.cc
+        cc/interpret/compiler/vxu.cc_expression.cc
         include/vxio/util/expect.h
 
 )

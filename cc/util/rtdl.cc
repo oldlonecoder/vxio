@@ -1,5 +1,5 @@
 #include <vxio/util/rtdl.h>
-
+#include <vxio/util/logger.h>
 #include <unistd.h>
 
 namespace vxio::dll
@@ -197,41 +197,41 @@ std::string dll_file::locate()
 *    @return pointer to the Plugin base class object successfuly initialized and ready to use.
 *    @author Serge Lussier(bretzelus), lussier.serge@gmail.com
 */
-plugin* dlloader::open()
+rem::code dll_file::open()
 {
 
-    std::string str_location = findlocation();
+    std::string str_location = locate();
     if (str_location.empty()) {
-        throw message::push(message::type::error), id, " not found into valid paths.";
+        throw logger::fatal(src_location) <<  _id <<  " not found into valid paths.";
     }
-    _sohandle = dlopen(str_location.c_str(), RTLD_LAZY); // Recommended
-    if (!_sohandle)
-        throw message::push(message::type::error), ": ", dlerror();
+    _Handle = dlopen(str_location.c_str(), RTLD_LAZY); // Recommended
+    if (!_Handle)
+        throw logger::fatal(src_location) <<  _id << ": " <<  dlerror();
 
-    void* _export_fn = dlsym(_sohandle, EXPORT_SYM);
+    void* _export_fn = dlsym(_Handle, EXPORT_SYM);
     if (!_export_fn) {
-        dlclose(_sohandle);
-        throw message::push(message::type::error), " Plugin ", id, ": ", dlerror();
+        dlclose(_Handle);
+        throw logger::fatal(src_location) <<  " Plugin " <<  _id <<  ": " <<  dlerror();
     }
 
-    _interface = reinterpret_cast<plugin::interface_t(*)()>(_export_fn)();
+    _interface = reinterpret_cast<rtdl::interface_map(*)()>(_export_fn)();
     if (_interface.empty()) {
-        dlclose(_sohandle);
-        throw message::push(message::type::error), " Plugin ", id, " does not export its interface! ";
+        dlclose(_Handle);
+        throw logger::fatal(src_location) << " Plugin " << _id <<  " does not export its interface! ";
     }
 
     for (auto& ix : _interface) {
-        ix.second = dlsym(_sohandle, ix.first.c_str());
+        ix.second = dlsym(_Handle, ix.first.c_str());
         if (!ix.second) {
-            dlclose(_sohandle);
-            throw  message::push(message::type::error), " Plugin ", id, ": exported symbol is unbound: [", ix.first, "]";
+            dlclose(_Handle);
+            throw logger::fatal(src_location) <<  _id << ": exported symbol is unbound: [" <<  ix.first <<  "]";
         }
     }
 
-    mplugin = (reinterpret_cast<plugin * (*)()>(_interface[CREATE_PLUGIN_SYM]))();
-    mplugin->setinterface(_interface);
+    _rtdl = (reinterpret_cast<rtdl * (*)()>(_interface[CREATE_SYM]))();
+    _rtdl->set_interface(_interface);
     _interface.clear();
-    return mplugin;
+    return rem::code::accepted;
 }
 
 
@@ -240,24 +240,22 @@ plugin* dlloader::open()
 *
 *    @author Serge Lussier(bretzelus), lussier.serge@gmail.com
 */
-int dlloader::close()
+int dll_file::close()
 {
-    if (!_sohandle) return 0;
-    if (mplugin) release();
-    dlclose(_sohandle);
-    _sohandle = 0;
+    if (!_Handle) return 0;
+    if (_rtdl);
+    _Handle = 0;
     return 0;
 }
 
 
-int dlloader::release()
+int dll_file::release()
 {
-    if (!mplugin)
+    if (!_rtdl)
         return 0;
 
-    (void) reinterpret_cast<int(*)(plugin*)>(mplugin->_interface[DELETE_PLUGIN_SYM])(mplugin);
-    mplugin = nullptr;
-
+    (void) reinterpret_cast<int(*)(rtdl*)>(_rtdl->_interface[DELETE_SYM])(_rtdl);
+    _rtdl = nullptr;
     return 0;
 }
 
