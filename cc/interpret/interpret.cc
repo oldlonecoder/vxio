@@ -40,7 +40,7 @@ alu interpret::operator[](std::string src_)
         return 0.0f;
     }
     _main->_config = {
-        "../../res/main.vxu", // dummy
+        "../../res/main.vx", // dummy
         src_.c_str() // for real
     };
     _main->compile();
