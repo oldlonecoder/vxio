@@ -7,12 +7,31 @@
 #pragma once
 #include <vxio/util/iostr.h>
 #include <vxio/util/source_location.h>
-
+/*!
+ * @brief
+ *
+ <code>
+    <div class="entry">
+        <div class="entry-sections">
+            <div class="msg-col">
+                <i class="icon $entry-type" /> <span class="$type text">{"debug"|"info"|"..."}</span>
+            </div>
+            <div class="optional-location"> location content </div> <div class="optional-funcsig"> function-signature-text </div>
+            <div class="short-content"> short-content-text </div>
+        </div>
+        <div class="optional long entry content">
+           " long content "...
+           ...
+        </div>
+     </div>
+ </code>
+ */
 class VXIO_API_DLL rem
 {
     iostr _text;
     source::location _src = {};
     vxio::color::format _format = vxio::color::format::ansi256;
+    
     std::vector<std::string> _components;
     static int _indent ;
 public:
@@ -45,6 +64,8 @@ public:
         unexpected,
         expected,
         endl,
+        begin,
+        end,
         implement,
         _file_,
         _function_,
@@ -72,13 +93,13 @@ public:
     rem& operator << (const iostr& txt_);
     template<typename T> rem& operator<<(const T& arg_)
     {
-        
          iostr str;
          str << arg_;
          _components.push_back(str());
         return *this;
     }
     std::string cc();
+    std::string text() { return _text(); }
     static void init();
     rem::code rem_code() { return _code; }
     rem::type rem_type() { return _type; }

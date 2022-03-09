@@ -38,8 +38,8 @@ add_library(
         cc/interpret/compiler/vxu.cc_declvar.cc
         cc/interpret/compiler/vxu.cc_expression.cc
         include/vxio/util/expect.h
-
-)
+        cc/db/sqlite/lite.cc include/vxio/db/sqlite/lite.h
+		cc/db/schema.cc include/vxio/db/schema.h)
 
 
 target_compile_definitions(${TargetName} PUBLIC "${TargetName}_DEBUG=$<CONFIG:Debug>")
@@ -59,7 +59,7 @@ target_include_directories(${TargetName} PUBLIC
         $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
         )
 
-target_link_libraries(${TargetName} ${CMAKE_DL_LIBS} )
+target_link_libraries(${TargetName} ${CMAKE_DL_LIBS} sqlite3)
 
 
 add_executable(vxio.app

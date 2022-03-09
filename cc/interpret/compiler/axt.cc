@@ -35,7 +35,8 @@ axt::~axt()
 
 void* axt::operator new (size_t)
 {
-    axt::axt_pool.push_back(axt());
+    logger::debug(src_location);
+    axt::axt_pool.emplace_back(axt());
     return &(*(--axt::axt_pool.end()));
 }
 

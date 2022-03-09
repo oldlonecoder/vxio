@@ -220,7 +220,7 @@ constexpr T k_assign_xor    = "><=";
 constexpr T k_assign_c1     = "`=";
 constexpr T k_assign_lshift = "<<=";
 constexpr T k_assign_rshift = ">>=";
-constexpr T k_deref         = "<-";
+constexpr T k_deref         = "->";
 constexpr T k_less_equal    = "<=";
 constexpr T k_greater_equal = ">=";
 constexpr T k_equal         = "==";

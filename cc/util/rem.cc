@@ -35,6 +35,8 @@ std::vector<std::string_view> rem::codes_text=
     {"unexpected"},
     {"expected"},
     {"\n"},
+    {"begin"},
+    {"end"},
     {"implement"}
 
 };
@@ -69,6 +71,17 @@ rem::~rem()
     _components.clear();
 }
 
+
+/*!
+@brief Constructs an instance of "rem" which consists of the following stacked elements, formatted according to the encoding:
+ <ul>
+    <li> message type </li>
+    <li> mnemonic code </li>
+    <li> message text </li>
+ </ul>
+@param type_  rem::type mnemonic
+@param src    optional (non-empty) code source location given by \c source::location
+ */
 rem::rem(rem::type type_, const source::location &src)
 {
     _type = type_;
@@ -81,6 +94,27 @@ rem::rem(rem::type type_, const source::location &src)
     }
 }
 
+/*!
+ * @brief input rem::code
+ * @param c_ the rem::code mnemonic
+ * @return reference to instance of this for chaining inputs.
+ *
+ * @note Production:
+ <ul>
+     <li> html format: </li>
+     <ul>
+         <li> openning span or div html element with the css class: "rem-code"</li>
+         <li> text of the code mnemonic </li>
+         <li> span/div closing tag </li>
+     </ul>
+     <li> ansi256 format:
+     <ul>
+        <li> ansi text attr</li>
+        <li> code string text </li>
+     </ul>
+  </ul>
+ 
+ */
 rem &rem::operator<<(rem::code c_)
 {
     iostr str;
@@ -100,7 +134,7 @@ void rem::init_text_attr()
         vxio::color::ansi(vxio::color::Yellow),         //warning,
         vxio::color::ansi(vxio::color::BlueViolet),     //info,
         vxio::color::ansi(vxio::color::Cyan3),          //exception,
-        vxio::color::ansi(vxio::color::DeepSkyBlue7),       //fatal,
+        vxio::color::ansi(vxio::color::DeepSkyBlue7),   //fatal,
         vxio::color::ansi(vxio::color::DarkSlateGray1), //status,
         vxio::color::ansi(vxio::color::LightCoral),     //debug,
         vxio::color::ansi(vxio::color::White),          //output,
@@ -121,6 +155,8 @@ void rem::init_text_attr()
         vxio::color::ansi(vxio::color::LightSteelBlue3),//unexpected,
         vxio::color::ansi(vxio::color::LightSteelBlue3),//expected,
         vxio::color::ansi(vxio::color::Reset),          //endl,
+        vxio::color::ansi(vxio::color::Reset),          //begin,
+        vxio::color::ansi(vxio::color::Reset),          //end,
         vxio::color::ansi(vxio::color::White),          //implement,
         vxio::color::ansi(vxio::color::White),          //_file_,
         vxio::color::ansi(vxio::color::LightSteelBlue3),//_function_,
@@ -128,6 +164,15 @@ void rem::init_text_attr()
         vxio::color::ansi(vxio::color::White),          //_line_
     };
 }
+
+/*
+ *
+ *  <div class="nom de la classe"...> contenu </div>
+ *  <span class="nom de la classe"...> contenu </span>
+ *  <i class="icone id-icon">text content</i>
+ *  <script> code javascript </script>
+ */
+
 std::string rem::cc()
 {
     iostr str;
@@ -169,6 +214,7 @@ std::string rem::cc()
         str += s;
         //str << ' ';
     }
+    _text = str;
     return str();
 }
 
@@ -210,3 +256,4 @@ std::string rem::type_text(rem::type t)
     str += rem::types_text[static_cast<int8_t>(t)];
     return str;
 }
+

@@ -297,14 +297,28 @@ struct VXIO_API_DLL color
     
     static std::string ansi(color::type color_name, color::type BG_OR_OOB = color::OOB);
     static std::string html(color::type color_name);
+    static std::string hrgb(color::type color_name);
 };
+
+
+struct color_data
+{
+    vxio::color::type _enum;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    std::string to_string() const ;
+    //uint32_t rgb() const;
+};
+
+
 }
 /*!
  * @brief reassembling io string streams and template types input and output utilities to std::string
  *
  * @author &copy; 2021, Serge Lussier (lussier.serge@gmail.com); oldlonecoder on github.com and youtube
  */
- 
+
 
 namespace vxio{
     struct winbuffer;
@@ -691,7 +705,8 @@ public:
             return *this;
         }
 
-        process_arg([Argument](const iostr::format_t& Fmt) -> std::string {
+/*
+         process_arg([Argument](const iostr::format_t& Fmt) -> std::string {
             if (Fmt.S == 'b')
             {
                 bool pad = Fmt.F == '0';
@@ -706,7 +721,8 @@ public:
             os << Argument;
             return os.str();
         });
-        return *this;
+*/
+        return format(Argument);
     }
 
     template<typename T> iostr& hexadecimal(T & v)
@@ -887,7 +903,7 @@ template<typename T> iostr& iostr::format(const T& _argv)
     fmt.len = c - beg;
     //std::cout << __PRETTY_FUNCTION__ << '\n' << __LINE__ << " _D:\n'" << _D << "':\n";
     std::string ff(_d, _arg_position, fmt.len);
-    //std::cout << "ff(_D, _arg_position, fmt.delta): '" << ff << "'\n";
+    //std::cout << "ff(_d, _arg_position, fmt.len): '" << ff << "'\n";
     // -- Clang-tidy:error: cannot pass object of non-trivial type 'const std::__cxx11::basic_string<char>' through variadic function
     //
     if constexpr (std::is_same<T, const std::string&>::value)
