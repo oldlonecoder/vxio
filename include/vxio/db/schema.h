@@ -29,26 +29,30 @@ namespace sql
 
 class schema
 {
-    
     class table
     {
+        friend class schema;
     public:
         using collection = std::vector<table>;
         //...
         class field
         {
+            friend class table;
+            friend class schema;
             enum type
             {
-                Int,
+                Integer,
                 Varchar,
-                
+                Binary,
+                DateTime
             };
+            
             struct
             {
-                uint8_t i : 1;
-                uint8_t k : 1;
-                uint8_t p : 1;
-                uint8_t f : 1;
+                uint8_t i : 1; ///< Index
+                uint8_t k : 1; ///< Key
+                uint8_t p : 1; ///< Primary
+                uint8_t f : 1; ///< Foreign
             };
             int sz;
             using collection = std::vector<field>;
