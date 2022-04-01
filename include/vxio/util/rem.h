@@ -26,7 +26,7 @@
      </div>
  </code>
  */
-class VXIO_API_DLL rem
+class VXIO_API rem
 {
     iostr _text;
     source::location _src = {};

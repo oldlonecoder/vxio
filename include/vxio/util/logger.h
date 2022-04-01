@@ -11,7 +11,7 @@
 
 
 
-class VXIO_API_DLL logger
+class VXIO_API logger
 {
 	static rem::collection _rems;
 

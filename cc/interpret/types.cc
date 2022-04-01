@@ -137,7 +137,7 @@ std::string name(T T_)
     return Str_;
 }
 
-T VXIO_API_DLL from_str(iostr Str)
+T VXIO_API from_str(iostr Str)
 {
     T types = 0;
     iostr::word::list_t W;
@@ -184,6 +184,7 @@ std::string mnemonic_name(mnemonic M)
                                                   {mnemonic::k_add,                "k_add"},
                                                   {mnemonic::k_sub,                "k_sub"},
                                                   {mnemonic::k_mul,                "k_mul"},
+                                                  {mnemonic::k_indirection,        "k_indirection"},
                                                   {mnemonic::k_comment_cpp,        "k_comment_cpp"},
                                                   {mnemonic::k_modulo,             "k_modulo"},
                                                   {mnemonic::k_less_than,          "k_less_than"},
@@ -271,7 +272,7 @@ std::string mnemonic_name(mnemonic M)
 
 namespace vxio
 {
-mnemonic VXIO_API_DLL lexem::from_str(const std::string &M_)
+mnemonic VXIO_API lexem::from_str(const std::string &M_)
 {
     std::map<mnemonic, std::string> _ = {{mnemonic::k_null,               "k_null"},
                                              {mnemonic::k_left_shift,         "k_left_shift,"},
@@ -298,6 +299,7 @@ mnemonic VXIO_API_DLL lexem::from_str(const std::string &M_)
                                              {mnemonic::k_add,                "k_add"},
                                              {mnemonic::k_sub,                "k_sub"},
                                              {mnemonic::k_mul,                "k_mul"},
+                                             {mnemonic::k_indirection,        "k_indirection"},
                                              {mnemonic::k_comment_cpp,        "k_comment_cpp"},
                                              {mnemonic::k_modulo,             "k_modulo"},
                                              {mnemonic::k_less_than,          "k_less_than"},

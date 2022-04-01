@@ -4,7 +4,7 @@
 
 namespace vxio
 {
-    std::string  VXIO_API_DLL alu::mNil = "";
+    std::string  VXIO_API alu::mNil = "";
 
 #define UCTor(rhs) { T |= vxio::type::number_t|vxio::type::leaf_t; v.d=(rhs); }
 #define SCTor(rhs) { T |= vxio::type::number_t|vxio::type::sign_t|vxio::type::leaf_t;v.d=(rhs); }

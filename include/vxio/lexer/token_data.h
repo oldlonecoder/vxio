@@ -7,7 +7,7 @@
 namespace vxio
 {
 
-class VXIO_API_DLL token_data
+class VXIO_API token_data
 {
 public:
     mnemonic       c = mnemonic::noop_;
@@ -23,7 +23,7 @@ public:
     // ----------------------------------------
     using iterator = collection::iterator;
 
-    struct VXIO_API_DLL  location_data
+    struct VXIO_API  location_data
     {
         const char* begin = nullptr;
         const char* end   = nullptr;
@@ -36,7 +36,7 @@ public:
         std::string position() const;
     }  mLoc;
 
-    struct VXIO_API_DLL Flag
+    struct VXIO_API Flag
     {
         uint8_t V : 1; ///< Pre-parsed as a value Token;
         uint8_t S : 1; ///< Post parsed as assignable

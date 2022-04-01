@@ -24,7 +24,7 @@
 
 namespace vxio
 {
-struct VXIO_API_DLL color
+struct VXIO_API color
 {
     enum type : uint16_t
     {
@@ -324,7 +324,7 @@ namespace vxio{
     struct winbuffer;
 }
 
-class VXIO_API_DLL iostr
+class VXIO_API iostr
 {
     static std::string __nullstr__;
     std::string _d;///< Private/Encapsulated std::string instance.
@@ -393,7 +393,7 @@ public:
 //
 //    friend class geometry;
 public:
-    struct VXIO_API_DLL word
+    struct VXIO_API word
     {
         std::string::const_iterator start;
         std::string::const_iterator E;

@@ -11,7 +11,7 @@ namespace conio
 
 
 
-struct VXIO_API_DLL vchar
+struct VXIO_API vchar
 {
     using type = uint64_t;
     using collection = std::vector<vchar>;
@@ -29,7 +29,7 @@ struct VXIO_API_DLL vchar
 };
 
 
-struct VXIO_API_DLL vdc
+struct VXIO_API vdc
 {
     using backgrid = std::vector<vchar::collection>;
     vdc::backgrid back_buffer;

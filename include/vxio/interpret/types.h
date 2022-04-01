@@ -57,8 +57,8 @@ constexpr T        octal_format_t = 0x080000000000;
 constexpr T        bin_format_t   = 0x100000000000;
 
 
-std::string VXIO_API_DLL name(T T_);
-T    VXIO_API_DLL from_str(iostr);
+std::string VXIO_API name(T T_);
+T    VXIO_API from_str(iostr);
 }
 
 enum class mnemonic : uint16_t
@@ -89,6 +89,7 @@ enum class mnemonic : uint16_t
     k_add,
     k_sub,
     k_mul,
+    k_indirection,
     k_comment_cpp,
     k_modulo,
     k_less_than,
@@ -228,6 +229,7 @@ constexpr T k_not_equal     = "!=";  // != <>
 constexpr T k_addition      = "+";
 constexpr T k_sub           = "-";
 constexpr T k_multiply      = "*";
+constexpr T k_indirection   = "*";
 constexpr T k_comment_cpp   = "//";
 constexpr T k_modulo        = "%";
 constexpr T k_xor           = "><";
@@ -308,10 +310,10 @@ constexpr T k_static        = "static";
 constexpr T k_this          = "me";
 constexpr T k_unshadow      = ".::";
 
-mnemonic VXIO_API_DLL from_str(const std::string &M_);
+mnemonic VXIO_API from_str(const std::string &M_);
 
 }
 
-std::string VXIO_API_DLL mnemonic_name(mnemonic);
+std::string VXIO_API mnemonic_name(mnemonic);
 
 }

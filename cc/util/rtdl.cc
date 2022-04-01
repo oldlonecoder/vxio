@@ -1,6 +1,11 @@
 #include <vxio/util/rtdl.h>
 #include <vxio/util/logger.h>
-#include <unistd.h>
+
+#ifdef _WIN32
+    #include <io.h> 
+#else
+    #include <unistd.h>
+#endif
 
 namespace vxio::dll
 {

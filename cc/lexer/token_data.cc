@@ -52,7 +52,7 @@ std::string token_data::location_data::position() const
     return Str();
 }
 
-token_data VXIO_API_DLL token_data::mNull = token_data();
+token_data VXIO_API token_data::mNull = token_data();
 
 token_data::token_data(mnemonic aCode, vxio::type::T aType, vxio::type::T aSem, vxio::type::distance::T aDelta, lexem::T aLexem, uint8_t V_Flag)
 {

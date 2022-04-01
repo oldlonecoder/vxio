@@ -10,19 +10,19 @@
 #   define _SCL_SECURE_NO_WARNINGS
 
 #   ifdef VXIO_API_DLL_EXPORT
-#       define VXIO_API_DLL __declspec(dllexport)
+#       define VXIO_API __declspec(dllexport)
 #       if __GNUC__ >= 4
-#           define VXIO_API_DLL __attribute__ ((visibility ("default")))
+#           define VXIO_API __attribute__ ((visibility ("default")))
 #           define PRIVATE_LIB  __attribute__ ((visibility ("hidden")))
 //#       else
 //#           define VXIO_API_DLL
 //#           define PRIVATE_LIB
 #       endif
 #   else
-#       define VXIO_API_DLL __declspec(dllimport)
+#       define VXIO_API __declspec(dllimport)
 #   endif
 #   else
-#       define VXIO_API_DLL    // Not ms-Windows/MSVC
+#       define VXIO_API    // Not ms-Windows/MSVC
 #endif
 
 // Mandatory. Globally used where it needs to.

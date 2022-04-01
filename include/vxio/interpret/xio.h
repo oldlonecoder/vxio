@@ -21,6 +21,7 @@
 #include <utility>
 #include <stack>
 #include <map>
+
 #include <vxio/util/expect.h>
 
 
@@ -44,7 +45,7 @@ namespace vxio {
         return rtrem::ok;
     }
 */
-class VXIO_API_DLL xio {
+class VXIO_API xio {
 public:
         
     using collection = std::vector<xio*>;

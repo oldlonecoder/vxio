@@ -6,7 +6,7 @@
 
 namespace vxio
 {
-class VXIO_API_DLL bloc : public xio
+class VXIO_API bloc : public xio
 {
 protected:
     xio::collection variables; ///< reference and local variables.

@@ -3,7 +3,13 @@
 //
 
 #include <vxio/util/iostr.h>
-#include <arpa/inet.h>
+#ifdef _WIN32
+    #include <Winsock2.h> 
+#else
+    #include <arpa/inet.h>
+#endif
+
+
 
 using std::string;
 static vxio::color::format color_format = vxio::color::format::ansi256;

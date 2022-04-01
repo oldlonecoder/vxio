@@ -13,7 +13,7 @@ namespace vxio
 {
 
 
-class VXIO_API_DLL object
+class VXIO_API object
 {
     object* _parent = nullptr;
 public:

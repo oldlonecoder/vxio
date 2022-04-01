@@ -12,7 +12,7 @@
 namespace source
 {
 
-struct VXIO_API_DLL location
+struct VXIO_API location
 {
     std::string func_name;
     std::string filename;

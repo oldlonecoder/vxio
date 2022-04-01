@@ -26,7 +26,7 @@
 
 namespace vxio
 {
-class VXIO_API_DLL interpret : public bloc
+class VXIO_API interpret : public bloc
 {
     vxu* _main = nullptr;
     

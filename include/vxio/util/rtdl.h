@@ -32,7 +32,7 @@ namespace vxio::dll
 {
 
 
-class VXIO_API_DLL rtdl : public object
+class VXIO_API rtdl : public object
 {
     DECLOBJ_ID
     std::string _id;
@@ -67,7 +67,7 @@ public:
 
 
 
-class VXIO_API_DLL dll_file  final : public object
+class VXIO_API dll_file  final : public object
 {
     HINSTANCE _Handle = nullptr;
     std::string _id;

@@ -30,7 +30,7 @@
 
 namespace vxio
 {
-class VXIO_API_DLL vxu : public bloc
+class VXIO_API vxu : public bloc
 {
     std::string  _fname; ///< .../filename.vxunit
     std::string  _id;    ///< .../{filename}.vxunit
@@ -38,7 +38,7 @@ class VXIO_API_DLL vxu : public bloc
     token_data::collection _tokens;
     lexer              _lexer;
 public:
-    struct VXIO_API_DLL config
+    struct VXIO_API config
     {
         std::string  filename; ///< .../filename.vxunit
         const char*  source;

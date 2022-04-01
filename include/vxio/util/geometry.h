@@ -9,7 +9,7 @@
 
 namespace vxio
 {
-struct VXIO_API_DLL vxy
+struct VXIO_API vxy
 {
     using collection = std::vector<vxy>;
     using iterator = collection::iterator;
@@ -134,7 +134,7 @@ struct VXIO_API_DLL vxy
 };
 
 
-struct VXIO_API_DLL size
+struct VXIO_API size
 {
     vxy min = {1,1};
     vxy max = {-1,-1};
@@ -154,7 +154,7 @@ struct VXIO_API_DLL size
 
 
 
-struct VXIO_API_DLL rectangle final
+struct VXIO_API rectangle final
 {
 
     vxy a;
@@ -362,7 +362,7 @@ struct VXIO_API_DLL rectangle final
 
 };
 
-struct VXIO_API_DLL winbuffer
+struct VXIO_API winbuffer
 {
     iostr* bmap = nullptr;
     vxy cxy;

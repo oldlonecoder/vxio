@@ -623,6 +623,7 @@ rem::code lexer::scan_sign_prefix(token_data &atoken)
  */
 rem::code lexer::scan_prefix(token_data &atoken)
 {
+
     return Push(atoken);
 }
 

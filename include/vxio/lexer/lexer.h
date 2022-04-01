@@ -17,7 +17,7 @@ namespace vxio
  *
  * @note Re-write of my lexical scanners; offset shall dissociate lexer from Lsc::String and only use std::string.
  */
-class VXIO_API_DLL lexer
+class VXIO_API lexer
 {
     struct internal_cursor
     {
@@ -77,7 +77,7 @@ class VXIO_API_DLL lexer
     };
 
 public:
-    struct VXIO_API_DLL config_data
+    struct VXIO_API config_data
     {
         const char *Source  = nullptr;
         token_data::collection *Tokens = nullptr;

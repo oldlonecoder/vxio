@@ -18,7 +18,7 @@ namespace vxio
      *
      */
 
-struct VXIO_API_DLL alu
+struct VXIO_API alu
 {
     using collection = std::vector<alu>;
     using linkarray = std::vector<alu*>;

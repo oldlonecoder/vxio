@@ -27,24 +27,25 @@
 namespace sql
 {
 
-class schema
+class VXIO_API schema
 {
-    class table
+    class VXIO_API table
     {
         friend class schema;
     public:
         using collection = std::vector<table>;
         //...
-        class field
+        class VXIO_API field
         {
             friend class table;
             friend class schema;
-            enum type
+        public:
+            struct type
             {
-                Integer,
-                Varchar,
-                Binary,
-                DateTime
+                uint8_t Integer : 1;
+                uint8_t Varchar : 1;
+                uint8_t Binary : 1;
+                uint8_t DateTime : 1;
             };
             
             struct
@@ -53,14 +54,26 @@ class schema
                 uint8_t k : 1; ///< Key
                 uint8_t p : 1; ///< Primary
                 uint8_t f : 1; ///< Foreign
+                uint8_t c : 4; ///< unused/reserved;
             };
-            int sz;
+            
+
             using collection = std::vector<field>;
+
+            field() = default;
+            ~field();
+
+            field(const std::string& name_, const std::string& parent_table_name_, schema::table::field::type ftype_, uint8_t index_bits = 0);
+            field(const std::string& name_, const std::string& parent_table_name_, schema::table::field::type ftype_, const std::string& fkey_name_);
+
         };
         
     private:
         field::collection _fields;
-        
+        int sz;
+        uint8_t index_bits = 0;
+        field::type _type = { 1,0,0,0 };
+
     };
     
     table::collection _tables;

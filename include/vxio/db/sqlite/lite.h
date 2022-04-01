@@ -1,14 +1,19 @@
 #pragma once
-#include <sqlite3.h>
+#include <vxio/db/sqlite/sqlite3.h>
 #include "vxio/util/logger.h"
+#ifdef _WIN32
+    #include <io.h> 
+#else
 #include <unistd.h>
+#endif
+
 
 namespace sql {
 
 /**
  * @todo write docs
  */
-class lite
+class VXIO_API lite
 {
     sqlite3*    _connection = nullptr;
     std::string _dbname;
