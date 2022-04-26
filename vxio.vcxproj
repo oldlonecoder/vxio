@@ -156,6 +156,10 @@
     <ClInclude Include="include\vxio\dll_config.h" />
     <ClInclude Include="include\vxio\interpret\alu.h" />
     <ClInclude Include="include\vxio\interpret\bloc.h" />
+    <ClInclude Include="include\vxio\interpret\compiler\axt.h" />
+    <ClInclude Include="include\vxio\interpret\compiler\context_data.h" />
+    <ClInclude Include="include\vxio\interpret\compiler\grammar.h" />
+    <ClInclude Include="include\vxio\interpret\compiler\parser.h" />
     <ClInclude Include="include\vxio\interpret\interpret.h" />
     <ClInclude Include="include\vxio\interpret\types.h" />
     <ClInclude Include="include\vxio\interpret\vxu.h" />
