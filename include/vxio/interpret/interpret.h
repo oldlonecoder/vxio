@@ -26,6 +26,11 @@
 
 namespace vxio
 {
+    
+/*!
+  @note Restructure interpret with context - and - the parsers within the interpret class so move context_t to interpreet and remove the parser class files.
+*/
+    
 class VXIO_API interpret : public bloc
 {
     vxu* _main = nullptr;
