@@ -34,7 +34,47 @@ namespace vxio
 class VXIO_API interpret : public bloc
 {
     vxu* _main = nullptr;
+    struct context_data
+    {
+        bloc* blk = nullptr;
+        token_data::cache   tokens_cache;
+        token_data::pointer token_ptr;
+        token_data::iterator   cursor,head;
+        token_data::collection* tokens = nullptr;
+        const grammar::rule* r = nullptr;
+        xio::collection xio_cache;  ///<  Sous reserve;
+        xio* instruction = nullptr;
+
+
+        context_data() = default;
+        context_data(context_data&&) noexcept;
+        context_data(const context_data&);
+        
+        bool operator++();
+        bool operator++(int);
+        
+        bool operator--();
+        bool operator--(int);
+        
+        [[nodiscard]] bool end(token_data::iterator it) const;
+        [[nodiscard]] bool end() const;
+        
+        interpret::context_data& operator=(interpret::context_data&&)noexcept;
+        interpret::context_data& operator=(const interpret::context_data&);
+        void sync(const parser::context& rhs);
+        token_data::pointer begin_cache();
+        std::string status();
+        std::string cache();
+        inline void clear_cache() { tokens_cache.clear(); }
+        static int push(const interpret::context_data& ctx);
+        static int pop(interpret::context_data& ctx, bool synchronise = false);
+        context_data& operator << (token_data::iterator it);
+        static std::stack<interpret::context_data> stack;
+        void restart_sequence();
+    };
     
+protected:
+    context_data ctx;
 public:
     interpret() = default;
     ~interpret() override;
